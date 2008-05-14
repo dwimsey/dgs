@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://ImageProcessor/" targetNamespace="http://ImageProcessor/" version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="DGSProcessingException" type="tns:DGSProcessingException" />
+  <xs:element name="ProcessImage" type="tns:ProcessImage" />
+  <xs:element name="ProcessImageResponse" type="tns:ProcessImageResponse" />
+  <xs:complexType name="ProcessImage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="RequestInfo" type="tns:dgsRequestInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dgsRequestInfo">
+    <xs:sequence>
+      <xs:element name="continueOnError" type="xs:boolean" />
+      <xs:element minOccurs="0" name="instructionsXML" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="files" nillable="true" type="tns:dgsFileInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dgsFileInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="name" type="xs:string" />
+      <xs:element minOccurs="0" name="mimeType" type="xs:string" />
+      <xs:element minOccurs="0" name="data" type="xs:base64Binary" />
+      <xs:element name="width" type="xs:int" />
+      <xs:element name="height" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ProcessImageResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:dgsResponseInfo" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dgsResponseInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="resultFiles" nillable="true" type="tns:dgsFileInfo" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="processingLog" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DGSProcessingException">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="message" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
