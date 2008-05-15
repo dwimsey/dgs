@@ -262,12 +262,13 @@ public class DGSPreviewerView extends FrameView {
         dgsRequestInfo.continueOnError = true;
         dgsRequestInfo.files = new DGSFileInfo[1];
         dgsRequestInfo.files[0] = new DGSFileInfo();
-        dgsRequestInfo.files[0].name = "template.svg";
+        dgsRequestInfo.files[0].name = "input.svg";
         dgsRequestInfo.files[0].mimeType = "image/svg+xml";
         dgsRequestInfo.files[0].data = fDat;
         dgsRequestInfo.files[0].width = -1;
         dgsRequestInfo.files[0].height = -1;
-        dgsRequestInfo.instructionsXML = "<commands><load filename=\"template.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
+        dgsRequestInfo.variables = loadVariables();
+        dgsRequestInfo.instructionsXML = "<commands><load filename=\"input.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><substituteVariables buffer=\"main\"/><save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
         
         ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
         setStatusMessage("Performing DGS Request ...");
@@ -304,6 +305,14 @@ public class DGSPreviewerView extends FrameView {
         i = fs.read(fDat);
         fs.close();
         return(fDat);
+    }
+
+    private DGSVariable[] loadVariables()
+    {
+        DGSVariable vars[] = new DGSVariable[2];
+        vars[0] = new DGSVariable("User:Email", "user@example.com");
+        vars[1] = new DGSVariable("User:DisplayName", "Example User");
+        return(vars);
     }
 
     private void setStatusMessage(String message)

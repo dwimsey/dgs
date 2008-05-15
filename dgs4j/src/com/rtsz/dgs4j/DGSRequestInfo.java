@@ -13,4 +13,5 @@ public class DGSRequestInfo {
     public boolean continueOnError = false;
     public String instructionsXML;
     public DGSFileInfo files[];
+    public ImageProcessor.DGSVariable variables[];
 }
