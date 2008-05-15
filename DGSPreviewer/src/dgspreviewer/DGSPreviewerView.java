@@ -17,52 +17,28 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JFileChooser;
 
-import org.apache.batik.swing.JSVGCanvas;
-import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
-import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
-import org.apache.batik.swing.svg.SVGDocumentLoaderAdapter;
-import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
-import org.apache.batik.swing.svg.GVTTreeBuilderAdapter;
-import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import javax.imageio.ImageIO;
+
+import ImageProcessor.*;
+import ImageProcessor.ProcessingEngine.*;
 
 /**
  * The application's main frame.
  */
 public class DGSPreviewerView extends FrameView {
 
+    private String lastLoadedFileName;
+    private static ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
+
     public DGSPreviewerView(SingleFrameApplication app) {
         super(app);
+        pEngine = new ImageProcessor.ProcessingEngine.ProcessingEngine();
+        lastLoadedFileName = null;
 
         initComponents();
-
-        // Set the JSVGCanvas listeners.
-        svgCanvas.addSVGDocumentLoaderListener(new SVGDocumentLoaderAdapter() {
-            public void documentLoadingStarted(SVGDocumentLoaderEvent e) {
-                statusMessageLabel.setText("Document Loading...");
-            }
-            public void documentLoadingCompleted(SVGDocumentLoaderEvent e) {
-                statusMessageLabel.setText("Document Loaded.");
-            }
-        });
-
-        svgCanvas.addGVTTreeBuilderListener(new GVTTreeBuilderAdapter() {
-            public void gvtBuildStarted(GVTTreeBuilderEvent e) {
-                statusMessageLabel.setText("Build Started...");
-            }
-            public void gvtBuildCompleted(GVTTreeBuilderEvent e) {
-                statusMessageLabel.setText("Build Done.");
-                //frame.pack();
-            }
-        });
-
-        svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
-            public void gvtRenderingPrepare(GVTTreeRendererEvent e) {
-                statusMessageLabel.setText("Rendering Started...");
-            }
-            public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
-                statusMessageLabel.setText("");
-            }
-        });
 
         // status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
@@ -138,9 +114,7 @@ public class DGSPreviewerView extends FrameView {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        mainPanel = new javax.swing.JPanel();
-        svgUserAgent = new DGSSVGUserAgent();
-        svgCanvas = new org.apache.batik.swing.JSVGCanvas(svgUserAgent, false, false);
+        mainPanel = new DGSPreviewerPanel();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
@@ -157,21 +131,15 @@ public class DGSPreviewerView extends FrameView {
 
         mainPanel.setName("mainPanel"); // NOI18N
 
-        svgCanvas.setName("svgCanvas"); // NOI18N
-
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 400, Short.MAX_VALUE)
-            .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(svgCanvas, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE))
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 249, Short.MAX_VALUE)
-            .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(svgCanvas, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE))
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -182,15 +150,10 @@ public class DGSPreviewerView extends FrameView {
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(dgspreviewer.DGSPreviewerApp.class).getContext().getActionMap(DGSPreviewerView.class, this);
         openMenuItem.setAction(actionMap.get("loadFile")); // NOI18N
-        openMenuItem.setMnemonic('O');
-        openMenuItem.setToolTipText(resourceMap.getString("openMenuItem.toolTipText")); // NOI18N
-        openMenuItem.setLabel(resourceMap.getString("openMenuItem.label")); // NOI18N
         openMenuItem.setName("openMenuItem"); // NOI18N
         fileMenu.add(openMenuItem);
 
         refreshMenuItem.setAction(actionMap.get("refreshImage")); // NOI18N
-        refreshMenuItem.setMnemonic('R');
-        refreshMenuItem.setText(resourceMap.getString("jMenuItemRefresh.text")); // NOI18N
         refreshMenuItem.setName("jMenuItemRefresh"); // NOI18N
         fileMenu.add(refreshMenuItem);
 
@@ -256,29 +219,102 @@ public class DGSPreviewerView extends FrameView {
 
     @Action
     public void loadFile() {
-        JFileChooser fc = new JFileChooser(".");
+        JFileChooser fc = new JFileChooser("../examples");
         int choice = fc.showOpenDialog(mainPanel);
         if (choice == JFileChooser.APPROVE_OPTION) {
             java.io.File f = fc.getSelectedFile();
-            try {
-                svgCanvas.setURI(f.toURL().toString());
-            } catch (java.io.IOException ex) {
-                ex.printStackTrace();
-            }
+            lastLoadedFileName = f.getPath();
+            loadImageFile(lastLoadedFileName);
         }
     }
 
     @Action
     public void refreshImage() {
-        String cf = svgCanvas.getURI();
-        if((cf != null) && (cf.length() > 0)) {
-            svgCanvas.setURI(cf);
+        if(lastLoadedFileName != null) {
+            loadImageFile(lastLoadedFileName);
         }
+    }
+
+    private void loadImageFile(String fileName)
+    {
+        
+        mainPanel.image = null;
+        mainPanel.invalidate();
+        mainPanel.repaint();
+
+        setStatusMessage("Reading image file: " + fileName);
+        byte fDat[] = null;
+        try {
+            fDat = fileToBytes(fileName);
+        } catch (FileNotFoundException fex) {
+            setStatusMessage("Could not find the specified file: " + fileName);
+        } catch (IOException iex) {
+            setStatusMessage("Could not read the specified file: " + fileName + " Error: " + iex.getMessage());
+        }
+        if(fDat == null || fDat.length == 0) {
+            return;
+        }
+
+        String outputMimeType = "image/png";
+
+        setStatusMessage("Forming DGS Request ...");
+        DGSRequestInfo dgsRequestInfo = new DGSRequestInfo();
+        dgsRequestInfo.continueOnError = true;
+        dgsRequestInfo.files = new DGSFileInfo[1];
+        dgsRequestInfo.files[0] = new DGSFileInfo();
+        dgsRequestInfo.files[0].name = "template.svg";
+        dgsRequestInfo.files[0].mimeType = "image/svg+xml";
+        dgsRequestInfo.files[0].data = fDat;
+        dgsRequestInfo.files[0].width = -1;
+        dgsRequestInfo.files[0].height = -1;
+        dgsRequestInfo.instructionsXML = "<commands><load filename=\"template.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
+        
+        ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
+        setStatusMessage("Performing DGS Request ...");
+        DGSResponseInfo dgsResponseInfo = pEngine.processCommandString(workspace);
+        setStatusMessage("DGS Request completed.");
+        if(dgsResponseInfo.resultFiles.length == 0) {
+            String plog[] = new String[dgsResponseInfo.processingLog.length];
+            for(int i = 0; i<dgsResponseInfo.processingLog.length; i++) {
+                plog[i] = dgsResponseInfo.processingLog[i];
+            }
+            javax.swing.JOptionPane.showMessageDialog(mainPanel, plog);
+            setStatusMessage("No image files were returned by the processing engine, this generally indicates an error in the input file: " + fileName);
+            return;
+        }
+
+        setStatusMessage("Updating display with new image ...");
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(new java.io.ByteArrayInputStream((byte[])dgsResponseInfo.resultFiles[0].data));
+        } catch (IOException ie) {
+            setStatusMessage("Error processing output image: " + ie.getMessage());
+        }
+        mainPanel.image = image;
+        this.mainPanel.repaint();
+    }
+    
+    private byte[] fileToBytes(String fileName) throws FileNotFoundException, IOException
+    {
+        byte fDat[] = new byte[0];
+
+        FileInputStream fs = new FileInputStream(fileName);
+        int i = fs.available();
+        fDat = new byte[i];
+        i = fs.read(fDat);
+        fs.close();
+        return(fDat);
+    }
+
+    private void setStatusMessage(String message)
+    {
+        statusMessageLabel.setText(message);
+        statusMessageLabel.repaint();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JPanel mainPanel;
+    private DGSPreviewerPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem openMenuItem;
     private javax.swing.JProgressBar progressBar;
@@ -286,10 +322,8 @@ public class DGSPreviewerView extends FrameView {
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
-    private org.apache.batik.swing.JSVGCanvas svgCanvas;
     // End of variables declaration//GEN-END:variables
 
-    private DGSSVGUserAgent svgUserAgent;
     private final Timer messageTimer;
     private final Timer busyIconTimer;
     private final Icon idleIcon;
