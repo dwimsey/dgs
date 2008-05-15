@@ -222,11 +222,20 @@ public class ProcessingEngine {
                 if(cmd != null) {
                     workspace.log("Processing command: " + curNodeName);
                     switchToPluginSecurity();
-                    cmd.process(workspace, curNode);
+                    boolean rval = cmd.process(workspace, curNode);
                     switchToStandardSecurity();
+                    if(!rval) {
+                        if(!workspace.requestInfo.continueOnError) {
+                            workspace.log("Processing halted due to an error: " + curNodeName);
+                            break;
+                        } else {
+                            workspace.log("Processing of command skipped because of an error: " + curNodeName);
+                            continue;
+                        }
+                    }
                 } else {
                     if(!workspace.requestInfo.continueOnError) {
-                        workspace.log("Processing halted due to a missing command error.");
+                        workspace.log("Processing halted due to a missing command error: " + curNodeName);
                         break;
                     } else {
                         workspace.log("Processing of command skipped because it does not exist: " + curNodeName);
