@@ -26,6 +26,7 @@ public class CommandEngine implements ICommandEngine {
 
     public void addCommands(ProcessingEngine pEngine)
     {
+        pEngine.addCommandInstruction("substituteVariables", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.substituteVariables());
     }
     
     private String getAttributeValue(NamedNodeMap attributes, String aName)
