@@ -43,15 +43,7 @@ namespace DGSTestInterface
 			if(fd.ShowDialog() == DialogResult.OK) {
 				tb_InputFile.Text = fd.FileName;
 				UpdateOutputFilename();
-/*				if((tb_InputFile.Text.Length > 0)) {
-					if(tb_InputFile.Text.EndsWith(".svg")) {
-						tb_OutputFile.Text = tb_InputFile.Text.Remove(tb_InputFile.Text.Length - 4, 4);
-					} else {
-						tb_OutputFile.Text = tb_InputFile.Text;
-					}
-					tb_OutputFile.Text += getImageTypeExtension();
-				}
-*/			}
+			}
 		}
 
 		private void btn_ProcessImages_Click(object sender, EventArgs e)
@@ -68,7 +60,7 @@ namespace DGSTestInterface
 			requestInfo.continueOnError = false;
 			requestInfo.files = new dgsFileInfo[1];
 			requestInfo.files[0] = new dgsFileInfo();
-			requestInfo.files[0].mimeType = "image/svg+xml";	//"image/png";
+			requestInfo.files[0].mimeType = "image/svg+xml";
 			requestInfo.files[0].name = "test.svg";
 			requestInfo.files[0].width = 0;
 			requestInfo.files[0].height = 0;
@@ -144,7 +136,6 @@ namespace DGSTestInterface
 
 		private void UpdateOutputFilename()
 		{
-			//tb_OutputFile.Text += getImageTypeExtension();
 			int offset;
 			string of = null;
 			if(tb_InputFile.Text != null && tb_InputFile.Text.Length > 0) {
