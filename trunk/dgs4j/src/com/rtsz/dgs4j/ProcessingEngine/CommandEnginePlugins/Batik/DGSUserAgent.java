@@ -49,7 +49,9 @@ public class DGSUserAgent implements UserAgent {
         if(!scriptURL.getProtocol().equals("data")) {
             throw new SecurityException("Only embedded scripts are allowed.");
         }
-        ua.checkLoadScript(scriptType, scriptURL, docURL);
+        
+        throw new SecurityException("Scripts are not allowed in this context.");
+//        ua.checkLoadScript(scriptType, scriptURL, docURL);
     }
 
     public void deselectAll()
