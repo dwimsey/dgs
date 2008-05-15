@@ -71,17 +71,17 @@ public class CommandEngine implements ICommandEngine {
         }
         if(mimeType.equals("image/png")) {
             extension = ".png";
-            t = new DGSPNGTranscoder();
+            t = new DGSPNGTranscoder(workspace);
         } else if(mimeType.equals("image/jpeg")) {
             extension = ".jpg";
-            t = new DGSJPEGTranscoder();
+            t = new DGSJPEGTranscoder(workspace);
 //            t.addTranscodingHint(DGSJPEGTranscoder.KEY_QUALITY, new Float(100));
         } else if(mimeType.equals("image/tiff")) {
             extension = ".tif";
-            t = new DGSTIFFTranscoder();
+            t = new DGSTIFFTranscoder(workspace);
         } else if(mimeType.equals("application/pdf")) {
             extension = ".pdf";
-            t = new DGSPDFTranscoder();
+            t = new DGSPDFTranscoder(workspace);
         } else {
             return(false);
         }

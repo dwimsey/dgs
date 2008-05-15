@@ -15,27 +15,46 @@ import org.apache.batik.gvt.text.*;
 import java.awt.*;
 import java.awt.geom.*;
 
+import java.util.*;
+
 /**
  *
  * @author dwimsey
  */
 public class DGSUserAgent implements UserAgent {
     private UserAgent ua;
-    public DGSUserAgent(UserAgent oldAgent)
+    private ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace;
+
+    public DGSUserAgent(UserAgent oldAgent, ImageProcessor.ProcessingEngine.ProcessingWorkspace cWorkspace)
     {
-        
         if(oldAgent==null) {
             throw new java.lang.NullPointerException("oldAgent can not be null when creating a new DGSUserAgent");
         }
+        if(cWorkspace==null) {
+            throw new java.lang.NullPointerException("cWorkspace can not be null when creating a new DGSUserAgent");
+        }
         ua = oldAgent;
+        workspace = cWorkspace;
     }
     
     public void checkLoadExternalResource(ParsedURL resourceURL, ParsedURL docURL) throws SecurityException
     {
-        if(resourceURL==null || resourceURL.getProtocol() == null) {
-            throw new SecurityException("Only embedded resource links are allowed.  The following link could not be identified as an embedded URL: " + resourceURL.toString());
+        if(resourceURL == null) {
+            throw new SecurityException("NULL resource URLs can not be handled at this time.");
         }
-        if(!resourceURL.getProtocol().equals("data")) {
+
+        String rProto = "";
+        if(resourceURL.getProtocol() == null) {
+            if(docURL.getProtocol() == null) {
+                throw new SecurityException("Could not determine the protocol used to reference this external resource.  Document URL: " + docURL.toString() + " Resource URL: " + resourceURL.toString());
+            } else {
+                rProto = docURL.getProtocol();
+            }
+        } else {
+            rProto = resourceURL.getProtocol();
+        }
+
+        if(!rProto.equals("data")) {
             throw new SecurityException("Only embedded resource links are allowed.");
         }
         ua.checkLoadExternalResource(resourceURL, docURL);
@@ -43,11 +62,23 @@ public class DGSUserAgent implements UserAgent {
 
     public void checkLoadScript(String scriptType, ParsedURL scriptURL, ParsedURL docURL) throws SecurityException
     {
-        if(scriptURL==null || scriptURL.getProtocol() == null) {
-            throw new SecurityException("Only embedded scripts are allowed.  The following link could not be identified as an embedded URL: " + scriptURL.toString());
+        if(scriptURL == null) {
+            throw new SecurityException("NULL script resource URLs can not be handled at this time.");
         }
-        if(!scriptURL.getProtocol().equals("data")) {
-            throw new SecurityException("Only embedded scripts are allowed.");
+
+        String rProto = "";
+        if(scriptURL.getProtocol() == null) {
+            if(docURL.getProtocol() == null) {
+                throw new SecurityException("Could not determine the protocol used to reference this script resource.  Document URL: " + docURL.toString() + " Script URL: " + scriptURL.toString());
+            } else {
+                rProto = docURL.getProtocol();
+            }
+        } else {
+            rProto = scriptURL.getProtocol();
+        }
+
+        if(!rProto.equals("data")) {
+            throw new SecurityException("Only embedded script resources are allowed.");
         }
         
         throw new SecurityException("Scripts are not allowed in this context.");
@@ -61,12 +92,14 @@ public class DGSUserAgent implements UserAgent {
 
     public void displayError(Exception ex)
     {
-        ua.displayError(ex);
+        workspace.log("Processing Error: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+        //ua.displayError(ex);
     }
 
     public void displayMessage(String message)
     {
-        ua.displayMessage(message);
+        workspace.log(message);
+        //ua.displayMessage(message);
     }
 
     public String getAlternateStyleSheet()
