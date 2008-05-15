@@ -39,6 +39,16 @@ public class ProcessingCommand {
     
     public boolean process(ProcessingWorkspace workspace, Node commandNode)
     {
-        return(true);
+        if(instructions.size() ==0) {
+            workspace.log("Command does not have any command processors installed.  Command: " + this.commandName);
+            return(false);
+        }
+        for(int i = 0; i<instructions.size(); i++) {
+            if(instructions.get(i).process(workspace, commandNode)) {
+                return(true);
+            }
+        }
+        workspace.log("Command was not completed by any of the installed command processors.  Command: " + this.commandName);
+        return(false);
     }
 }
