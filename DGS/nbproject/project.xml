@@ -49,10 +49,6 @@
                     <file>${file.reference.batik-svg-dom.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
-                    <file>${file.reference.xml-apis.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
                 <library files="1">
                     <file>${file.reference.batik-ext.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
