@@ -34,15 +34,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
  */
 public class DGSPreviewerView extends FrameView {
 
+    private Options options;
     private String lastLoadedFileName;
     private static ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
 
     public DGSPreviewerView(SingleFrameApplication app) {
         super(app);
+        options = new Options();
         pEngine = new ImageProcessor.ProcessingEngine.ProcessingEngine();
         lastLoadedFileName = null;
 
         initComponents();
+        imagePanel.options = options;
 
         // status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
