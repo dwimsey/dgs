@@ -58,6 +58,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
         for(int i = 0; i < workspace.requestInfo.variables.length; i++) {
             oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[i].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[i].data));
         }
+        oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{{"), java.util.regex.Matcher.quoteReplacement("{"));
         try {
             iBuffer.data = oStr.getBytes("UTF-8");
         } catch (Exception ex) {
