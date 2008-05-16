@@ -84,7 +84,7 @@ namespace DGSTestInterface
 					outputMimeType = "application/pdf";
 					break;
 			}
-			requestInfo.instructionsXML = "<commands><load filename=\"test.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><save snapshotTime=\"1.0\" filename=\"test.gif\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
+			requestInfo.instructionsXML = "<commands><load filename=\"test.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><substituteVariables buffer=\"main\" /><save snapshotTime=\"1.0\" filename=\"test.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
 			requestInfo.variables = LoadVariablesFile(tb_VariablesFile.Text);
 			DGS.dgsResponseInfo responseInfo = null;
 			tb_ProcessingLog.Text += "Issuing SOAP request ...\r\n";
