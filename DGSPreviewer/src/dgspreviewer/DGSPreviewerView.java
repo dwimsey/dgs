@@ -25,6 +25,10 @@ import javax.imageio.ImageIO;
 import ImageProcessor.*;
 import ImageProcessor.ProcessingEngine.*;
 
+import org.w3c.dom.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 /**
  * The application's main frame.
  */
@@ -267,7 +271,7 @@ public class DGSPreviewerView extends FrameView {
         dgsRequestInfo.files[0].data = fDat;
         dgsRequestInfo.files[0].width = -1;
         dgsRequestInfo.files[0].height = -1;
-        dgsRequestInfo.variables = loadVariables();
+        dgsRequestInfo.variables = loadVariables("../examples/userVars.xml");
         dgsRequestInfo.instructionsXML = "<commands><load filename=\"input.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><substituteVariables buffer=\"main\"/><save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
         
         ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
@@ -307,11 +311,46 @@ public class DGSPreviewerView extends FrameView {
         return(fDat);
     }
 
-    private DGSVariable[] loadVariables()
+    private DGSVariable[] loadVariables(String varFileName)
     {
-        DGSVariable vars[] = new DGSVariable[2];
-        vars[0] = new DGSVariable("User:Email", "user@example.com");
-        vars[1] = new DGSVariable("User:DisplayName", "Example User");
+        DGSVariable vars[] = null;
+        File file = null;
+        DocumentBuilderFactory dbf = null;
+        DocumentBuilder db = null;
+        Document doc = null;
+        try {
+            file = new File(varFileName);
+            dbf = DocumentBuilderFactory.newInstance();
+            db = dbf.newDocumentBuilder();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return(null);
+        }
+        try {
+            doc = db.parse(file);
+            doc.getDocumentElement().normalize();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return(null);
+        }
+        try {
+//            System.out.println("Root element " + doc.getDocumentElement().getNodeName());
+            NodeList nodeLst = doc.getElementsByTagName("DGSVariable");
+
+            int nLen = nodeLst.getLength();
+            vars = new DGSVariable[nLen];
+            for (int s = 0; s < nLen; s++) {
+                Node fstNode = nodeLst.item(s);
+                if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
+                    NamedNodeMap aMap = fstNode.getAttributes();
+                    vars[s] = new DGSVariable(aMap.getNamedItem("name").getNodeValue(), aMap.getNamedItem("value").getNodeValue());
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return(null);
+        }
+
         return(vars);
     }
 
