@@ -28,6 +28,9 @@
 		private void InitializeComponent()
 		{
 			this.gb_ImageFiles = new System.Windows.Forms.GroupBox();
+			this.btn_VariablesFile = new System.Windows.Forms.Button();
+			this.tb_VariablesFile = new System.Windows.Forms.TextBox();
+			this.label_VariablesFile = new System.Windows.Forms.Label();
 			this.btn_OutputFile = new System.Windows.Forms.Button();
 			this.tb_OutputFile = new System.Windows.Forms.TextBox();
 			this.label_OutputFile = new System.Windows.Forms.Label();
@@ -35,10 +38,10 @@
 			this.tb_InputFile = new System.Windows.Forms.TextBox();
 			this.label_InputFile = new System.Windows.Forms.Label();
 			this.gb_Options = new System.Windows.Forms.GroupBox();
+			this.cb_ImageFormat = new System.Windows.Forms.ComboBox();
 			this.btn_ProcessImages = new System.Windows.Forms.Button();
 			this.gb_ProcessingLog = new System.Windows.Forms.GroupBox();
 			this.tb_ProcessingLog = new System.Windows.Forms.TextBox();
-			this.cb_ImageFormat = new System.Windows.Forms.ComboBox();
 			this.gb_ImageFiles.SuspendLayout();
 			this.gb_Options.SuspendLayout();
 			this.gb_ProcessingLog.SuspendLayout();
@@ -48,6 +51,9 @@
 			// 
 			this.gb_ImageFiles.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
+			this.gb_ImageFiles.Controls.Add(this.btn_VariablesFile);
+			this.gb_ImageFiles.Controls.Add(this.tb_VariablesFile);
+			this.gb_ImageFiles.Controls.Add(this.label_VariablesFile);
 			this.gb_ImageFiles.Controls.Add(this.btn_OutputFile);
 			this.gb_ImageFiles.Controls.Add(this.tb_OutputFile);
 			this.gb_ImageFiles.Controls.Add(this.label_OutputFile);
@@ -56,33 +62,59 @@
 			this.gb_ImageFiles.Controls.Add(this.label_InputFile);
 			this.gb_ImageFiles.Location = new System.Drawing.Point(12, 12);
 			this.gb_ImageFiles.Name = "gb_ImageFiles";
-			this.gb_ImageFiles.Size = new System.Drawing.Size(705, 70);
+			this.gb_ImageFiles.Size = new System.Drawing.Size(705, 97);
 			this.gb_ImageFiles.TabIndex = 0;
 			this.gb_ImageFiles.TabStop = false;
 			this.gb_ImageFiles.Text = "Image Files";
 			// 
+			// btn_VariablesFile
+			// 
+			this.btn_VariablesFile.Location = new System.Drawing.Point(675, 38);
+			this.btn_VariablesFile.Name = "btn_VariablesFile";
+			this.btn_VariablesFile.Size = new System.Drawing.Size(24, 21);
+			this.btn_VariablesFile.TabIndex = 4;
+			this.btn_VariablesFile.Text = "...";
+			this.btn_VariablesFile.UseVisualStyleBackColor = true;
+			// 
+			// tb_VariablesFile
+			// 
+			this.tb_VariablesFile.Location = new System.Drawing.Point(84, 39);
+			this.tb_VariablesFile.Name = "tb_VariablesFile";
+			this.tb_VariablesFile.Size = new System.Drawing.Size(585, 20);
+			this.tb_VariablesFile.TabIndex = 3;
+			this.tb_VariablesFile.Text = "../../../../examples/userVars.xml";
+			// 
+			// label_VariablesFile
+			// 
+			this.label_VariablesFile.AutoSize = true;
+			this.label_VariablesFile.Location = new System.Drawing.Point(6, 42);
+			this.label_VariablesFile.Name = "label_VariablesFile";
+			this.label_VariablesFile.Size = new System.Drawing.Size(72, 13);
+			this.label_VariablesFile.TabIndex = 6;
+			this.label_VariablesFile.Text = "Variables File:";
+			// 
 			// btn_OutputFile
 			// 
 			this.btn_OutputFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btn_OutputFile.Location = new System.Drawing.Point(675, 37);
+			this.btn_OutputFile.Location = new System.Drawing.Point(675, 63);
 			this.btn_OutputFile.Name = "btn_OutputFile";
 			this.btn_OutputFile.Size = new System.Drawing.Size(24, 23);
-			this.btn_OutputFile.TabIndex = 5;
+			this.btn_OutputFile.TabIndex = 6;
 			this.btn_OutputFile.Text = "...";
 			this.btn_OutputFile.UseVisualStyleBackColor = true;
 			// 
 			// tb_OutputFile
 			// 
-			this.tb_OutputFile.Location = new System.Drawing.Point(73, 39);
+			this.tb_OutputFile.Location = new System.Drawing.Point(84, 65);
 			this.tb_OutputFile.Name = "tb_OutputFile";
-			this.tb_OutputFile.Size = new System.Drawing.Size(376, 20);
-			this.tb_OutputFile.TabIndex = 4;
+			this.tb_OutputFile.Size = new System.Drawing.Size(585, 20);
+			this.tb_OutputFile.TabIndex = 5;
 			this.tb_OutputFile.Text = "../../../../test.png";
 			// 
 			// label_OutputFile
 			// 
 			this.label_OutputFile.AutoSize = true;
-			this.label_OutputFile.Location = new System.Drawing.Point(6, 42);
+			this.label_OutputFile.Location = new System.Drawing.Point(17, 68);
 			this.label_OutputFile.Name = "label_OutputFile";
 			this.label_OutputFile.Size = new System.Drawing.Size(61, 13);
 			this.label_OutputFile.TabIndex = 3;
@@ -97,6 +129,7 @@
 			this.btn_InputFile.Size = new System.Drawing.Size(24, 23);
 			this.btn_InputFile.TabIndex = 2;
 			this.btn_InputFile.Text = "...";
+			this.btn_InputFile.TextAlign = System.Drawing.ContentAlignment.TopCenter;
 			this.btn_InputFile.UseVisualStyleBackColor = true;
 			this.btn_InputFile.Click += new System.EventHandler(this.btn_InputFile_Click);
 			// 
@@ -104,16 +137,16 @@
 			// 
 			this.tb_InputFile.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.tb_InputFile.Location = new System.Drawing.Point(73, 13);
+			this.tb_InputFile.Location = new System.Drawing.Point(84, 13);
 			this.tb_InputFile.Name = "tb_InputFile";
-			this.tb_InputFile.Size = new System.Drawing.Size(596, 20);
+			this.tb_InputFile.Size = new System.Drawing.Size(585, 20);
 			this.tb_InputFile.TabIndex = 1;
 			this.tb_InputFile.Text = "../../../../examples/substituteVariables.svg";
 			// 
 			// label_InputFile
 			// 
 			this.label_InputFile.AutoSize = true;
-			this.label_InputFile.Location = new System.Drawing.Point(14, 16);
+			this.label_InputFile.Location = new System.Drawing.Point(25, 16);
 			this.label_InputFile.Name = "label_InputFile";
 			this.label_InputFile.Size = new System.Drawing.Size(53, 13);
 			this.label_InputFile.TabIndex = 0;
@@ -125,12 +158,27 @@
 			this.gb_Options.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this.gb_Options.Controls.Add(this.cb_ImageFormat);
-			this.gb_Options.Location = new System.Drawing.Point(12, 88);
+			this.gb_Options.Location = new System.Drawing.Point(12, 115);
 			this.gb_Options.Name = "gb_Options";
-			this.gb_Options.Size = new System.Drawing.Size(705, 93);
+			this.gb_Options.Size = new System.Drawing.Size(705, 66);
 			this.gb_Options.TabIndex = 1;
 			this.gb_Options.TabStop = false;
 			this.gb_Options.Text = "Processing Options";
+			// 
+			// cb_ImageFormat
+			// 
+			this.cb_ImageFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cb_ImageFormat.FormattingEnabled = true;
+			this.cb_ImageFormat.Items.AddRange(new object[] {
+            "PNG",
+            "JPG",
+            "TIFF",
+            "PDF"});
+			this.cb_ImageFormat.Location = new System.Drawing.Point(6, 19);
+			this.cb_ImageFormat.Name = "cb_ImageFormat";
+			this.cb_ImageFormat.Size = new System.Drawing.Size(189, 21);
+			this.cb_ImageFormat.TabIndex = 7;
+			this.cb_ImageFormat.SelectedIndexChanged += new System.EventHandler(this.cb_ImageFormat_SelectedIndexChanged);
 			// 
 			// btn_ProcessImages
 			// 
@@ -138,7 +186,7 @@
 			this.btn_ProcessImages.Location = new System.Drawing.Point(642, 350);
 			this.btn_ProcessImages.Name = "btn_ProcessImages";
 			this.btn_ProcessImages.Size = new System.Drawing.Size(75, 23);
-			this.btn_ProcessImages.TabIndex = 2;
+			this.btn_ProcessImages.TabIndex = 8;
 			this.btn_ProcessImages.Text = "Go";
 			this.btn_ProcessImages.UseVisualStyleBackColor = true;
 			this.btn_ProcessImages.Click += new System.EventHandler(this.btn_ProcessImages_Click);
@@ -167,23 +215,9 @@
 			this.tb_ProcessingLog.Size = new System.Drawing.Size(693, 132);
 			this.tb_ProcessingLog.TabIndex = 0;
 			// 
-			// cb_ImageFormat
-			// 
-			this.cb_ImageFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cb_ImageFormat.FormattingEnabled = true;
-			this.cb_ImageFormat.Items.AddRange(new object[] {
-            "PNG",
-            "JPG",
-            "TIFF",
-            "PDF"});
-			this.cb_ImageFormat.Location = new System.Drawing.Point(6, 19);
-			this.cb_ImageFormat.Name = "cb_ImageFormat";
-			this.cb_ImageFormat.Size = new System.Drawing.Size(189, 21);
-			this.cb_ImageFormat.TabIndex = 0;
-			this.cb_ImageFormat.SelectedIndexChanged += new System.EventHandler(this.cb_ImageFormat_SelectedIndexChanged);
-			// 
 			// Main
 			// 
+			this.AcceptButton = this.btn_ProcessImages;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(729, 385);
@@ -217,6 +251,9 @@
 		private System.Windows.Forms.GroupBox gb_ProcessingLog;
 		private System.Windows.Forms.TextBox tb_ProcessingLog;
 		private System.Windows.Forms.ComboBox cb_ImageFormat;
+		private System.Windows.Forms.TextBox tb_VariablesFile;
+		private System.Windows.Forms.Label label_VariablesFile;
+		private System.Windows.Forms.Button btn_VariablesFile;
 
 	}
 }
