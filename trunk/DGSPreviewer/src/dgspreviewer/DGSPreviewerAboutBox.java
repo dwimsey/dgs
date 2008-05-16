@@ -8,6 +8,11 @@ import org.jdesktop.application.Action;
 
 public class DGSPreviewerAboutBox extends javax.swing.JDialog {
 
+    private DGSPreviewerAboutBox()
+    {
+        super();
+    }
+
     public DGSPreviewerAboutBox(java.awt.Frame parent) {
         super(parent);
         initComponents();
