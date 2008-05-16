@@ -14,6 +14,15 @@ import org.apache.batik.transcoder.TranscoderOutput;
 
 import org.w3c.dom.*;
 
+import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+
+import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
+import org.apache.batik.util.XMLResourceDescriptor;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
+
 /**
  *
  * @author dwimsey
@@ -48,15 +57,39 @@ public class CommandEngine implements ICommandEngine {
             }
         }
         if(dgsFile == null) {
+            workspace.log("Could not find file specified in request info file list: " + fileName);
             return(false);
         }
 
         if(dgsFile.mimeType.equals("image/svg+xml")) {
+            String uri = "data://image/svg+xml;base64,";
+            uri += ImageProcessor.ProcessingEngine.Base64.encodeBytes(dgsFile.data);
+            Document doc = null;
+
+            try {
+                String parser = XMLResourceDescriptor.getXMLParserClassName();
+                SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+                //doc = f.createDocument(uri, new java.io.ByteArrayInputStream((byte[])iBuffer.data));
+                doc = f.createDocument(uri);
+            } catch (IOException ex) {
+                workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
+                return(false);
+            }
+
+            TransformerFactory tf = TransformerFactory.newInstance();
+            ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+            try {
+                Transformer t = tf.newTransformer();
+                t.transform(new DOMSource(doc), new StreamResult(outStream));
+            } catch (Exception ex) {
+                workspace.log("An error occurred while reconstructing the XML file: " + ex.getMessage());
+                return(false);
+            }
             ProcessingEngineImageBuffer buffer = workspace.createImageBuffer(bufferName);
             buffer.height = -1;
             buffer.width = -1;
             buffer.mimeType = mimeType.intern();
-            buffer.data = dgsFile.data.clone();
+            buffer.data = outStream.toByteArray();
             return(true);
         }
         return(false);
