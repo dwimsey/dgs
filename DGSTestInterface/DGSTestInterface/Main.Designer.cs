@@ -77,7 +77,7 @@
 			this.tb_OutputFile.Name = "tb_OutputFile";
 			this.tb_OutputFile.Size = new System.Drawing.Size(376, 20);
 			this.tb_OutputFile.TabIndex = 4;
-			this.tb_OutputFile.Text = "c:\\src\\ztest.png";
+			this.tb_OutputFile.Text = "../../../../test.png";
 			// 
 			// label_OutputFile
 			// 
@@ -108,7 +108,7 @@
 			this.tb_InputFile.Name = "tb_InputFile";
 			this.tb_InputFile.Size = new System.Drawing.Size(596, 20);
 			this.tb_InputFile.TabIndex = 1;
-			this.tb_InputFile.Text = "c:\\src\\ztest.svg";
+			this.tb_InputFile.Text = "../../../../examples/substituteVariables.svg";
 			// 
 			// label_InputFile
 			// 
