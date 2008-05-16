@@ -97,6 +97,9 @@ public class CommandEngine implements ICommandEngine {
 
     public boolean save(ProcessingWorkspace workspace, String fileName, ProcessingEngineImageBuffer buffer, String mimeType, NamedNodeMap attributes)
     {
+        int width = 0;
+        int height = 0;
+
         org.apache.batik.transcoder.Transcoder t = null;
         String extension = "";
 
@@ -153,11 +156,20 @@ public class CommandEngine implements ICommandEngine {
                 workspace.log("Convertion from " + buffer.mimeType + " to " + mimeType + " failed. Transcoder did not return any data.");
                 return(false);
             }
+            
+            try {
+                java.awt.image.BufferedImage image = null;
+                image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(oDat));
+                height = image.getHeight();
+                width = image.getWidth();
+            } catch (IOException ie) {
+                workspace.log("Transcoder output is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
+            }
         } catch (Exception ex) {
             workspace.log("Convertion from " + buffer.mimeType + " to " + mimeType + " failed: " + ex.getMessage());
             return(false);
         }
-        
+
         String fname = "";
         if(!fileName.endsWith(extension)) {
             fname = fileName.concat(extension);
@@ -177,8 +189,8 @@ public class CommandEngine implements ICommandEngine {
         }
 
         dgsFile.mimeType = mimeType;
-        dgsFile.height = 0;
-        dgsFile.width = 0;
+        dgsFile.height = height;
+        dgsFile.width = width;
         dgsFile.data = oDat;
 
         return(true);
