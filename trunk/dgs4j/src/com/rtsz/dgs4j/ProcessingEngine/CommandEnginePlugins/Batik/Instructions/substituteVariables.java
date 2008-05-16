@@ -12,6 +12,8 @@ import org.apache.xerces.parsers.*;
 import org.xml.sax.*;
 import org.w3c.dom.*;
 
+import java.io.*;
+
 /**
  *
  * @author dwimsey
@@ -53,8 +55,14 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
             return(true);
         }
 
-        String oStr = new String((byte[])iBuffer.data);
+        String oStr = null;
         
+        try {
+            oStr = new String((byte[])iBuffer.data, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            workspace.log("An unexpected encoding error has occurred: " + ex.getMessage());
+            return(false);
+        }
         for(int i = 0; i < workspace.requestInfo.variables.length; i++) {
             oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[i].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[i].data));
         }
