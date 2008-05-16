@@ -118,7 +118,11 @@ public class DGSPreviewerView extends FrameView {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        mainPanel = new DGSPreviewerPanel();
+        mainPanel = new javax.swing.JPanel();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        imagePanel = new DGSPreviewerPanel();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
@@ -135,15 +139,42 @@ public class DGSPreviewerView extends FrameView {
 
         mainPanel.setName("mainPanel"); // NOI18N
 
+        jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+        jSplitPane1.setName("jSplitPane1"); // NOI18N
+
+        jScrollPane1.setName("jScrollPane1"); // NOI18N
+
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jTextArea1.setName("logDisplay"); // NOI18N
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jSplitPane1.setRightComponent(jScrollPane1);
+
+        imagePanel.setName("imagePanel"); // NOI18N
+
+        javax.swing.GroupLayout imagePanelLayout = new javax.swing.GroupLayout(imagePanel);
+        imagePanel.setLayout(imagePanelLayout);
+        imagePanelLayout.setHorizontalGroup(
+            imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 398, Short.MAX_VALUE)
+        );
+        imagePanelLayout.setVerticalGroup(
+            imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        jSplitPane1.setLeftComponent(imagePanel);
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 249, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -228,23 +259,33 @@ public class DGSPreviewerView extends FrameView {
         if (choice == JFileChooser.APPROVE_OPTION) {
             java.io.File f = fc.getSelectedFile();
             lastLoadedFileName = f.getPath();
+            this.setStatusMessage("Loading new image: " + lastLoadedFileName);
             loadImageFile(lastLoadedFileName);
+            this.logMessage("");
+            this.setStatusMessage("Reload completed.");
+            this.logMessage("");
         }
     }
 
     @Action
     public void refreshImage() {
-        if(lastLoadedFileName != null) {
+        if(lastLoadedFileName != null && lastLoadedFileName.length() > 0) {
+            this.logMessage("Reloading " + lastLoadedFileName + "...");
             loadImageFile(lastLoadedFileName);
+            this.logMessage("");
+            this.setStatusMessage("Reload completed.");
+            this.logMessage("");
+        } else {
+            this.setStatusMessage("No file loaded.");
         }
     }
 
     private void loadImageFile(String fileName)
     {
         
-        mainPanel.image = null;
-        mainPanel.invalidate();
-        mainPanel.repaint();
+        imagePanel.image = null;
+        imagePanel.invalidate();
+        imagePanel.repaint();
 
         setStatusMessage("Reading image file: " + fileName);
         byte fDat[] = null;
@@ -272,12 +313,21 @@ public class DGSPreviewerView extends FrameView {
         dgsRequestInfo.files[0].width = -1;
         dgsRequestInfo.files[0].height = -1;
         dgsRequestInfo.variables = loadVariables("../examples/userVars.xml");
+        if(dgsRequestInfo.variables != null && dgsRequestInfo.variables.length > 0) {
+            this.logMessage("Loaded " + dgsRequestInfo.variables.length + " variables.");
+        }
         dgsRequestInfo.instructionsXML = "<commands><load filename=\"input.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><substituteVariables buffer=\"main\"/><save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
         
         ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
         setStatusMessage("Performing DGS Request ...");
         DGSResponseInfo dgsResponseInfo = pEngine.processCommandString(workspace);
         setStatusMessage("DGS Request completed.");
+        
+        this.logMessage("DGS Request Log: ");
+        for(int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
+            this.logMessage("     " + dgsResponseInfo.processingLog[i]);
+        }
+        this.logMessage("-- END DGS Request Log --");
         if(dgsResponseInfo.resultFiles.length == 0) {
             String plog[] = new String[dgsResponseInfo.processingLog.length];
             for(int i = 0; i<dgsResponseInfo.processingLog.length; i++) {
@@ -295,8 +345,8 @@ public class DGSPreviewerView extends FrameView {
         } catch (IOException ie) {
             setStatusMessage("Error processing output image: " + ie.getMessage());
         }
-        mainPanel.image = image;
-        this.mainPanel.repaint();
+        imagePanel.image = image;
+        this.imagePanel.repaint();
     }
     
     private byte[] fileToBytes(String fileName) throws FileNotFoundException, IOException
@@ -354,15 +404,28 @@ public class DGSPreviewerView extends FrameView {
         return(vars);
     }
 
+    private String logStr = "";
+
+    private void logMessage(String message)
+    {
+        logStr += message + "\r\n";
+        jTextArea1.setText(logStr);
+    }
+
     private void setStatusMessage(String message)
     {
+        logMessage(message);
         statusMessageLabel.setText(message);
         statusMessageLabel.repaint();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private DGSPreviewerPanel imagePanel;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private DGSPreviewerPanel mainPanel;
+    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem openMenuItem;
     private javax.swing.JProgressBar progressBar;
