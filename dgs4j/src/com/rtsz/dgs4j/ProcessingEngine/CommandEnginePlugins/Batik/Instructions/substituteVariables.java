@@ -44,6 +44,10 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
         }
 
         ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
+        if(iBuffer == null) {
+            workspace.log("There is no buffer named '" + bufferName + "' to do a substitution on.");
+            return(false);
+        }
         if(!iBuffer.mimeType.equals("image/svg+xml")) {
             return(false);
         }
