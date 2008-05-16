@@ -6,7 +6,6 @@
 package ImageProcessor.ProcessingEngine;
 
 import ImageProcessor.*;
-import ImageProcessor.ProcessingEngine.*;
 import java.util.*;
 
 /**

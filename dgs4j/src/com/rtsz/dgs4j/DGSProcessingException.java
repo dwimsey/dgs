@@ -10,6 +10,11 @@ package ImageProcessor;
  * @author dwimsey
  */
 public class DGSProcessingException extends java.lang.Exception {
+    private DGSProcessingException()
+    {
+        super();
+    }
+    
     public DGSProcessingException(String errMsg)
     {
         super(errMsg);

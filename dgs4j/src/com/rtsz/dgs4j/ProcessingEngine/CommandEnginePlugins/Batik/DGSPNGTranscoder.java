@@ -5,9 +5,6 @@
 
 package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
 
-import org.apache.batik.bridge.*;
-
-import java.util.*;
 /**
  *
  * @author dwimsey

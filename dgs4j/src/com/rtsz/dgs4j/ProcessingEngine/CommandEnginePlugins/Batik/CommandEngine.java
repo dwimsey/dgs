@@ -8,7 +8,6 @@ package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
 import ImageProcessor.ProcessingEngine.*;
 import ImageProcessor.DGSFileInfo;
 
-import org.apache.batik.transcoder.image.*;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 

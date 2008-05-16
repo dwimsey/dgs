@@ -15,4 +15,8 @@ public class DGSFileInfo {
     public byte data[];
     public int width;
     public int height;
+    
+    public DGSFileInfo()
+    {
+    }
 }

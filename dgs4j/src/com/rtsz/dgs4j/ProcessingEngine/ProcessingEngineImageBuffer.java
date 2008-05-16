@@ -15,4 +15,8 @@ public class ProcessingEngineImageBuffer {
     public int width;
     public int height;
     public String mimeType;
+    
+    public ProcessingEngineImageBuffer()
+    {
+    }
 }

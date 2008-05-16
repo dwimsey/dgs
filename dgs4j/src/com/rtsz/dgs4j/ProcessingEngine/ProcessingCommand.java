@@ -5,14 +5,10 @@
 
 package ImageProcessor.ProcessingEngine;
 
-import ImageProcessor.*;
 import ImageProcessor.ProcessingEngine.Instructions.*;
 
-import java.io.*;
 import java.util.*;
 
-import org.apache.xerces.parsers.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
 
 /**

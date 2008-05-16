@@ -17,6 +17,10 @@ public class DGSVariable {
     public static final int TYPE_TEXT           = 0;
     public static final int TYPE_VISIBILITY     = 1;
 
+    private DGSVariable()
+    {
+    }
+
     public DGSVariable(String nName, String nValue)
     {
         this.name = nName;

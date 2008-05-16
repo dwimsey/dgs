@@ -6,15 +6,12 @@
 package ImageProcessor;
 
 import ImageProcessor.ProcessingEngine.*;
-import ImageProcessor.ProcessingEngine.Instructions.*;
 
-import java.io.*;
 import java.util.*;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
-import org.jcp.xml.dsig.internal.dom.ApacheCanonicalizer;
 
 /**
  *
