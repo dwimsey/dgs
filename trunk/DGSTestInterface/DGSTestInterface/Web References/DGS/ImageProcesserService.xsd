@@ -13,6 +13,7 @@
       <xs:element name="continueOnError" type="xs:boolean" />
       <xs:element minOccurs="0" name="instructionsXML" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="unbounded" name="files" nillable="true" type="tns:dgsFileInfo" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="variables" nillable="true" type="tns:dgsVariable" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="dgsFileInfo">
@@ -22,6 +23,13 @@
       <xs:element minOccurs="0" name="data" type="xs:base64Binary" />
       <xs:element name="width" type="xs:int" />
       <xs:element name="height" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="dgsVariable">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="name" type="xs:string" />
+      <xs:element minOccurs="0" name="data" type="xs:string" />
+      <xs:element name="visibility" type="xs:boolean" />
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="ProcessImageResponse">

@@ -135,6 +135,8 @@ namespace DGSTestInterface.DGS {
         
         private dgsFileInfo[] filesField;
         
+        private dgsVariable[] variablesField;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
         public bool continueOnError {
@@ -165,6 +167,17 @@ namespace DGSTestInterface.DGS {
             }
             set {
                 this.filesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("variables", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true)]
+        public dgsVariable[] variables {
+            get {
+                return this.variablesField;
+            }
+            set {
+                this.variablesField = value;
             }
         }
     }
@@ -274,6 +287,54 @@ namespace DGSTestInterface.DGS {
             }
             set {
                 this.processingLogField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "2.0.50727.1433")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://ImageProcessor/")]
+    public partial class dgsVariable {
+        
+        private string nameField;
+        
+        private string dataField;
+        
+        private bool visibilityField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public string data {
+            get {
+                return this.dataField;
+            }
+            set {
+                this.dataField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified)]
+        public bool visibility {
+            get {
+                return this.visibilityField;
+            }
+            set {
+                this.visibilityField = value;
             }
         }
     }
