@@ -12,6 +12,11 @@ import org.jdesktop.application.SingleFrameApplication;
  */
 public class DGSPreviewerApp extends SingleFrameApplication {
 
+    private DGSPreviewerApp()
+    {
+        super();
+    }
+
     /**
      * At startup create and show the main frame of the application.
      */
