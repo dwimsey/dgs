@@ -5,11 +5,8 @@
 
 package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions;
 
-import ImageProcessor.*;
 import ImageProcessor.ProcessingEngine.*;
 
-import org.apache.xerces.parsers.*;
-import org.xml.sax.*;
 import org.w3c.dom.*;
 
 import java.io.*;

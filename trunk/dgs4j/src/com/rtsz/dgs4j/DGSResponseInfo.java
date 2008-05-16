@@ -12,4 +12,8 @@ package ImageProcessor;
 public class DGSResponseInfo {
     public DGSFileInfo resultFiles[];
     public String processingLog[];
+    
+    public DGSResponseInfo()
+    {
+    }
 }

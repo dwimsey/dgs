@@ -9,13 +9,10 @@ import org.w3c.dom.*;
 import org.apache.batik.bridge.*;
 import org.apache.batik.util.*;
 
-import org.apache.batik.gvt.event.*;
 import org.apache.batik.gvt.text.*;
 
 import java.awt.*;
 import java.awt.geom.*;
-
-import java.util.*;
 
 /**
  *

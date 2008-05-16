@@ -8,7 +8,6 @@ package ImageProcessor.ProcessingEngine;
 import ImageProcessor.*;
 import ImageProcessor.ProcessingEngine.Instructions.IInstruction;
         
-import java.lang.*;
 import java.io.*;
 import java.util.*;
 
@@ -31,8 +30,6 @@ public class ProcessingEngine {
     private Map<String, ProcessingCommand> commandList;
     private ArrayList<ICommandEngine> commandEngines;
     private boolean pluginsLoaded;
-    private SecurityManager securityManager;
-    private SecurityManager systemSecurityManager;
     private boolean enableSecurity;
 
     public ProcessingEngine()
@@ -40,8 +37,6 @@ public class ProcessingEngine {
         commandList = new HashMap<String, ProcessingCommand>();
         commandEngines = new ArrayList<ICommandEngine>();
         pluginsLoaded = false;
-        systemSecurityManager = System.getSecurityManager();
-        securityManager = new ProcessingEngineSecurityManager();
         enableSecurity = false;
         loadCommandPlugins();
     }
@@ -252,18 +247,12 @@ public class ProcessingEngine {
         if(!enableSecurity) {
             return;
         }
-        if(securityManager != null) {
-//            System.setSecurityManager(securityManager);
-        }
     }
     
     private synchronized void switchToStandardSecurity()
     {
         if(!enableSecurity) {
             return;
-        }
-        if(securityManager != null) {
-  //          System.setSecurityManager(systemSecurityManager);
         }
     }
 

@@ -10,6 +10,7 @@ package ImageProcessor.ProcessingEngine;
  * @author dwimsey
  */
 public class ProcessingEngineSecurityManager extends SecurityManager {
+    @Override
     public void checkPermission(java.security.Permission perm) throws SecurityException {
         try {
 //            super.checkPermission(perm);
