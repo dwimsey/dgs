@@ -8,18 +8,10 @@ package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions;
 import ImageProcessor.*;
 import ImageProcessor.ProcessingEngine.*;
 
-import java.util.*;
-
 import org.apache.xerces.parsers.*;
 import org.xml.sax.*;
 import org.w3c.dom.*;
 
-//import java.io.File;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException; 
 /**
  *
  * @author dwimsey
@@ -57,34 +49,21 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
             return(false);
         }
 
-        Document doc = null;
-        try {
-            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-            doc = docBuilder.parse(new java.io.ByteArrayInputStream((byte[])iBuffer.data));
-        } catch (Exception ex) {
-            workspace.log("Unexpected parser error: " + ex.getMessage());
+        if(workspace.requestInfo.variables == null || workspace.requestInfo.variables.length == 0) {
+            return(true);
         }
 
-        NodeList t = doc.getElementsByTagName("text");
-        int i = t.getLength();
-        substituteVars(workspace, doc.getParentNode());
+        String oStr = new String((byte[])iBuffer.data);
+        
+        for(int i = 0; i < workspace.requestInfo.variables.length; i++) {
+            oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[i].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[i].data));
+        }
+        try {
+            iBuffer.data = oStr.getBytes("UTF-8");
+        } catch (Exception ex) {
+            workspace.log("An exception occurred during variable replacement while preparing the SVG result buffer: " + ex.getMessage());
+            return(false);
+        }
         return(true);
     }
-    
-    private void substituteVars(ProcessingWorkspace workspace, Node domNode)
-    {
-        
-        if(domNode == null) {
-            return;
-        }
-        String nodeName = domNode.getNodeName();
-        NodeList childNodes = domNode.getChildNodes();
-        if(childNodes != null) {
-            for(int i = 0; i<childNodes.getLength(); i++) {
-                substituteVars(workspace, childNodes.item(i));
-            }
-        }
-        
-    }
-}
+ }
