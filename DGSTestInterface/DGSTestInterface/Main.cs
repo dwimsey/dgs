@@ -85,7 +85,7 @@ namespace DGSTestInterface
 					break;
 			}
 			requestInfo.instructionsXML = "<commands><load filename=\"test.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><save snapshotTime=\"1.0\" filename=\"test.gif\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
-
+			requestInfo.variables = LoadVariablesFile(tb_VariablesFile.Text);
 			DGS.dgsResponseInfo responseInfo = null;
 			tb_ProcessingLog.Text += "Issuing SOAP request ...\r\n";
 			tb_ProcessingLog.Update();
@@ -159,6 +159,74 @@ namespace DGSTestInterface
 				of += getImageTypeExtension();
 				tb_OutputFile.Text = of;
 			}
+		}
+
+		private DGS.dgsVariable[] LoadVariablesFile(string varsFileName)
+		{
+			DGS.dgsVariable[] vars = null;
+
+			if(varsFileName == null || varsFileName.Trim().Length == 0) {
+				return (null);
+			}
+
+			string filename = null;
+			try {
+				filename = System.IO.Path.GetFullPath(varsFileName);
+			} catch(Exception ex) {
+				MessageBox.Show("The path specified for the variables file is invalid: " + ex.Message);
+				return(null);
+			}
+			System.IO.FileStream tFile;
+			System.Xml.XmlDocument mXml;
+			try {
+				tFile = System.IO.File.Open(filename, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
+			} catch(Exception fe) {
+				MessageBox.Show("Unable to open user variables file: " + fe.Message);
+				return(null);
+			}
+			mXml = new System.Xml.XmlDocument();
+			try {
+				mXml.Load(tFile);
+			} catch(Exception fe) {
+				MessageBox.Show("Unable to load user variables file: " + fe.Message);
+				return(null);
+			} finally {
+				tFile.Close();
+			}
+			try {
+				System.Xml.XmlNode parentNode = mXml.FirstChild;
+				System.Xml.XmlNode sectionNode;
+				System.Xml.XmlNode itemNode;
+
+				int i, ii; // these are used for the for loops below
+				if(parentNode.Name == "xml".ToLower() || parentNode.Name.ToLower() == "?xml")
+					parentNode = parentNode.NextSibling;
+
+				if(parentNode.Name != "DGSPackage") {
+					throw new Exception("This XML file is not a DGSPackage.  Root element is: " + parentNode.Name.ToString() + " Filename: " + varsFileName);
+				}
+
+				for(i = 0; i < parentNode.ChildNodes.Count; i++) {
+					sectionNode = parentNode.ChildNodes[i];
+					switch(sectionNode.Name) {
+						case "DGSVariables":
+							if(sectionNode.ChildNodes.Count > 0) {
+								vars = new dgsVariable[sectionNode.ChildNodes.Count];
+								for(ii = 0; ii < sectionNode.ChildNodes.Count; ii++) {
+									itemNode = sectionNode.ChildNodes[ii];
+									vars[ii] = new dgsVariable();
+									vars[ii].name = itemNode.Attributes["name"].Value;
+									vars[ii].data = itemNode.Attributes["value"].Value;
+								}
+							}
+							break;
+					}
+				}
+			} catch(Exception e) {
+				MessageBox.Show("An error occurred while reading the DGS Package file: " + e.Message);
+			}
+
+			return(vars);
 		}
 	}
 }
