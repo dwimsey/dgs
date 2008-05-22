@@ -46,6 +46,7 @@ public class CommandEngine implements ICommandEngine {
         return(cNode.getNodeValue());
     }
 
+    
     public boolean load(ProcessingWorkspace workspace, String fileName, String bufferName, String mimeType, NamedNodeMap attributes)
     {
         DGSFileInfo dgsFile = null;
@@ -60,6 +61,7 @@ public class CommandEngine implements ICommandEngine {
             return(false);
         }
 
+        ProcessingEngineImageBuffer buffer = null;
         if(dgsFile.mimeType.equals("image/svg+xml")) {
             String uri = "data://image/svg+xml;base64,";
             uri += ImageProcessor.ProcessingEngine.Base64.encodeBytes(dgsFile.data);
@@ -84,12 +86,26 @@ public class CommandEngine implements ICommandEngine {
                 workspace.log("An error occurred while reconstructing the XML file: " + ex.getMessage());
                 return(false);
             }
-            ProcessingEngineImageBuffer buffer = workspace.createImageBuffer(bufferName);
+            buffer = workspace.createImageBuffer(bufferName);
             buffer.height = -1;
             buffer.width = -1;
             buffer.mimeType = mimeType.intern();
             buffer.data = outStream.toByteArray();
             return(true);
+        } else if(dgsFile.mimeType.equals("image/png") || dgsFile.mimeType.equals("image/jpeg") || dgsFile.mimeType.equals("image/tiff")) {
+            java.awt.image.BufferedImage bi = null;
+            try {
+                bi = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(dgsFile.data));
+                buffer = workspace.createImageBuffer(bufferName);
+                buffer.height = bi.getHeight();
+                buffer.width = bi.getWidth();
+                buffer.mimeType = dgsFile.mimeType.intern();
+                buffer.data = dgsFile.data.clone();
+                return(true);
+            } catch (IOException ie) {
+                workspace.log("Image could not be loaded because it is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
+            }
+            
         }
         return(false);
     }
