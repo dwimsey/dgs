@@ -99,6 +99,9 @@ public class DGSPreviewerView extends FrameView {
                 }
             }
         });
+        
+        this.lastLoadedFileName = "../examples/rts_card.svg";
+        refreshImage();
     }
 
     @Action
@@ -284,6 +287,27 @@ public class DGSPreviewerView extends FrameView {
         }
     }
 
+    private DGSFileInfo loadImageFileData(String fileName)
+    {
+        byte fDat[] = null;
+        try {
+            fDat = fileToBytes(fileName);
+        } catch (FileNotFoundException fex) {
+            setStatusMessage("Could not find the specified file: " + fileName);
+            return(null);
+        } catch (IOException iex) {
+            setStatusMessage("Could not read the specified file: " + fileName + " Error: " + iex.getMessage());
+            return(null);
+        }
+        if(fDat == null || fDat.length == 0) {
+            return(null);
+        }
+
+        DGSFileInfo fInfo = new DGSFileInfo();
+        fInfo.data = fDat;
+        return(fInfo);
+    }
+
     private void loadImageFile(String fileName)
     {
         
@@ -292,36 +316,58 @@ public class DGSPreviewerView extends FrameView {
         imagePanel.repaint();
 
         setStatusMessage("Reading image file: " + fileName);
-        byte fDat[] = null;
-        try {
-            fDat = fileToBytes(fileName);
-        } catch (FileNotFoundException fex) {
-            setStatusMessage("Could not find the specified file: " + fileName);
-        } catch (IOException iex) {
-            setStatusMessage("Could not read the specified file: " + fileName + " Error: " + iex.getMessage());
-        }
-        if(fDat == null || fDat.length == 0) {
+        DGSFileInfo sInfo = loadImageFileData(fileName);
+        if(sInfo == null) {
+            setStatusMessage("Could not read file: " + fileName);
             return;
         }
 
+        sInfo.name = "input.svg";
+        sInfo.mimeType = "image/svg+xml";
+        sInfo.width = -1;
+        sInfo.height = -1;
+
+        String iFileName = "../examples/43x54.png";
+        DGSFileInfo uiInfo = loadImageFileData(iFileName);
+        if(uiInfo == null) {
+            setStatusMessage("No image replacement command will be included: Could not read file: " + iFileName);
+        }
+        
         String outputMimeType = "image/png";
 
         setStatusMessage("Forming DGS Request ...");
         DGSRequestInfo dgsRequestInfo = new DGSRequestInfo();
         dgsRequestInfo.continueOnError = true;
-        dgsRequestInfo.files = new DGSFileInfo[1];
-        dgsRequestInfo.files[0] = new DGSFileInfo();
+        dgsRequestInfo.instructionsXML = "<commands><load filename=\"input.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" />";
+        
+        if(uiInfo == null) {
+            dgsRequestInfo.files = new DGSFileInfo[1];
+        } else {
+            dgsRequestInfo.instructionsXML += "<load filename=\"user_image.png\" buffer=\"user_image\" mimeType=\"image/png\" /><replaceImage buffer=\"main\" srcImage=\"user_image\" imageElementId=\"User:Image\" halign=\"center\" valign=\"center\" />";
+            dgsRequestInfo.files = new DGSFileInfo[2];
+            dgsRequestInfo.files[1] = uiInfo;
+            dgsRequestInfo.files[1].name = "user_image.png";
+            dgsRequestInfo.files[1].mimeType = "image/png";
+            dgsRequestInfo.files[1].width = -1;
+            dgsRequestInfo.files[1].height = -1;
+        }
+        dgsRequestInfo.files[0] = sInfo;
         dgsRequestInfo.files[0].name = "input.svg";
         dgsRequestInfo.files[0].mimeType = "image/svg+xml";
-        dgsRequestInfo.files[0].data = fDat;
         dgsRequestInfo.files[0].width = -1;
         dgsRequestInfo.files[0].height = -1;
+
         dgsRequestInfo.variables = loadVariables("../examples/userVars.xml");
+        if(dgsRequestInfo.variables != null) {
+            dgsRequestInfo.instructionsXML += "<substituteVariables buffer=\"main\" />";
+        }
+
         if(dgsRequestInfo.variables != null && dgsRequestInfo.variables.length > 0) {
             this.logMessage("Loaded " + dgsRequestInfo.variables.length + " variables.");
         }
-        dgsRequestInfo.instructionsXML = "<commands><load filename=\"input.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><substituteVariables buffer=\"main\"/><save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
-        
+
+        dgsRequestInfo.instructionsXML += "<save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
+
         ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
         setStatusMessage("Performing DGS Request ...");
         DGSResponseInfo dgsResponseInfo = pEngine.processCommandString(workspace);
