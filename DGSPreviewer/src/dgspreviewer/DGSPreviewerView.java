@@ -17,7 +17,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JFileChooser;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import javax.imageio.ImageIO;
@@ -257,6 +256,7 @@ public class DGSPreviewerView extends FrameView {
 
     @Action
     public void loadFile() {
+        this.logStr = "";
         JFileChooser fc = new JFileChooser("../examples");
         int choice = fc.showOpenDialog(mainPanel);
         if (choice == JFileChooser.APPROVE_OPTION) {
@@ -272,6 +272,7 @@ public class DGSPreviewerView extends FrameView {
 
     @Action
     public void refreshImage() {
+        this.logStr = "";
         if(lastLoadedFileName != null && lastLoadedFileName.length() > 0) {
             this.logMessage("Reloading " + lastLoadedFileName + "...");
             loadImageFile(lastLoadedFileName);
