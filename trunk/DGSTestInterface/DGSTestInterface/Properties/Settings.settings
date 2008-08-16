@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="DGSTestInterface_DGS_ImageProcesserService" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost:8080/DGS/ImageProcesserService</Value>
+      <Value Profile="(Default)">http://LETTERMARK_GRAPHICS_SERVER:8080/DGS/ImageProcesserService</Value>
     </Setting>
   </Settings>
 </SettingsFile>

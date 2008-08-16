@@ -91,10 +91,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost:8080/DGS/ImageProcesserService%3fWSDL">
+    <WebReferenceUrl Include="http://LETTERMARK_GRAPHICS_SERVER:8080/DGS/ImageProcesserService%3fWSDL">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\DGS\</RelPath>
-      <UpdateFromURL>http://localhost:8080/DGS/ImageProcesserService%3fWSDL</UpdateFromURL>
+      <UpdateFromURL>http://LETTERMARK_GRAPHICS_SERVER:8080/DGS/ImageProcesserService%3fWSDL</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
