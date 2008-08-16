@@ -22,10 +22,10 @@ public class DGSPreviewerPanel extends javax.swing.JPanel {
             return;
         }
         java.awt.Rectangle r = g.getClipBounds();
-        if(options.backgroundColor == null) {
+        if(options.getBackgroundColor() == null) {
             g.clearRect(r.x, r.y, r.width, r.height);
         } else {
-            g.setColor(options.backgroundColor);
+            g.setColor(options.getBackgroundColor());
             g.fillRect(r.x, r.y, r.width, r.height);
         }
         
