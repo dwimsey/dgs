@@ -11,12 +11,13 @@ import org.jdesktop.application.FrameView;
 import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.*;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JFileChooser;
-
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import javax.imageio.ImageIO;
@@ -34,14 +35,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 public class DGSPreviewerView extends FrameView {
 
     private Options options;
-    private String lastLoadedFileName;
     private static ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
 
     public DGSPreviewerView(SingleFrameApplication app) {
         super(app);
         options = new Options();
+        boolean wereOptionsLoaded = options.load();
         pEngine = new ImageProcessor.ProcessingEngine.ProcessingEngine();
-        lastLoadedFileName = null;
 
         initComponents();
         imagePanel.options = options;
@@ -99,9 +99,13 @@ public class DGSPreviewerView extends FrameView {
                 }
             }
         });
-        
-        this.lastLoadedFileName = "../examples/rts_card.svg";
-        refreshImage();
+
+		String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
+		if(MRUTemplateImageFileName.length()>0) {
+			setStatusMessage(10, "Loading last used template image: " + MRUTemplateImageFileName);
+			loadImageFile(MRUTemplateImageFileName);
+		}
+		setStatusMessage(0, "Ready");
     }
 
     @Action
@@ -259,144 +263,196 @@ public class DGSPreviewerView extends FrameView {
 
     @Action
     public void loadFile() {
-        this.logStr = "";
-        JFileChooser fc = new JFileChooser("../examples");
+        JFileChooser fc;
+		String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
+        if(MRUTemplateImageFileName.length() > 0) {
+            fc = new JFileChooser(MRUTemplateImageFileName);
+        } else {
+            fc = new JFileChooser();
+        }
+
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("DGS Image Templates (*.svg)", "svg", "svgz");
+		fc.setFileFilter(filter);
         int choice = fc.showOpenDialog(mainPanel);
         if (choice == JFileChooser.APPROVE_OPTION) {
             java.io.File f = fc.getSelectedFile();
-            lastLoadedFileName = f.getPath();
-            this.setStatusMessage("Loading new image: " + lastLoadedFileName);
-            loadImageFile(lastLoadedFileName);
-            this.logMessage("");
-            this.setStatusMessage("Reload completed.");
-            this.logMessage("");
+            this.setStatusMessage(100, "Loading image: " + f.getPath());
+            loadImageFile(f.getPath());
         }
     }
 
     @Action
-    public void refreshImage() {
-        this.logStr = "";
-        if(lastLoadedFileName != null && lastLoadedFileName.length() > 0) {
-            this.logMessage("Reloading " + lastLoadedFileName + "...");
-            loadImageFile(lastLoadedFileName);
-            this.logMessage("");
-            this.setStatusMessage("Reload completed.");
-            this.logMessage("");
+    public void loadDGSVariablePackage() {
+        JFileChooser fc;
+		String MRUTemplateVariablesFileName = this.options.getMRUTemplateVariablesFileName();
+        if(MRUTemplateVariablesFileName.length() > 0) {
+            fc = new JFileChooser(MRUTemplateVariablesFileName);
         } else {
-            this.setStatusMessage("No file loaded.");
+            fc = new JFileChooser();
+        }
+        
+		
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("DGS Template Package files (*.xml)", "xml");
+		fc.setFileFilter(filter);
+        int choice = fc.showOpenDialog(mainPanel);
+        if (choice == JFileChooser.APPROVE_OPTION) {
+            java.io.File f = fc.getSelectedFile();
+            this.setStatusMessage(50, "Loading variable package: " + f.getPath());
+			
+			// validate that it works and update the MRU here
+//            loadImageFile(f.getPath());
+        }
+    }
+
+	@Action
+    public void refreshImage() {
+		String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
+        if(MRUTemplateImageFileName.length() > 0) {
+            this.logMessage(100, "Reloading " + MRUTemplateImageFileName + "...");
+            if(!loadImageFile(MRUTemplateImageFileName)) {
+                this.logMessage(10, "");
+                this.setStatusMessage(10, "Reload failed.");
+                this.logMessage(10, "");
+            }
         }
     }
 
     private DGSFileInfo loadImageFileData(String fileName)
     {
         byte fDat[] = null;
+        java.io.File f = new java.io.File(fileName);
+        if(!f.exists()) {
+            setStatusMessage(10, "File does not exist: " + fileName);
+            return(null);
+        }
         try {
             fDat = fileToBytes(fileName);
         } catch (FileNotFoundException fex) {
-            setStatusMessage("Could not find the specified file: " + fileName);
+            setStatusMessage(10, "Could not find the specified file: " + fileName);
             return(null);
         } catch (IOException iex) {
-            setStatusMessage("Could not read the specified file: " + fileName + " Error: " + iex.getMessage());
+            setStatusMessage(10, "Could not read the specified file: " + fileName + " Error: " + iex.getMessage());
             return(null);
         }
-        if(fDat == null || fDat.length == 0) {
+        if(fDat == null) {
+            setStatusMessage(5, "An unknown error occurred reading file: " + fileName);
             return(null);
         }
-
+        if(fDat.length == 0) {
+            setStatusMessage(10, "The specified file is empty: " + fileName);
+            return(null);
+        }
         DGSFileInfo fInfo = new DGSFileInfo();
         fInfo.data = fDat;
+        fInfo.name = f.getName();
+        fInfo.width = -1;
+        fInfo.height = -1;
         return(fInfo);
     }
 
-    private void loadImageFile(String fileName)
+    private boolean loadImageFile(String fileName)
     {
-        
         imagePanel.image = null;
         imagePanel.invalidate();
         imagePanel.repaint();
 
-        setStatusMessage("Reading image file: " + fileName);
-        DGSFileInfo sInfo = loadImageFileData(fileName);
-        if(sInfo == null) {
-            setStatusMessage("Could not read file: " + fileName);
-            return;
-        }
-
-        sInfo.name = "input.svg";
-        sInfo.mimeType = "image/svg+xml";
-        sInfo.width = -1;
-        sInfo.height = -1;
-
-        String iFileName = "../examples/43x54.png";
-        DGSFileInfo uiInfo = loadImageFileData(iFileName);
-        if(uiInfo == null) {
-            setStatusMessage("No image replacement command will be included: Could not read file: " + iFileName);
-        }
-        
         String outputMimeType = "image/png";
 
-        setStatusMessage("Forming DGS Request ...");
         DGSRequestInfo dgsRequestInfo = new DGSRequestInfo();
         dgsRequestInfo.continueOnError = true;
-        dgsRequestInfo.instructionsXML = "<commands><load filename=\"input.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" />";
-        
-        if(uiInfo == null) {
-            dgsRequestInfo.files = new DGSFileInfo[1];
-        } else {
-            dgsRequestInfo.instructionsXML += "<load filename=\"user_image.png\" buffer=\"user_image\" mimeType=\"image/png\" /><replaceImage buffer=\"main\" srcImage=\"user_image\" imageElementId=\"User:Image\" halign=\"center\" valign=\"center\" />";
-            dgsRequestInfo.files = new DGSFileInfo[2];
-            dgsRequestInfo.files[1] = uiInfo;
-            dgsRequestInfo.files[1].name = "user_image.png";
-            dgsRequestInfo.files[1].mimeType = "image/png";
-            dgsRequestInfo.files[1].width = -1;
-            dgsRequestInfo.files[1].height = -1;
-        }
-        dgsRequestInfo.files[0] = sInfo;
-        dgsRequestInfo.files[0].name = "input.svg";
-        dgsRequestInfo.files[0].mimeType = "image/svg+xml";
-        dgsRequestInfo.files[0].width = -1;
-        dgsRequestInfo.files[0].height = -1;
 
-        dgsRequestInfo.variables = loadVariables("../examples/userVars.xml");
-        if(dgsRequestInfo.variables != null) {
-            dgsRequestInfo.instructionsXML += "<substituteVariables buffer=\"main\" />";
+        setStatusMessage(200, "Reading image file: " + fileName);
+        DGSFileInfo templateFileInfo = loadImageFileData(fileName);
+        if(templateFileInfo == null) {
+            setStatusMessage(10, "Load aborted due to errors: " + fileName);
+            return(false);
         }
 
+		// the file itself exists and could be read, thats good enough to store it in the MRU slot so it can be debugged if there is an error in the svg
+		this.options.setMRUTemplateImageFileName(fileName);
+
+		
+		DGSFileInfo replacementImages[] = null;
+		
+		String MRUTemplateVariablesFileName = this.options.getMRUTemplateVariablesFileName();
+		if((MRUTemplateVariablesFileName == null) || (MRUTemplateVariablesFileName.length() == 0)) {
+			dgsRequestInfo.files = new DGSFileInfo[1];
+			dgsRequestInfo.variables = null;
+		} else {
+			dgsRequestInfo.variables = loadVariables(MRUTemplateVariablesFileName);
+			replacementImages = loadImageFiles(MRUTemplateVariablesFileName);
+			if(replacementImages == null||replacementImages.length==0) {
+				setStatusMessage(10, "Could not load the user variables file specified: " + fileName);
+				dgsRequestInfo.files = new DGSFileInfo[1];
+			} else {
+				if(replacementImages.length==0) {
+					setStatusMessage(100, "The file specified does not contain any replacement images: " + fileName);
+					dgsRequestInfo.files = new DGSFileInfo[1];
+				} else {
+					setStatusMessage(100, replacementImages.length + " replacement image(s) found.");
+					dgsRequestInfo.files = new DGSFileInfo[replacementImages.length + 1];
+					for(int i = 0; i < replacementImages.length; i++) {
+						dgsRequestInfo.files[i+1] = replacementImages[i];
+					}
+				}
+			}
+		}
+
+		dgsRequestInfo.files[0] = templateFileInfo;
+        if((dgsRequestInfo.files[0].name == null) || (dgsRequestInfo.files[0].name.length() == 0)) {
+			dgsRequestInfo.files[0].name = "input.svg"; // we need this set to Something, so set it ourselves
+		}
+//        if((dgsRequestInfo.files[0].mimeType == null) || (dgsRequestInfo.files[0].mimeType.length() == 0)) {
+			dgsRequestInfo.files[0].mimeType = "image/svg+xml"; // we only process svg for now
+//		}
+
+
+		// Form the instruction xml fragment
+        dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"main\" mimeType=\"image/svg+xml\" />";
         if(dgsRequestInfo.variables != null && dgsRequestInfo.variables.length > 0) {
-            this.logMessage("Loaded " + dgsRequestInfo.variables.length + " variables.");
+            dgsRequestInfo.instructionsXML += "<substituteVariables buffer=\"main\" />";
+            this.logMessage(100, "Loaded " + dgsRequestInfo.variables.length + " variables.");
         }
 
+        if(dgsRequestInfo.files.length > 1) {
+            for(int i = 1; i<dgsRequestInfo.files.length; i++) {
+                this.logMessage(100, "Replacing image: " + dgsRequestInfo.files[i].name);
+                dgsRequestInfo.instructionsXML += "<load filename=\"" + dgsRequestInfo.files[i].name + "\" buffer=\"" + dgsRequestInfo.files[i].name + "\" mimeType=\"image/" + dgsRequestInfo.files[i].mimeType + "\" /><replaceImage buffer=\"main\" srcImage=\"" + dgsRequestInfo.files[i].name + "\" imageElementId=\"" + dgsRequestInfo.files[i].name + "\" halign=\"center\" valign=\"center\" />";
+            }
+            this.logMessage(100, "Loaded " + (dgsRequestInfo.files.length-1) + " image files.");
+        }
         dgsRequestInfo.instructionsXML += "<save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
 
         ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
-        setStatusMessage("Performing DGS Request ...");
+        setStatusMessage(150, "Performing DGS Request ...");
         DGSResponseInfo dgsResponseInfo = pEngine.processCommandString(workspace);
-        setStatusMessage("DGS Request completed.");
+        setStatusMessage(150, " Request completed.");
         
-        this.logMessage("DGS Request Log: ");
+        this.logMessage(200, "DGS Request Log: ");
         for(int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
-            this.logMessage("     " + dgsResponseInfo.processingLog[i]);
+            this.logMessage(200, "     " + dgsResponseInfo.processingLog[i]);
         }
-        this.logMessage("-- END DGS Request Log --");
+        this.logMessage(200, "-- END DGS Request Log --");
         if(dgsResponseInfo.resultFiles.length == 0) {
             String plog[] = new String[dgsResponseInfo.processingLog.length];
             for(int i = 0; i<dgsResponseInfo.processingLog.length; i++) {
                 plog[i] = dgsResponseInfo.processingLog[i];
             }
             javax.swing.JOptionPane.showMessageDialog(mainPanel, plog);
-            setStatusMessage("No image files were returned by the processing engine, this generally indicates an error in the input file: " + fileName);
-            return;
+            setStatusMessage(10, "No image files were returned by the processing engine, this generally indicates an error in the input file: " + fileName);
+            return(false);
         }
 
-        setStatusMessage("Updating display with new image ...");
+        setStatusMessage(200, "Updating display with new image ...");
         BufferedImage image = null;
         try {
             image = ImageIO.read(new java.io.ByteArrayInputStream((byte[])dgsResponseInfo.resultFiles[0].data));
         } catch (IOException ie) {
-            setStatusMessage("Error processing output image: " + ie.getMessage());
+            setStatusMessage(5, "Error processing output image: " + ie.getMessage());
         }
         imagePanel.image = image;
         this.imagePanel.repaint();
+        return(true);
     }
     
     private byte[] fileToBytes(String fileName) throws FileNotFoundException, IOException
@@ -434,7 +490,6 @@ public class DGSPreviewerView extends FrameView {
             return(null);
         }
         try {
-//            System.out.println("Root element " + doc.getDocumentElement().getNodeName());
             NodeList nodeLst = doc.getElementsByTagName("DGSVariable");
 
             int nLen = nodeLst.getLength();
@@ -454,19 +509,77 @@ public class DGSPreviewerView extends FrameView {
         return(vars);
     }
 
-    private String logStr = "";
-
-    private void logMessage(String message)
+    private DGSFileInfo[] loadImageFiles(String varFileName)
     {
-        logStr += message + "\r\n";
-        jTextArea1.setText(logStr);
+        DGSFileInfo vars[] = null;
+        File file = null;
+        DocumentBuilderFactory dbf = null;
+        DocumentBuilder db = null;
+        Document doc = null;
+        try {
+            file = new File(varFileName);
+            dbf = DocumentBuilderFactory.newInstance();
+            db = dbf.newDocumentBuilder();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            setStatusMessage(10, "loadImageFiles: An error occurred creating the XML document context: " + ex.getMessage());
+            return(null);
+        }
+        try {
+            doc = db.parse(file);
+            doc.getDocumentElement().normalize();
+        } catch (Exception ex) {
+			setStatusMessage(10, "loadImageFiles: An error occurred parsing the XML document (" + varFileName + "): " + ex.getLocalizedMessage());
+            ex.printStackTrace();
+            return(null);
+        }
+        try {
+            NodeList nodeLst = doc.getElementsByTagName("DGSImageVariable");
+
+            int nLen = nodeLst.getLength();
+            vars = new DGSFileInfo[nLen];
+            for (int s = 0; s < nLen; s++) {
+                Node fstNode = nodeLst.item(s);
+                if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
+                    NamedNodeMap aMap = fstNode.getAttributes();
+                    vars[s] = new DGSFileInfo();
+                    vars[s].name = aMap.getNamedItem("name").getNodeValue();
+                    vars[s].data = ImageProcessor.ProcessingEngine.Base64.decode(aMap.getNamedItem("data").getNodeValue());
+                    if("jpg".equalsIgnoreCase(aMap.getNamedItem("mimeType").getNodeValue())) {
+                            vars[s+1].mimeType = "image/jpeg";
+                    } else {
+                            vars[s+1].mimeType = "image/" + aMap.getNamedItem("mimeType").getNodeValue();
+                    }
+                    vars[s].width = Integer.valueOf(aMap.getNamedItem("width").getNodeValue());
+                    vars[s].height = Integer.valueOf(aMap.getNamedItem("height").getNodeValue());
+                }
+            }
+        } catch (Exception ex) {
+			setStatusMessage(10, "loadImageFiles: An error occurred parsing the variable data in" + varFileName + "\": " + ex.getLocalizedMessage());
+            ex.printStackTrace();
+            return(null);
+        }
+
+        return(vars);
     }
 
-    private void setStatusMessage(String message)
+    private void logMessage(int LogLevel, String Message)
     {
-        logMessage(message);
-        statusMessageLabel.setText(message);
+		int cLevel = this.options.getLogLevel();
+		if(LogLevel>cLevel) {
+			return;
+		}
+		String timeFormatStr = "[dd/mm/yyyy HH:MM:ss] ";
+
+		Calendar cal = Calendar.getInstance();
+		jTextArea1.setText(jTextArea1.getText() + (new java.text.SimpleDateFormat(timeFormatStr)).format(cal.getTime()) + Message + "\r\n");
+    }
+
+    private void setStatusMessage(int LogLevel, String Message)
+    {
+        statusMessageLabel.setText(Message);
         statusMessageLabel.repaint();
+		logMessage(LogLevel, Message);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
