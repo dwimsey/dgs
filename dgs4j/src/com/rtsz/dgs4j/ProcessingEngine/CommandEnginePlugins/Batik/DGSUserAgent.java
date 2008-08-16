@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
 
 import org.w3c.dom.*;
@@ -19,239 +18,203 @@ import java.awt.geom.*;
  * @author dwimsey
  */
 public class DGSUserAgent implements UserAgent {
-    private UserAgent ua;
-    private ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace;
 
-    public DGSUserAgent(UserAgent oldAgent, ImageProcessor.ProcessingEngine.ProcessingWorkspace cWorkspace)
-    {
-        if(oldAgent==null) {
-            throw new java.lang.NullPointerException("oldAgent can not be null when creating a new DGSUserAgent");
-        }
-        if(cWorkspace==null) {
-            throw new java.lang.NullPointerException("cWorkspace can not be null when creating a new DGSUserAgent");
-        }
-        ua = oldAgent;
-        workspace = cWorkspace;
-    }
-    
-    public void checkLoadExternalResource(ParsedURL resourceURL, ParsedURL docURL) throws SecurityException
-    {
-        if(resourceURL == null) {
-            throw new SecurityException("NULL resource URLs can not be handled at this time.");
-        }
+	private UserAgent ua;
+	private ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace;
 
-        String rProto = "";
-        if(resourceURL.getProtocol() == null) {
-            if(docURL.getProtocol() == null) {
-                throw new SecurityException("Could not determine the protocol used to reference this external resource.  Document URL: " + docURL.toString() + " Resource URL: " + resourceURL.toString());
-            } else {
-                rProto = docURL.getProtocol();
-            }
-        } else {
-            rProto = resourceURL.getProtocol();
-        }
+	public DGSUserAgent(UserAgent oldAgent, ImageProcessor.ProcessingEngine.ProcessingWorkspace cWorkspace) {
+		if (oldAgent == null) {
+			throw new java.lang.NullPointerException("oldAgent can not be null when creating a new DGSUserAgent");
+		}
+		if (cWorkspace == null) {
+			throw new java.lang.NullPointerException("cWorkspace can not be null when creating a new DGSUserAgent");
+		}
+		ua = oldAgent;
+		workspace = cWorkspace;
+	}
 
-        if(!rProto.equals("data")) {
-            throw new SecurityException("Only embedded resource links are allowed.");
-        }
-        ua.checkLoadExternalResource(resourceURL, docURL);
-    }
+	public void checkLoadExternalResource(ParsedURL resourceURL, ParsedURL docURL) throws SecurityException {
+		if (resourceURL == null) {
+			throw new SecurityException("NULL resource URLs can not be handled at this time.");
+		}
 
-    public void checkLoadScript(String scriptType, ParsedURL scriptURL, ParsedURL docURL) throws SecurityException
-    {
-        if(scriptURL == null) {
-            throw new SecurityException("NULL script resource URLs can not be handled at this time.");
-        }
+		String rProto = "";
+		if (resourceURL.getProtocol() == null) {
+			if (docURL.getProtocol() == null) {
+				throw new SecurityException("Could not determine the protocol used to reference this external resource.  Document URL: " + docURL.toString() + " Resource URL: " + resourceURL.toString());
+			} else {
+				rProto = docURL.getProtocol();
+			}
+		} else {
+			rProto = resourceURL.getProtocol();
+		}
 
-        String rProto = "";
-        if(scriptURL.getProtocol() == null) {
-            if(docURL.getProtocol() == null) {
-                throw new SecurityException("Could not determine the protocol used to reference this script resource.  Document URL: " + docURL.toString() + " Script URL: " + scriptURL.toString());
-            } else {
-                rProto = docURL.getProtocol();
-            }
-        } else {
-            rProto = scriptURL.getProtocol();
-        }
+		if (!rProto.equals("data")) {
+			throw new SecurityException("Only embedded resource links are allowed.");
+		}
+		ua.checkLoadExternalResource(resourceURL, docURL);
+	}
 
-        if(!rProto.equals("data")) {
-            throw new SecurityException("Only embedded script resources are allowed.");
-        }
-        
-        throw new SecurityException("Scripts are not allowed in this context.");
+	public void checkLoadScript(String scriptType, ParsedURL scriptURL, ParsedURL docURL) throws SecurityException {
+		if (scriptURL == null) {
+			throw new SecurityException("NULL script resource URLs can not be handled at this time.");
+		}
+
+		String rProto = "";
+		if (scriptURL.getProtocol() == null) {
+			if (docURL.getProtocol() == null) {
+				throw new SecurityException("Could not determine the protocol used to reference this script resource.  Document URL: " + docURL.toString() + " Script URL: " + scriptURL.toString());
+			} else {
+				rProto = docURL.getProtocol();
+			}
+		} else {
+			rProto = scriptURL.getProtocol();
+		}
+
+		if (!rProto.equals("data")) {
+			throw new SecurityException("Only embedded script resources are allowed.");
+		}
+
+		throw new SecurityException("Scripts are not allowed in this context.");
 //        ua.checkLoadScript(scriptType, scriptURL, docURL);
-    }
+	}
 
-    public void deselectAll()
-    {
-        ua.deselectAll();
-    }
+	public void deselectAll() {
+		ua.deselectAll();
+	}
 
-    public void displayError(Exception ex)
-    {
-        workspace.log("Processing Error: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
-        //ua.displayError(ex);
-    }
+	public void displayError(Exception ex) {
+		workspace.log("Processing Error: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+	//ua.displayError(ex);
+	}
 
-    public void displayMessage(String message)
-    {
-        workspace.log(message);
-        //ua.displayMessage(message);
-    }
+	public void displayMessage(String message) {
+		workspace.log(message);
+	//ua.displayMessage(message);
+	}
 
-    public String getAlternateStyleSheet()
-    {
-        return(ua.getAlternateStyleSheet());
-    }
+	public String getAlternateStyleSheet() {
+		return (ua.getAlternateStyleSheet());
+	}
 
-    public float getBolderFontWeight(float f)
-    {
-        return(ua.getBolderFontWeight(f));
-    }
+	public float getBolderFontWeight(float f) {
+		return (ua.getBolderFontWeight(f));
+	}
 
-    public org.w3c.dom.svg.SVGDocument getBrokenLinkDocument(Element e, String url, String message)
-    {
-        return(ua.getBrokenLinkDocument(e, url, message));
-    }
+	public org.w3c.dom.svg.SVGDocument getBrokenLinkDocument(Element e, String url, String message) {
+		return (ua.getBrokenLinkDocument(e, url, message));
+	}
 
-    public Point getClientAreaLocationOnScreen()
-    {
-        return(ua.getClientAreaLocationOnScreen());
-    }
+	public Point getClientAreaLocationOnScreen() {
+		return (ua.getClientAreaLocationOnScreen());
+	}
 
-    public String getDefaultFontFamily()
-    {
-        return(ua.getDefaultFontFamily());
-    }
+	public String getDefaultFontFamily() {
+		return (ua.getDefaultFontFamily());
+	}
 
-    public org.apache.batik.gvt.event.EventDispatcher getEventDispatcher()
-    {
-        return(ua.getEventDispatcher());
-    }
+	public org.apache.batik.gvt.event.EventDispatcher getEventDispatcher() {
+		return (ua.getEventDispatcher());
+	}
 
-    public ExternalResourceSecurity getExternalResourceSecurity(ParsedURL resourceURL, ParsedURL docURL)
-    {
-        return(ua.getExternalResourceSecurity(resourceURL, docURL));
-    }
+	public ExternalResourceSecurity getExternalResourceSecurity(ParsedURL resourceURL, ParsedURL docURL) {
+		return (ua.getExternalResourceSecurity(resourceURL, docURL));
+	}
 
-    public String getLanguages()
-    {
-        return(ua.getLanguages());
-    }
+	public String getLanguages() {
+		return (ua.getLanguages());
+	}
 
-    public float getLighterFontWeight(float f)
-    {
-        return(ua.getLighterFontWeight(f));
-    }
-    
-    public String getMedia()
-    {
-        return(ua.getMedia());
-    }
+	public float getLighterFontWeight(float f) {
+		return (ua.getLighterFontWeight(f));
+	}
 
-    public float getMediumFontSize()
-    {
-        return(ua.getMediumFontSize());
-    }
+	public String getMedia() {
+		return (ua.getMedia());
+	}
 
-    public float getPixelToMM()
-    {
-        return(ua.getPixelToMM());
-    }
+	public float getMediumFontSize() {
+		return (ua.getMediumFontSize());
+	}
 
-    public float getPixelUnitToMillimeter()
-    {
-        return(ua.getPixelUnitToMillimeter());
-    }
+	public float getPixelToMM() {
+		return (ua.getPixelToMM());
+	}
 
-    public ScriptSecurity getScriptSecurity(String scriptType, ParsedURL scriptURL, ParsedURL docURL)
-    {
-        return(ua.getScriptSecurity(scriptType, scriptURL, docURL));
-    }
+	public float getPixelUnitToMillimeter() {
+		return (ua.getPixelUnitToMillimeter());
+	}
 
-    public AffineTransform getTransform()
-    {
-        return(ua.getTransform());
-    }
+	public ScriptSecurity getScriptSecurity(String scriptType, ParsedURL scriptURL, ParsedURL docURL) {
+		return (ua.getScriptSecurity(scriptType, scriptURL, docURL));
+	}
 
-    public String getUserStyleSheetURI()
-    {
-        return(ua.getUserStyleSheetURI());
-    }
+	public AffineTransform getTransform() {
+		return (ua.getTransform());
+	}
 
-    public Dimension2D getViewportSize()
-    {
-        return(ua.getViewportSize());
-    }
+	public String getUserStyleSheetURI() {
+		return (ua.getUserStyleSheetURI());
+	}
 
-    public String getXMLParserClassName()
-    {
-        return(ua.getXMLParserClassName());
-    }
+	public Dimension2D getViewportSize() {
+		return (ua.getViewportSize());
+	}
 
-    public void handleElement(Element elt, Object data)
-    {
-        ua.handleElement(elt, data);
-    }
-    
-    public boolean hasFeature(String s)
-    {
-        return(ua.hasFeature(s));
-    }
+	public String getXMLParserClassName() {
+		return (ua.getXMLParserClassName());
+	}
 
-    public boolean isXMLParserValidating()
-    {
-        return(ua.isXMLParserValidating());
-    }
+	public void handleElement(Element elt, Object data) {
+		ua.handleElement(elt, data);
+	}
 
-    public void openLink(org.w3c.dom.svg.SVGAElement elt)
-    {
-        ua.openLink(elt);
-    }
+	public boolean hasFeature(String s) {
+		return (ua.hasFeature(s));
+	}
 
-    public void registerExtension(BridgeExtension ext)
-    {
-        ua.registerExtension(ext);
-    }
+	public boolean isXMLParserValidating() {
+		return (ua.isXMLParserValidating());
+	}
 
-    public void setSVGCursor(Cursor cursor)
-    {
-        ua.setSVGCursor(cursor);
-    }
+	public void openLink(org.w3c.dom.svg.SVGAElement elt) {
+		ua.openLink(elt);
+	}
 
-    public void setTextSelection(Mark start, Mark end)
-    {
-        ua.setTextSelection(start, end);
-    }
+	public void registerExtension(BridgeExtension ext) {
+		ua.registerExtension(ext);
+	}
 
-    public void setTransform(AffineTransform at)
-    {
-        ua.setTransform(at);
-    }
+	public void setSVGCursor(Cursor cursor) {
+		ua.setSVGCursor(cursor);
+	}
 
-    public void showAlert(String message)
-    {
-        ua.showAlert(message);
-    }
+	public void setTextSelection(Mark start, Mark end) {
+		ua.setTextSelection(start, end);
+	}
 
-    public boolean showConfirm(String message)
-    {
-        return(ua.showConfirm(message));
-    }
+	public void setTransform(AffineTransform at) {
+		ua.setTransform(at);
+	}
 
-    public String showPrompt(String message)
-    {
-        return(ua.showPrompt(message));
-    }
+	public void showAlert(String message) {
+		ua.showAlert(message);
+	}
 
-    public String showPrompt(String message, String defaultValue)
-    {
-        return(ua.showPrompt(message, defaultValue));
-    }
+	public boolean showConfirm(String message) {
+		return (ua.showConfirm(message));
+	}
 
-    public  boolean supportExtension(String s)
-    {
-        return(ua.supportExtension(s));
-    }
+	public String showPrompt(String message) {
+		return (ua.showPrompt(message));
+	}
+
+	public String showPrompt(String message, String defaultValue) {
+		return (ua.showPrompt(message, defaultValue));
+	}
+
+	public boolean supportExtension(String s) {
+		return (ua.supportExtension(s));
+	}
 }
 

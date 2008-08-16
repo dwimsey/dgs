@@ -104,8 +104,10 @@ public class DGSPreviewerView extends FrameView {
 		if(MRUTemplateImageFileName.length()>0) {
 			setStatusMessage(10, "Loading last used template image: " + MRUTemplateImageFileName);
 			loadImageFile(MRUTemplateImageFileName);
+		} else {
+			setStatusMessage(0, "The DGS Previewer is ready.  Click on the file");
+			setStatusMessage(0, "menu, then Open to view a DGS template image");
 		}
-		setStatusMessage(0, "Ready");
     }
 
     @Action
