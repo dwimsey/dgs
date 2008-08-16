@@ -88,14 +88,16 @@ public class replaceImage implements ImageProcessor.ProcessingEngine.Instruction
         }
 
         Element element = doc.getElementById(imageElementId);
-        if(element.getNodeName().equals("image")) {
-            String dataUri = "";
-            dataUri = "data://" + imgBuffer.mimeType + ";base64,";
-            dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])imgBuffer.data);
-            element.setAttribute("xlink:href", dataUri);
-        } else {
-            workspace.log("The element with an id of " + imageElementId + " is not an image.");
-            return(false);
+        if(element!=null) {
+            if(element.getNodeName().equals("image")) {
+                String dataUri = "";
+                dataUri = "data://" + imgBuffer.mimeType + ";base64,";
+                dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])imgBuffer.data);
+                element.setAttribute("xlink:href", dataUri);
+            } else {
+                workspace.log("The element with an id of " + imageElementId + " is not an image.");
+                return(false);
+            }
         }
 
         TransformerFactory tf = TransformerFactory.newInstance();
