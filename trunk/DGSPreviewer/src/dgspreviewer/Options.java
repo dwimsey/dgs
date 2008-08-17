@@ -2,107 +2,289 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dgspreviewer;
 
 import java.awt.*;
+import java.io.*;
+import java.util.*;
+
+import org.w3c.dom.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.xerces.parsers.*;
+import org.apache.xml.serialize.*;
+import org.xml.sax.*;
+import org.xml.sax.helpers.*;
+import org.w3c.dom.*;
+
 /**
  *
  * @author dwimsey
  */
 public class Options {
-    private java.awt.Color BackgroundColor;
-    private String MRUTemplateImageFileName;
-    private String MRUTemplateVariablesFileName;
+
+	private java.awt.Color BackgroundColor;
+	private String MRUTemplateImageFileName;
+	private String MRUTemplateVariablesFileName;
 	private int LogLevel;
+	private String LogTimeFormatString;
 
-	public Options()
-    {
-        super();
-        this.BackgroundColor = new Color(0xFFFFFFFF);
-        this.MRUTemplateImageFileName = "";
-        this.MRUTemplateVariablesFileName = "";
-		this.LogLevel = 255;
-    }
-    
-    public boolean load()
-    {
-        return(true);
-    }
-    
-    private boolean save()
-    {
-        return(true);
-    }
-
-	public Color getBackgroundColor()
-	{
-		return(this.BackgroundColor);
+	public Options() {
+		super();
+		reset();
 	}
-	
-	public Color setBackgroundColor(Color newColor)
-	{
+
+	private void reset() {
+		this.BackgroundColor = new Color(0xFFFFFFFF);
+		this.MRUTemplateImageFileName = "";
+		this.MRUTemplateVariablesFileName = "";
+		this.LogLevel = 255;
+		this.LogTimeFormatString = "[dd/mm/yyyy HH:MM:ss]: ";
+	}
+
+	public boolean load() {
+		String prefsFileName = System.getenv("APPDATA") + File.separator + "DGSPreviewer" + File.separator + "Prefs.xml";
+		File file = null;
+		DocumentBuilderFactory dbf = null;
+		DocumentBuilder db = null;
+		Document doc = null;
+		try {
+			file = new File(prefsFileName);
+			dbf = DocumentBuilderFactory.newInstance();
+			db = dbf.newDocumentBuilder();
+		} catch (Exception ex) {
+//			setStatusMessage(10, "An unexpected error occurred creating the xml document for the Previewer options.  File: " + prefsFileName + "  Error: " + ex.getLocalizedMessage());
+			ex.printStackTrace();
+			return (false);
+		}
+		try {
+			doc = db.parse(file);
+			doc.getDocumentElement().normalize();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return (false);
+		}
+		try {
+			NodeList nodeLst = doc.getElementsByTagName("DGSPreviewerOption");
+			int nLen = nodeLst.getLength();
+
+			for (int s = 0; s < nLen; s++) {
+				Node fstNode = nodeLst.item(s);
+				if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
+					NamedNodeMap aMap = fstNode.getAttributes();
+					// do stuff with the option
+					Node nameNode = aMap.getNamedItem("key");
+					Node valueNode = aMap.getNamedItem("value");
+					String name = null;
+					String value = null;
+					if (nameNode != null) {
+						name = nameNode.getNodeValue();
+					}
+					if (valueNode != null) {
+						value = valueNode.getNodeValue();
+					}
+					if (name != null && value != null) {
+						// handle this name/value pairs
+
+						if (name.equals("BackgroundColor")) {
+							if (value != null) {
+								java.awt.Color t = this.BackgroundColor;
+								try {
+									t = new java.awt.Color(Integer.valueOf(value));
+								} catch (NumberFormatException ex) {
+									ex.printStackTrace();
+								}
+								this.BackgroundColor = t;
+							}
+						} else if (name.equals("LogLevel")) {
+							if (value != null) {
+								try {
+									this.LogLevel = Integer.valueOf(value);
+								} catch (NumberFormatException ex) {
+									ex.printStackTrace();
+								}
+							}
+						} else if (name.equals("LogTimeFormatString")) {
+							if (value != null) {
+								this.LogTimeFormatString = value;
+							}
+						} else if (name.equals("MRUTemplateImageFileName")) {
+							if (value != null) {
+								this.MRUTemplateImageFileName = value;
+							}
+						} else if (name.equals("MRUTemplateVariablesFileName")) {
+							if (value != null) {
+								this.MRUTemplateVariablesFileName = value;
+							}
+						}
+					}
+				}
+			}
+//                    vars[s] = new DGSVariable(aMap.getNamedItem("name").getNodeValue(), aMap.getNamedItem("value").getNodeValue());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return (false);
+		}
+
+		return (true);
+	}
+
+	private boolean save() {
+		String prefsFileName = System.getenv("APPDATA") + File.separator + "DGSPreviewer";
+		File pDir = new File(prefsFileName);
+		pDir.mkdirs();
+		prefsFileName += File.separator + "Prefs.xml";
+
+		FileOutputStream fos;
+		try {
+			fos = new FileOutputStream(prefsFileName);
+			// XERCES 1 or 2 additionnal classes.
+			OutputFormat of = new OutputFormat("XML", "UTF-8", true);
+			of.setIndent(1);
+			of.setIndenting(true);
+	//		of.setDoctype(null, "users.dtd");
+			XMLSerializer serializer = new XMLSerializer(fos, of);
+
+			// SAX2.0 ContentHandler.
+			ContentHandler hd = serializer.asContentHandler();
+			hd.startDocument();
+			// Processing instruction sample.
+			//hd.processingInstruction("xml-stylesheet","type=\"text/xsl\" href=\"users.xsl\"");
+
+			// USER attributes.
+			AttributesImpl atts = new AttributesImpl();
+			// USERS tag.
+			hd.startElement("", "", "DGSPreviewerOptions", atts);
+			
+			// BackgroundColor
+			atts.clear();
+			atts.addAttribute("", "", "key", "CDATA", "BackgroundColor");
+			atts.addAttribute("", "", "value", "CDATA", this.BackgroundColor.toString());
+			hd.startElement("", "", "DGSPreviewerOption", atts);
+//			hd.characters(desc[i].toCharArray(), 0, desc[i].length());
+			hd.endElement("", "", "DGSPreviewerOption");
+
+			// LogLevel
+			atts.clear();
+			atts.addAttribute("", "", "key", "CDATA", "LogLevel");
+			atts.addAttribute("", "", "value", "CDATA", "" + this.LogLevel );
+			hd.startElement("", "", "DGSPreviewerOption", atts);
+			hd.endElement("", "", "DGSPreviewerOption");
+
+			// LogTimeFormatString
+			atts.clear();
+			atts.addAttribute("", "", "key", "CDATA", "LogTimeFormatString");
+			atts.addAttribute("", "", "value", "CDATA", this.LogTimeFormatString);
+			hd.startElement("", "", "DGSPreviewerOption", atts);
+			hd.endElement("", "", "DGSPreviewerOption");
+
+			// MRUTemplateImageFileName
+			atts.clear();
+			atts.addAttribute("", "", "key", "CDATA", "MRUTemplateImageFileName");
+			atts.addAttribute("", "", "value", "CDATA", this.MRUTemplateImageFileName);
+			hd.startElement("", "", "DGSPreviewerOption", atts);
+			hd.endElement("", "", "DGSPreviewerOption");
+
+			// MRUTemplateVariablesFileName
+			atts.clear();
+			atts.addAttribute("", "", "key", "CDATA", "MRUTemplateVariablesFileName");
+			atts.addAttribute("", "", "value", "CDATA", this.MRUTemplateVariablesFileName);
+			hd.startElement("", "", "DGSPreviewerOption", atts);
+			hd.endElement("", "", "DGSPreviewerOption");
+		
+			hd.endElement("", "", "DGSPreviewerOptions");
+			hd.endDocument();
+			fos.close();
+		} catch (IOException ioex) {
+			ioex.printStackTrace();
+			return(false);
+		} catch (SAXException sex) {
+			sex.printStackTrace();
+			return(false);
+		}
+		return (true);
+	}
+
+	public Color getBackgroundColor() {
+		return (this.BackgroundColor);
+	}
+
+	public Color setBackgroundColor(Color newColor) {
 		Color oldColor = this.BackgroundColor;
-		if(newColor.equals(oldColor)) {
-			return(oldColor);
+		if (newColor.equals(oldColor)) {
+			return (oldColor);
 		}
 		this.BackgroundColor = newColor;
 		this.save();
-		return(oldColor);
+		return (oldColor);
 	}
-	
-	public int getLogLevel()
-	{
-		return(this.LogLevel);
+
+	public int getLogLevel() {
+		return (this.LogLevel);
 	}
-	
-	public int setLogLevel(int newLevel)
-	{
-		if(this.LogLevel==newLevel) {
-			return(newLevel);
+
+	public int setLogLevel(int newLevel) {
+		if (this.LogLevel == newLevel) {
+			return (newLevel);
 		}
 		int oldLevel = this.LogLevel;
 		this.LogLevel = newLevel;
 		this.save();
-		return(oldLevel);
-	}
-	public String getMRUTemplateImageFileName()
-	{
-		return(this.MRUTemplateImageFileName);
+		return (oldLevel);
 	}
 
-	public String setMRUTemplateImageFileName(String newFileName)
-	{
+	public String getLogTimeFormatString() {
+		return (this.LogTimeFormatString);
+	}
+
+	public String setLogTimeFormatString(String newFormatStr) {
+		String oldFormatStr = this.LogTimeFormatString;
+		if (newFormatStr == null) {
+			newFormatStr = "";
+		}
+		if (newFormatStr.equals(oldFormatStr)) {
+			return (oldFormatStr);
+		}
+
+		this.LogTimeFormatString = newFormatStr;
+//		this.save();
+		return (oldFormatStr);
+	}
+
+	public String getMRUTemplateImageFileName() {
+		return (this.MRUTemplateImageFileName);
+	}
+
+	public String setMRUTemplateImageFileName(String newFileName) {
 		String oldName = this.MRUTemplateImageFileName;
-		if(newFileName == null) {
+		if (newFileName == null) {
 			newFileName = "";
 		}
-		if(newFileName.equals(oldName)) {
-			return(oldName);
+		if (newFileName.equals(oldName)) {
+			return (oldName);
 		}
 
 		this.MRUTemplateImageFileName = newFileName;
 		this.save();
-		return(oldName);
+		return (oldName);
 	}
 
-	public String getMRUTemplateVariablesFileName()
-	{
-		return(this.MRUTemplateVariablesFileName);
+	public String getMRUTemplateVariablesFileName() {
+		return (this.MRUTemplateVariablesFileName);
 	}
 
-	public String setMRUTemplateVariablesFileName(String newFileName)
-	{
+	public String setMRUTemplateVariablesFileName(String newFileName) {
 		String oldName = this.MRUTemplateVariablesFileName;
-		if(newFileName == null) {
+		if (newFileName == null) {
 			newFileName = "";
 		}
-		if(newFileName.equals(oldName)) {
-			return(oldName);
+		if (newFileName.equals(oldName)) {
+			return (oldName);
 		}
 
 		this.MRUTemplateVariablesFileName = newFileName;
 		this.save();
-		return(oldName);
+		return (oldName);
 	}
 }
