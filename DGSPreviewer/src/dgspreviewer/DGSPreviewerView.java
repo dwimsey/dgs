@@ -105,8 +105,10 @@ public class DGSPreviewerView extends FrameView {
 			setStatusMessage(10, "Loading last used template image: " + MRUTemplateImageFileName);
 			loadImageFile(MRUTemplateImageFileName);
 		} else {
+			String olm = this.options.setLogTimeFormatString("");
 			setStatusMessage(0, "The DGS Previewer is ready.  Click on the file");
 			setStatusMessage(0, "menu, then Open to view a DGS template image");
+			this.options.setLogTimeFormatString(olm);
 		}
     }
 
@@ -571,10 +573,7 @@ public class DGSPreviewerView extends FrameView {
 		if(LogLevel>cLevel) {
 			return;
 		}
-		String timeFormatStr = "[dd/mm/yyyy HH:MM:ss] ";
-
-		Calendar cal = Calendar.getInstance();
-		jTextArea1.setText(jTextArea1.getText() + (new java.text.SimpleDateFormat(timeFormatStr)).format(cal.getTime()) + Message + "\r\n");
+		jTextArea1.setText(jTextArea1.getText() + (new java.text.SimpleDateFormat(this.options.getLogTimeFormatString())).format(Calendar.getInstance().getTime()) + Message + "\r\n");
     }
 
     private void setStatusMessage(int LogLevel, String Message)
