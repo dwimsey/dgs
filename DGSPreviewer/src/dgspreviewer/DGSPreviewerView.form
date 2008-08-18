@@ -106,7 +106,17 @@
                 <Property name="name" type="java.lang.String" value="openMenuItem" noResource="true"/>
               </Properties>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="refreshMenuItem">
+             <MenuItem class="javax.swing.JMenuItem" name="loadVarsMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="dgspreviewer.DGSPreviewerView" id="loadFile" methodName="loadFile"/>
+                </Property>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="dgspreviewer.DGSPreviewerView" id="loadVarsFile" methodName="loadVarsFile"/>
+                </Property>
+              </Properties>
+            </MenuItem>
+           <MenuItem class="javax.swing.JMenuItem" name="refreshMenuItem">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="dgspreviewer.DGSPreviewerView" id="refreshImage" methodName="refreshImage"/>

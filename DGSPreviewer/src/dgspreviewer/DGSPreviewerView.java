@@ -139,6 +139,7 @@ public class DGSPreviewerView extends FrameView {
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
+	loadVarsMenuItem = new javax.swing.JMenuItem();
         refreshMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
@@ -197,9 +198,14 @@ public class DGSPreviewerView extends FrameView {
         fileMenu.setName("fileMenu"); // NOI18N
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(dgspreviewer.DGSPreviewerApp.class).getContext().getActionMap(DGSPreviewerView.class, this);
+
         openMenuItem.setAction(actionMap.get("loadFile")); // NOI18N
         openMenuItem.setName("openMenuItem"); // NOI18N
         fileMenu.add(openMenuItem);
+
+	loadVarsMenuItem.setAction(actionMap.get("loadVarsFile")); // NOI18N
+	loadVarsMenuItem.setName("loadVarsMenuItem"); // NOI18N
+	fileMenu.add(loadVarsMenuItem);
 
         refreshMenuItem.setAction(actionMap.get("refreshImage")); // NOI18N
         refreshMenuItem.setName("jMenuItemRefresh"); // NOI18N
@@ -286,7 +292,7 @@ public class DGSPreviewerView extends FrameView {
     }
 
     @Action
-    public void loadDGSVariablePackage() {
+    public void loadVarsFile() {
         JFileChooser fc;
 		String MRUTemplateVariablesFileName = this.options.getMRUTemplateVariablesFileName();
         if(MRUTemplateVariablesFileName.length() > 0) {
@@ -592,6 +598,7 @@ public class DGSPreviewerView extends FrameView {
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenuItem openMenuItem;
+    private javax.swing.JMenuItem loadVarsMenuItem;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JMenuItem refreshMenuItem;
     private javax.swing.JLabel statusAnimationLabel;
