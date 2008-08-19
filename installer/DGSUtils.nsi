@@ -94,6 +94,13 @@ Section "Required Files" SecRequired
 	File ..\dgspreviewer\dist\*.jar
 	SetOutPath "$INSTDIR\lib"
 	File /r ..\dgspreviewer\dist\lib\*.*
+
+	SetOutPath "$INSTDIR\examples"
+	File "..\examples\rts_card.svg"
+	File "..\examples\userVars.xml"
+	File "..\examples\substituteVariables.svg"
+	File "..\examples\43x54.png"
+
 	SetOutPath "$INSTDIR"
 
 !insertmacro MUI_STARTMENU_WRITE_BEGIN "DGSUTILS_SM"
@@ -142,6 +149,12 @@ SectionEnd
 
 ;Uninstaller Section
 Section "Uninstall"
+
+	Delete "$INSTDIR\examples\rts_card.svg"
+	Delete "$INSTDIR\examples\userVars.xml"
+	Delete "$INSTDIR\examples\substituteVariables.svg"
+	Delete "$INSTDIR\examples\43x54.png"
+	RMDir "$INSTDIR\examples"
 
 	Delete "$INSTDIR\lib\*.*"
 	RMDir "$INSTDIR\lib"
