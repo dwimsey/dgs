@@ -58,7 +58,7 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "DGS Utilities Pack Inst
 VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" "DGSUtils_Setup.exe"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename" "DGSUtils_Setup.exe"
 
-Caption "DGS Utilities Packe $ProductMajorVersion.$ProductMinorVersion $ProductSpecialBuild (Build: $ProductBuildNumber) Setup"
+Caption "DGS Utilities Package $ProductMajorVersion.$ProductMinorVersion $ProductSpecialBuild (Build: $ProductBuildNumber) Setup"
 BrandingText "Research Triangle Software, Inc."
 
 Function .onInit
@@ -66,7 +66,7 @@ Function .onInit
 	Pop $R0
 
 	StrCmp $R0 0 +3
-		MessageBox MB_OK|MB_ICONEXCLAMATION "Another instance of the DGS Utilities Packe installer is running.  You must finish or cancel the other instance."
+		MessageBox MB_OK|MB_ICONEXCLAMATION "Another instance of the DGS Utilities Package installer is running.  You must finish or cancel the other instance."
 		Abort
 
 	!insertmacro MUI_INSTALLOPTIONS_EXTRACT "PageReinstall.ini"
@@ -91,7 +91,10 @@ Section "Required Files" SecRequired
 	File License.rtf
 
 	; DGS Previewer
-	File /r ..\dgspreviewer\dist\*.*
+	File ..\dgspreviewer\dist\*.jar
+	SetOutPath "$INSTDIR\lib"
+	File /r ..\dgspreviewer\dist\lib\*.*
+	SetOutPath "$INSTDIR"
 
 !insertmacro MUI_STARTMENU_WRITE_BEGIN "DGSUTILS_SM"
 	CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
@@ -139,6 +142,10 @@ SectionEnd
 
 ;Uninstaller Section
 Section "Uninstall"
+
+	Delete "$INSTDIR\lib\*.*"
+	RMDir "$INSTDIR\lib"
+	Delete "$INSTDIR\DGSPreviewer.jar"
 
 	Delete "$INSTDIR\License.rtf"
 	Delete "$INSTDIR\Readme.txt"
