@@ -100,17 +100,29 @@ public class DGSPreviewerView extends FrameView {
             }
         });
 
+		String olm;
+
+		String MRUTemplateVariablesFileName = this.options.getMRUTemplateVariablesFileName();
+		if(MRUTemplateVariablesFileName.length()>0) {
+			setStatusMessage(10, "Loading last used template variables: " + MRUTemplateVariablesFileName);
+			if(!loadVariablesFile(MRUTemplateVariablesFileName)) {
+				setStatusMessage(0, "Previously loaded template variables could not be loaded: " + MRUTemplateVariablesFileName);
+			}
+		} else {
+		}
+
 		String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
 		if(MRUTemplateImageFileName.length()>0) {
 			setStatusMessage(10, "Loading last used template image: " + MRUTemplateImageFileName);
-			loadImageFile(MRUTemplateImageFileName);
-		} else {
-			String olm = this.options.setLogTimeFormatString("");
-			setStatusMessage(0, "The DGS Previewer is ready.  Click on the file");
-			setStatusMessage(0, "menu, then Open to view a DGS template image");
-			this.options.setLogTimeFormatString(olm);
+			if(!loadImageFile(MRUTemplateImageFileName)) {
+				setStatusMessage(0, "Previously loaded image file could not be loaded: " + MRUTemplateImageFileName);
+			}
+//		} else {
 		}
-    }
+		olm = this.options.setLogTimeFormatString("");
+		setStatusMessage(0, "The DGS Previewer is ready.");
+   		this.options.setLogTimeFormatString(olm);
+	}
 
     @Action
     public void showAboutBox() {
@@ -300,17 +312,14 @@ public class DGSPreviewerView extends FrameView {
         } else {
             fc = new JFileChooser();
         }
-        
-		
+
 		FileNameExtensionFilter filter = new FileNameExtensionFilter("DGS Template Package files (*.xml)", "xml");
 		fc.setFileFilter(filter);
         int choice = fc.showOpenDialog(mainPanel);
         if (choice == JFileChooser.APPROVE_OPTION) {
             java.io.File f = fc.getSelectedFile();
             this.setStatusMessage(50, "Loading variable package: " + f.getPath());
-			
-			// validate that it works and update the MRU here
-//            loadImageFile(f.getPath());
+			loadVariablesFile(f.getPath());
         }
     }
 
@@ -391,7 +400,7 @@ public class DGSPreviewerView extends FrameView {
 		} else {
 			dgsRequestInfo.variables = loadVariables(MRUTemplateVariablesFileName);
 			replacementImages = loadImageFiles(MRUTemplateVariablesFileName);
-			if(replacementImages == null||replacementImages.length==0) {
+			if(replacementImages == null) {
 				setStatusMessage(10, "Could not load the user variables file specified: " + fileName);
 				dgsRequestInfo.files = new DGSFileInfo[1];
 			} else {
@@ -464,8 +473,27 @@ public class DGSPreviewerView extends FrameView {
         this.imagePanel.repaint();
         return(true);
     }
-    
-    private byte[] fileToBytes(String fileName) throws FileNotFoundException, IOException
+
+	// Currently this function just verifies that the variables file can be loaded and updates 
+	private boolean loadVariablesFile(String fileName)
+	{
+		DGSFileInfo replacementImages[] = null;
+		
+		DGSVariable vars[] = loadVariables(fileName);
+		if(vars==null) {
+			setStatusMessage(10, "Could not load the user variables file specified: " + fileName);
+			return(false);
+		}
+		replacementImages = loadImageFiles(fileName);
+		if(replacementImages == null) {
+			setStatusMessage(10, "Could not load the user variables file specified, an error occured while parsing the image variables: " + fileName);
+			return(false);
+		}
+		options.setMRUTemplateVariablesFileName(fileName);
+        return(true);
+	}
+
+	private byte[] fileToBytes(String fileName) throws FileNotFoundException, IOException
     {
         byte fDat[] = new byte[0];
 
