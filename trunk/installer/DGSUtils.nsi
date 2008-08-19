@@ -90,9 +90,12 @@ Section "Required Files" SecRequired
 ;	File Readme.txt
 ;	File License.rtf
 
+	; DGS Previewer
+	File /r ..\dgspreviewer\dist\*.*
+
 !insertmacro MUI_STARTMENU_WRITE_BEGIN "DGSUTILS_SM"
 	CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
-	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\DGS Previewer.lnk" "java -jar $INSTDIR\DGSPreviewer.jar" "" "java -jar $INSTDIR\DGSPreviewer.jar" 0
+	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\DGS Previewer.lnk" "javaw.exe" "-jar $\"$INSTDIR\DGSPreviewer.jar$\""
 ;	CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER\Help"
 ;	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\License.lnk" "$INSTDIR\License.rtf" "" "$INSTDIR\License.rtf" 0
 ;	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\ReadMe.lnk" "$INSTDIR\Readme.txt" "" "$INSTDIR\Readme.txt" 0
