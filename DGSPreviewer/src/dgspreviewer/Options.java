@@ -18,6 +18,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import org.w3c.dom.*;
 
+import java.awt.Color;
 /**
  *
  * @author dwimsey
@@ -91,11 +92,11 @@ public class Options {
 							if (value != null) {
 								java.awt.Color t = this.BackgroundColor;
 								try {
-									t = new java.awt.Color(Integer.valueOf(value));
+									t = Color.decode(value);
+									this.BackgroundColor = t;
 								} catch (NumberFormatException ex) {
 									ex.printStackTrace();
 								}
-								this.BackgroundColor = t;
 							}
 						} else if (name.equals("LogLevel")) {
 							if (value != null) {
@@ -160,7 +161,7 @@ public class Options {
 			// BackgroundColor
 			atts.clear();
 			atts.addAttribute("", "", "key", "CDATA", "BackgroundColor");
-			atts.addAttribute("", "", "value", "CDATA", this.BackgroundColor.toString());
+			atts.addAttribute("", "", "value", "CDATA", "#" + (String.format("%1$X", this.BackgroundColor.getRGB())).substring(2, 8));
 			hd.startElement("", "", "DGSPreviewerOption", atts);
 //			hd.characters(desc[i].toCharArray(), 0, desc[i].length());
 			hd.endElement("", "", "DGSPreviewerOption");
