@@ -33,7 +33,7 @@ Page custom PageReinstall PageLeaveReinstall
 !insertmacro MUI_PAGE_INSTFILES
 !define MUI_FINISHPAGE_BUTTON "Finish"
 
-;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\Readme.txt"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\Readme.txt"
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
@@ -87,8 +87,8 @@ FunctionEnd
 Section "Required Files" SecRequired
 	SectionIn RO
 	SetOutPath "$INSTDIR"
-;	File Readme.txt
-;	File License.rtf
+	File Readme.txt
+	File License.rtf
 
 	; DGS Previewer
 	File /r ..\dgspreviewer\dist\*.*
@@ -97,8 +97,8 @@ Section "Required Files" SecRequired
 	CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
 	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\DGS Previewer.lnk" "javaw.exe" "-jar $\"$INSTDIR\DGSPreviewer.jar$\""
 ;	CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER\Help"
-;	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\License.lnk" "$INSTDIR\License.rtf" "" "$INSTDIR\License.rtf" 0
-;	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\ReadMe.lnk" "$INSTDIR\Readme.txt" "" "$INSTDIR\Readme.txt" 0
+	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\License.lnk" "$INSTDIR\License.rtf" "" "$INSTDIR\License.rtf" 0
+	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\ReadMe.lnk" "$INSTDIR\Readme.txt" "" "$INSTDIR\Readme.txt" 0
 	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
 !insertmacro MUI_STARTMENU_WRITE_END
 
