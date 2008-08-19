@@ -319,7 +319,12 @@ public class DGSPreviewerView extends FrameView {
         if (choice == JFileChooser.APPROVE_OPTION) {
             java.io.File f = fc.getSelectedFile();
             this.setStatusMessage(50, "Loading variable package: " + f.getPath());
-			loadVariablesFile(f.getPath());
+			if(loadVariablesFile(f.getPath())) {
+				this.setStatusMessage(100, "File loaded, refreshing image.");
+				refreshImage();
+			} else {
+				this.setStatusMessage(10, "Variable file could not parsed." + f.getPath());
+			}
         }
     }
 
@@ -584,9 +589,9 @@ public class DGSPreviewerView extends FrameView {
                     vars[s].name = aMap.getNamedItem("name").getNodeValue();
                     vars[s].data = ImageProcessor.ProcessingEngine.Base64.decode(aMap.getNamedItem("data").getNodeValue());
                     if("jpg".equalsIgnoreCase(aMap.getNamedItem("mimeType").getNodeValue())) {
-                            vars[s+1].mimeType = "image/jpeg";
+                            vars[s].mimeType = "image/jpeg";
                     } else {
-                            vars[s+1].mimeType = "image/" + aMap.getNamedItem("mimeType").getNodeValue();
+                            vars[s].mimeType = "image/" + aMap.getNamedItem("mimeType").getNodeValue();
                     }
                     vars[s].width = Integer.valueOf(aMap.getNamedItem("width").getNodeValue());
                     vars[s].height = Integer.valueOf(aMap.getNamedItem("height").getNodeValue());
