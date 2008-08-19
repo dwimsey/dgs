@@ -409,7 +409,6 @@ Function GetJRE
     ; Abort
  
   JreFound:
-  MessageBox MB_OK "Found JRE: $R0"
     Pop $2
     Pop $R1
     Exch $R0
