@@ -394,7 +394,9 @@ public class DGSPreviewerView extends FrameView {
                 this.logMessage(10, "");
                 this.setStatusMessage(10, "Reload failed.");
                 this.logMessage(10, "");
-            }
+            } else {
+				this.setStatusMessage(100, "Reload completed.");
+			}
         }
     }
 
