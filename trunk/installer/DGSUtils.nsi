@@ -98,6 +98,8 @@ Function .onInit
 	Call CheckInstalledVersion
 	IfSilent 0 +2
 		Call SilentHandleInstalledVersion
+	Var /GLOBAL "JRE_PATH"
+	StrCpy $JRE_PATH "javaw.exe"
 		
 FunctionEnd
 
@@ -122,13 +124,22 @@ Section "Required Files" SecRequired
 
 	SetOutPath "$INSTDIR"
 
+	Call GetJRE
+	Pop $R0
+	StrCpy $JRE_PATH "$R0"
 !insertmacro MUI_STARTMENU_WRITE_BEGIN "DGSUTILS_SM"
 	CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
-	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\DGS Previewer.lnk" "javaw.exe" "-jar $\"$INSTDIR\DGSPreviewer.jar$\""
+	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\DGS Previewer.lnk" "$JRE_PATH" "-jar $\"$INSTDIR\DGSPreviewer.jar$\""
 ;	CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER\Help"
+
+	CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER\Examples"
+	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Examples\RTS_Card.lnk" "$JRE_PATH" "-jar $\"$INSTDIR\DGSPreviewer.jar$\" -P $\"$INSTDIR\Examples\userVars.xml$\" $\"$INSTDIR\Examples\rts_card.svg$\""
+	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Examples\substituteVariables.lnk" "$JRE_PATH" "-jar $\"$INSTDIR\DGSPreviewer.jar$\" -P $\"$INSTDIR\Examples\userVars.xml$\" $\"$INSTDIR\Examples\substituteVariables.svg$\""
+
 	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\License.lnk" "$INSTDIR\License.rtf" "" "$INSTDIR\License.rtf" 0
 	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\ReadMe.lnk" "$INSTDIR\Readme.txt" "" "$INSTDIR\Readme.txt" 0
 	CreateShortCut "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\Uninstall.exe" 0
+
 !insertmacro MUI_STARTMENU_WRITE_END
 
 ;	Write the uninstall keys for Windows
@@ -186,8 +197,10 @@ Section "Uninstall"
 Var /GLOBAL LMC_SM_PATH
 !insertmacro MUI_STARTMENU_GETFOLDER "DGSUTILS_SM" $LMC_SM_PATH
 ; Remove startmenu shortcuts, if any
-	Delete "$SMPROGRAMS\$LMC_SM_PATH\Help\*.*"
+;	Delete "$SMPROGRAMS\$LMC_SM_PATH\Help\*.*"
 	RMDir "$SMPROGRAMS\$LMC_SM_PATH\Help"
+	Delete "$SMPROGRAMS\$LMC_SM_PATH\Examples\*.*"
+	RMDir "$SMPROGRAMS\$LMC_SM_PATH\Examples"
 	Delete "$SMPROGRAMS\$LMC_SM_PATH\*.*"
 	RMDir "$SMPROGRAMS\$LMC_SM_PATH"
 
