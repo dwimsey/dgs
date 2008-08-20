@@ -36,13 +36,55 @@ public class DGSPreviewerView extends FrameView {
 
     private Options options;
     private static ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
+	private String[] args;
 
-    public DGSPreviewerView(SingleFrameApplication app) {
+	String cmdLinePackageFile = null;
+	String cmdLineImageFile = null;
+	boolean cmdLineLoadOptions = true;
+
+	private void parseCommandLineArgs() {
+		if(args==null) {
+			return;
+		}
+		for(int i = 0; i<this.args.length; i++) {
+			if(args[i].equals("-P")) {
+				if((i+1)==this.args.length) {
+					// this is the last argument, so we can't possibly have a valid DGS package file as the next argument
+					return;
+				} else {
+					// We have another argument, consider it a file name for a DGS package
+
+					// Increment our counter so the i is pointing at the DGS package file name, this
+					// will cause it to be skipped during the next argument pass as well, so it isn't
+					// considered a template image name
+					i++;
+
+					// remember the file name for later
+					cmdLinePackageFile = args[i];
+				}
+			} else if(args[i].equals("-NoLoadOptions")) {
+				// Do not load options file, it will be overwritten with defaults as soon as a options change is made within the application
+				cmdLineLoadOptions = false;
+			} else {
+				// If nothing else matched it, consider it a template image file name
+				cmdLineImageFile = args[i];
+			}
+		}
+	}
+
+	public DGSPreviewerView(SingleFrameApplication app) {
         super(app);
-        options = new Options();
-        boolean wereOptionsLoaded = options.load();
-        pEngine = new ImageProcessor.ProcessingEngine.ProcessingEngine();
+		String cmdArgs[] = null;
+		this.args = DGSPreviewerApp.args;
+	    options = new Options();
+		parseCommandLineArgs();
 
+		boolean wereOptionsLoaded = false;
+		if(cmdLineLoadOptions) {
+			wereOptionsLoaded = options.load();
+		}
+
+		pEngine = new ImageProcessor.ProcessingEngine.ProcessingEngine();
         initComponents();
         imagePanel.options = options;
 
@@ -102,22 +144,37 @@ public class DGSPreviewerView extends FrameView {
 
 		String olm;
 
-		String MRUTemplateVariablesFileName = this.options.getMRUTemplateVariablesFileName();
-		if(MRUTemplateVariablesFileName.length()>0) {
-			setStatusMessage(10, "Loading last used template variables: " + MRUTemplateVariablesFileName);
-			if(!loadVariablesFile(MRUTemplateVariablesFileName)) {
-				setStatusMessage(0, "Previously loaded template variables could not be loaded: " + MRUTemplateVariablesFileName);
+		if((cmdLinePackageFile!=null) && (cmdLinePackageFile.length()>0)) {
+			// load the DGS package file specified on the command line if possible
+			setStatusMessage(10, "Loading template variables specified : " + cmdLinePackageFile);
+			if(!loadVariablesFile(cmdLinePackageFile)) {
+				setStatusMessage(0, "The template variables specified could not be loaded: " + cmdLinePackageFile);
 			}
 		} else {
+			String MRUTemplateVariablesFileName = this.options.getMRUTemplateVariablesFileName();
+			if(MRUTemplateVariablesFileName.length()>0) {
+				setStatusMessage(10, "Loading last used template variables: " + MRUTemplateVariablesFileName);
+				if(!loadVariablesFile(MRUTemplateVariablesFileName)) {
+					setStatusMessage(0, "The previously loaded template variables could not be loaded: " + MRUTemplateVariablesFileName);
+				}
+			} else {
+			}
 		}
 
-		String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
-		if(MRUTemplateImageFileName.length()>0) {
-			setStatusMessage(10, "Loading last used template image: " + MRUTemplateImageFileName);
-			if(!loadImageFile(MRUTemplateImageFileName)) {
-				setStatusMessage(0, "Previously loaded image file could not be loaded: " + MRUTemplateImageFileName);
+		if((cmdLineImageFile!=null) && (cmdLineImageFile.length()>0)) {
+			setStatusMessage(10, "Loading template image specified: " + cmdLineImageFile);
+			if(!loadImageFile(cmdLineImageFile)) {
+				setStatusMessage(0, "The image file specified could not be loaded: " + cmdLineImageFile);
 			}
-//		} else {
+		} else {
+			String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
+			if(MRUTemplateImageFileName.length()>0) {
+				setStatusMessage(10, "Loading last used template image: " + MRUTemplateImageFileName);
+				if(!loadImageFile(MRUTemplateImageFileName)) {
+					setStatusMessage(0, "Previously loaded image file could not be loaded: " + MRUTemplateImageFileName);
+				}
+	//		} else {
+			}
 		}
 		olm = this.options.setLogTimeFormatString("");
 		setStatusMessage(0, "The DGS Previewer is ready.");

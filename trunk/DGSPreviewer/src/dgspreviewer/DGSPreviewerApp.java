@@ -11,7 +11,7 @@ import org.jdesktop.application.SingleFrameApplication;
  * The main class of the application.
  */
 public class DGSPreviewerApp extends SingleFrameApplication {
-
+	static String args[] = null;
     private DGSPreviewerApp()
     {
         super();
@@ -44,6 +44,7 @@ public class DGSPreviewerApp extends SingleFrameApplication {
      * Main method launching the application.
      */
     public static void main(String[] args) {
+		Application.getInstance(DGSPreviewerApp.class).args = args;
         launch(DGSPreviewerApp.class, args);
     }
 }
