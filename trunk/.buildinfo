@@ -2,7 +2,7 @@ HEAD
 0
 0
 0
-nsis_productversion
-installer\utils_product_version.nsi
+nsis,nsis_productversion
+installer\installer_version.nsi,installer\utils_product_version.nsi
 _
-buildver.rb;libs/;examples/;DGS/;Installer/
+buildver.rb;
