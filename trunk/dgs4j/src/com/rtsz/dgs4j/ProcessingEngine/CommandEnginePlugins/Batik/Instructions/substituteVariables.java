@@ -32,7 +32,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 				workspace.log("Processing halted because the command does not have a buffer attribute: " + instructionNode.getNodeName());
 				return (false);  // this should throw an exception instead
 			} else {
-				workspace.log("Processing of command skipped because it does not have a buffer attributes: " + instructionNode.getNodeName());
+				workspace.log("Processing of command skipped because it does not have a buffer attribute: " + instructionNode.getNodeName());
 				return (false);  // this should throw an exception instead
 			}
 		} else {
@@ -42,7 +42,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 					workspace.log("Processing halted because the command does not have a value for the buffer attribute: " + instructionNode.getNodeName());
 					return (false);  // this should throw an exception instead
 				} else {
-					workspace.log("Processing of command skipped because it does not have a value for the buffer attributes: " + instructionNode.getNodeName());
+					workspace.log("Processing of command skipped because it does not have a value for the buffer attribute: " + instructionNode.getNodeName());
 					return (false);  // this should throw an exception instead
 				}
 			}
@@ -50,14 +50,16 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 
 		ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
 		if (iBuffer == null) {
-			workspace.log("There is no buffer named '" + bufferName + "' to do a substitution on.");
+			workspace.log("There is no buffer named '" + bufferName + "' to do a setVisibility on.");
 			return (false);
 		}
 		if (!iBuffer.mimeType.equals("image/svg+xml")) {
+			workspace.log("Buffer is not of type 'image/svg+xml' and no conversion is available for setVisibility: " + bufferName);
 			return (false);
 		}
 
 		if (workspace.requestInfo.variables == null || workspace.requestInfo.variables.length == 0) {
+			workspace.log("This request has no variables associated with it, substituteVariables does not need to proceed: " + bufferName);
 			return (true);
 		}
 
@@ -71,7 +73,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 			//doc = f.createDocument(uri, new java.io.ByteArrayInputStream((byte[])iBuffer.data));
 			doc = f.createDocument(uri);
 		} catch (IOException ex) {
-			workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
+			workspace.log("An error occurred parsing the SVG file data in the substituteVariables command: " + ex.getMessage());
 			return (false);
 		}
 
@@ -80,73 +82,84 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 		int iii = 0;
 		NodeList elements = null;
 		Node textNode = null;
+		Node textStringNode = null;
 		NamedNodeMap attribs = null;
 		String nodeId = null;
 		Node nodeIdNode = null;
 		Element newElement = null;
 		String val = null;
 		String lines[] = null;
-		boolean replacedById = false;
 		String oStr = null;
+		Element newTextLineElement = null;
 
-		elements = doc.getElementsByTagName("text");
-		for (i = 0; i < elements.getLength(); i++) {
+		elements = doc.getElementsByTagName("tspan");
+		int eSize = elements.getLength();
+		for (i = 0; i < eSize; i++) {
 			textNode = elements.item(i);
 			if (textNode != null) {
-				replacedById = false;
-				attribs = textNode.getAttributes();
-				if (attribs != null && attribs.getLength() > 0) {
-					nodeIdNode = attribs.getNamedItem("id");
-					if (nodeIdNode != null) {
-						nodeId = nodeIdNode.getNodeValue();
-						for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
-							if (nodeId.equals(workspace.requestInfo.variables[ii].name)) {
-								// matching text node which we need to replace the data in.
-								replacedById = true;
-								textNode.setTextContent("");
+				if((textNode.getNodeType()==textNode.ELEMENT_NODE)) {
+					textStringNode = textNode.getFirstChild();
+					while(textStringNode!=null) {
+						if(textStringNode.getNodeType()==textStringNode.TEXT_NODE) {
+							for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
+								oStr = textStringNode.getNodeValue();
 								val = workspace.requestInfo.variables[ii].data;
 								lines = val.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
-								if (lines != null) {
-									for (iii = 0; iii < lines.length; iii++) {
-										newElement = doc.createElement("tspan");
-										newElement.setTextContent(lines[iii]);
-										newElement.setAttribute("x", "0");
-										if (iii > 0) {
-											newElement.setAttribute("dy", "1em");
+								if (lines.length == 1) {
+									textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
+								} else if (lines.length > 1) {
+/*									for (iii = 0; iii < lines.length; iii++) {
+										if (iii == 0) {
+											rStr = "<tspan>" + lines[iii] + "</tspan>";
+										} else {
+											rStr += "<tspan x=\"0\" dy=\"1em\">" + lines[iii] + "</tspan>";
 										}
-										textNode.appendChild(newElement);
 									}
+									oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(rStr));
+*/
+//									for (iii = 0; iii < lines.length; iii++) {
+//										newTextLineElement = doc.createElement("tspan");
+//										newTextLineElement.appendChild(doc.createTextNode(lines[iii]));
+////										newTextLineElement.setTextContent(lines[iii]);
+//										if (iii > 0) {
+////											rStr += "<tspan x=\"0\" dy=\"1em\">" + lines[iii] + "</tspan>";
+//										}
+//										//textNode.insertBefore(newTextLineElement, textStringNode);
+//										textNode.appendChild(newTextLineElement);
+//									}
+//									textNode.replaceChild(textStringNode, newTextStringNode);
+									//textNode.removeChild(textStringNode);
 								}
 							}
 						}
+						textStringNode = textStringNode.getNextSibling();
 					}
 				}
-				if (!replacedById) {
-					oStr = textNode.getTextContent();
-					for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
-						val = workspace.requestInfo.variables[ii].data;
-						lines = val.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
-						if (lines.length == 1) {
-							oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data));
-						}
-					}
+			}
+		}
 
-					String rStr = "";
-					for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
-						val = workspace.requestInfo.variables[ii].data;
-						lines = val.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
-						if (lines.length > 1) {
-							for (iii = 0; iii < lines.length; iii++) {
-								if (iii == 0) {
-									rStr = "<tspan>" + lines[iii] + "</tspan>";
-								} else {
-									rStr += "<tspan x=\"0\" dy=\"1em\">" + lines[iii] + "</tspan>";
+		elements = doc.getElementsByTagName("text");
+		eSize = elements.getLength();
+		for (i = 0; i < eSize; i++) {
+			textNode = elements.item(i);
+			if (textNode != null) {
+				if((textNode.getNodeType()==textNode.ELEMENT_NODE)) {
+					textStringNode = textNode.getFirstChild();
+					while(textStringNode!=null) {
+						if(textStringNode.getNodeType()==textStringNode.TEXT_NODE) {
+							for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
+								oStr = textStringNode.getNodeValue();
+								val = workspace.requestInfo.variables[ii].data;
+								lines = val.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
+								if (lines.length == 1) {
+									textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
+								} else if (lines.length > 1) {
+									// we don't currently deal with this situation at all!
 								}
 							}
-							oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(rStr));
 						}
+						textStringNode = textStringNode.getNextSibling();
 					}
-					textNode.setTextContent(oStr);
 				}
 			}
 		}
@@ -175,7 +188,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 				workspace.log("Processing halted because the command does not have a buffer attribute: " + instructionNode.getNodeName());
 				return (false);  // this should throw an exception instead
 			} else {
-				workspace.log("Processing of command skipped because it does not have a buffer attributes: " + instructionNode.getNodeName());
+				workspace.log("Processing of command skipped because it does not have a buffer attribute: " + instructionNode.getNodeName());
 				return (false);  // this should throw an exception instead
 			}
 		} else {
@@ -185,7 +198,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 					workspace.log("Processing halted because the command does not have a value for the buffer attribute: " + instructionNode.getNodeName());
 					return (false);  // this should throw an exception instead
 				} else {
-					workspace.log("Processing of command skipped because it does not have a value for the buffer attributes: " + instructionNode.getNodeName());
+					workspace.log("Processing of command skipped because it does not have a value for the buffer attribute: " + instructionNode.getNodeName());
 					return (false);  // this should throw an exception instead
 				}
 			}
