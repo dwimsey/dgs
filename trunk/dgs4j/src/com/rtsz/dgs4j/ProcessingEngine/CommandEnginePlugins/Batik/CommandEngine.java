@@ -31,9 +31,11 @@ public class CommandEngine implements ICommandEngine {
 	}
 
 	public void addCommands(ProcessingEngine pEngine) {
-		pEngine.addCommandInstruction("substituteVariables", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.substituteVariables());
 		pEngine.addCommandInstruction("replaceImage", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.replaceImage());
+		pEngine.addCommandInstruction("setVisibility", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.setVisibility());
+		pEngine.addCommandInstruction("substituteVariables", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.substituteVariables());
 	}
+
 
 	private String getAttributeValue(NamedNodeMap attributes, String aName) {
 		Node cNode = attributes.getNamedItem(aName);
