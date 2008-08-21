@@ -96,7 +96,7 @@ public class ProcessingEngine {
 						workspace.log("Processing halted because the command does not have a buffer attribute: " + curNodeName);
 						break;
 					} else {
-						workspace.log("Processing of command skipped because it does not have a buffer attributes: " + curNodeName);
+						workspace.log("Processing of command skipped because it does not have a buffer attribute: " + curNodeName);
 						continue;
 					}
 				} else {
@@ -106,7 +106,7 @@ public class ProcessingEngine {
 							workspace.log("Processing halted because the command does not have a value for the buffer attribute: " + curNodeName);
 							break;
 						} else {
-							workspace.log("Processing of command skipped because it does not have a value for the buffer attributes: " + curNodeName);
+							workspace.log("Processing of command skipped because it does not have a value for the buffer attribute: " + curNodeName);
 							continue;
 						}
 					}
