@@ -144,23 +144,32 @@ public class setVisibility implements ImageProcessor.ProcessingEngine.Instructio
 				if (textNode.hasAttributes()) {
 					attribs = textNode.getAttributes();
 					nodeMatchs = false;
-					nodeIdNode = attribs.getNamedItem("id");
-					if (nodeIdNode != null) {
-						nodeId = nodeIdNode.getNodeValue();
-						if(nodeId==null) {
-							nodeId = "";
-						}
-						if(nodeId.equals(idValueStr)) {
-							// this is a node we want to set, do it
-							nodeMatchs = true;
+					if(idValueStr!=null) {
+						nodeIdNode = attribs.getNamedItem("id");
+						if (nodeIdNode != null) {
+							nodeId = nodeIdNode.getNodeValue();
+							if(nodeId==null) {
+								nodeId = "";
+							}
+							if(nodeId.equals(idValueStr)) {
+								// this is a node we want to set, do it
+								nodeMatchs = true;
+							}
 						}
 					}
-					if(!nodeMatchs)
-					nodeIdNode = attribs.getNamedItem("name");
-					if (nodeIdNode != null) {
-						if(nodeId.equals(nameValueStr)) {
-							// this is a node we want to set, do it
-							nodeMatchs = true;
+					if(!nodeMatchs) {
+						if(nameValueStr!=null) {
+							nodeIdNode = attribs.getNamedItem("name");
+							if (nodeIdNode != null) {
+								nodeId = nodeIdNode.getNodeValue();
+								if(nodeId==null) {
+									nodeId = "";
+								}
+								if(nodeId.equals(nameValueStr)) {
+									// this is a node we want to set, do it
+									nodeMatchs = true;
+								}
+							}
 						}
 					}
 
