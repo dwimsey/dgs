@@ -128,7 +128,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 											suffix = oStr.substring(varEnd);
 										}
 
-										if((textNode.getNodeName().equals("flowPara")) || (textNode.getNodeName().equals("flowDiv"))) {
+											if(textNode.getNodeName().equals("flowPara")) {
 											if(prefix!=null && !prefix.isEmpty()) {
 												textNode.appendChild(((org.apache.batik.dom.svg12.SVG12OMDocument)doc).createTextNode(prefix));
 											}
