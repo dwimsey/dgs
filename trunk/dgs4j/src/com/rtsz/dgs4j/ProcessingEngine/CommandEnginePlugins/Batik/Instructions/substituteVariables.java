@@ -92,7 +92,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 		String oStr = null;
 		Element newTextLineElement = null;
 
-		elements = doc.getElementsByTagName("tspan");
+		elements = doc.getElementsByTagName("*");
 		int eSize = elements.getLength();
 		for (i = 0; i < eSize; i++) {
 			textNode = elements.item(i);
@@ -105,54 +105,9 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 								oStr = textStringNode.getNodeValue();
 								val = workspace.requestInfo.variables[ii].data;
 								lines = val.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
-									textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
-/*								if (lines.length == 1) {
-									textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
-								} else if (lines.length > 1) {
-									for (iii = 0; iii < lines.length; iii++) {
-										if (iii == 0) {
-											rStr = "<tspan>" + lines[iii] + "</tspan>";
-										} else {
-											rStr += "<tspan x=\"0\" dy=\"1em\">" + lines[iii] + "</tspan>";
-										}
-									}
-									oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(rStr));
-
-									for (iii = 0; iii < lines.length; iii++) {
-										newTextLineElement = doc.createElement("tspan");
-										newTextLineElement.appendChild(doc.createTextNode(lines[iii]));
-//										newTextLineElement.setTextContent(lines[iii]);
-										if (iii > 0) {
-//											rStr += "<tspan x=\"0\" dy=\"1em\">" + lines[iii] + "</tspan>";
-										}
-										//textNode.insertBefore(newTextLineElement, textStringNode);
-										textNode.appendChild(newTextLineElement);
-									}
-									textNode.replaceChild(textStringNode, newTextStringNode);
-								}
-*/							}
-						}
-						textStringNode = textStringNode.getNextSibling();
-					}
-				}
-			}
-		}
-
-		elements = doc.getElementsByTagName("text");
-		eSize = elements.getLength();
-		for (i = 0; i < eSize; i++) {
-			textNode = elements.item(i);
-			if (textNode != null) {
-				if((textNode.getNodeType()==textNode.ELEMENT_NODE)) {
-					textStringNode = textNode.getFirstChild();
-					while(textStringNode!=null) {
-						if(textStringNode.getNodeType()==textStringNode.TEXT_NODE) {
-							for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
-								oStr = textStringNode.getNodeValue();
-								val = workspace.requestInfo.variables[ii].data;
-								lines = val.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
+								textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
 								if (lines.length == 1) {
-									textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
+									// textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
 								} else if (lines.length > 1) {
 									// we don't currently deal with this situation at all!
 								}
