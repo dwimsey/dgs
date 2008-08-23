@@ -504,6 +504,7 @@ public class DGSPreviewerView extends FrameView {
             }
             this.logMessage(100, "Loaded " + (dgsRequestInfo.files.length-1) + " image files.");
         }
+//        dgsRequestInfo.instructionsXML += "<setVisibility buffer=\"main\" visibility=\"hidden\" targetName=\"User:BusinessPhone\" /><save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
         dgsRequestInfo.instructionsXML += "<save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
 
         ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);

@@ -80,17 +80,14 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 		int i = 0;
 		int ii = 0;
 		int iii = 0;
+		int varStart;
+		int varEnd;
 		NodeList elements = null;
 		Node textNode = null;
 		Node textStringNode = null;
-		NamedNodeMap attribs = null;
-		String nodeId = null;
-		Node nodeIdNode = null;
-		Element newElement = null;
 		String val = null;
 		String lines[] = null;
 		String oStr = null;
-		Element newTextLineElement = null;
 
 		elements = doc.getElementsByTagName("*");
 		int eSize = elements.getLength();
@@ -101,15 +98,60 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 					textStringNode = textNode.getFirstChild();
 					while(textStringNode!=null) {
 						if(textStringNode.getNodeType()==textStringNode.TEXT_NODE) {
-							for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
-								oStr = textStringNode.getNodeValue();
-								val = workspace.requestInfo.variables[ii].data;
-								lines = val.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
-								textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
-								if (lines.length == 1) {
-									// textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
-								} else if (lines.length > 1) {
-									// we don't currently deal with this situation at all!
+							// check to see if its worth parsing this string
+							oStr = textStringNode.getNodeValue();
+							if(!oStr.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ').trim().isEmpty()) {
+								for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
+									// get this each time around to make sure we see the changes made from
+									// previous passes
+									oStr = textStringNode.getNodeValue();
+									varStart = oStr.indexOf("{" + workspace.requestInfo.variables[ii].name + "}");
+									if(varStart == -1) {
+										// the variable we're working with does not appear in this text,
+										// go to the next variable
+										continue;
+									}
+
+									val = workspace.requestInfo.variables[ii].data;
+									lines = val.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
+									//textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
+									if (lines.length == 1) {
+										textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
+									} else if (lines.length > 1) {
+										String prefix = null;
+										String suffix = null;
+										if(varStart>0) {
+											prefix = oStr.substring(0, varStart);
+										}
+										varEnd = varStart + workspace.requestInfo.variables[ii].name.length() + 2;
+										if(varEnd < oStr.length()) {
+											suffix = oStr.substring(varEnd);
+										}
+
+										if((textNode.getNodeName().equals("flowPara")) || (textNode.getNodeName().equals("flowDiv"))) {
+											if(prefix!=null && !prefix.isEmpty()) {
+												textNode.appendChild(((org.apache.batik.dom.svg12.SVG12OMDocument)doc).createTextNode(prefix));
+											}
+											
+											for(iii = 0; iii < lines.length; iii++) {
+												if(iii > 0) {
+													// add flowLine first, except on the first pass, this
+													// allows for the most natural feel in the wrapping
+													textNode.appendChild(((org.apache.batik.dom.svg12.SVG12OMDocument)doc).createElement("flowLine"));
+												}
+												textNode.appendChild(((org.apache.batik.dom.svg12.SVG12OMDocument)doc).createTextNode(lines[iii]));
+											}
+
+											
+											if(suffix!=null && !suffix.isEmpty()) {
+												textNode.appendChild(((org.apache.batik.dom.svg12.SVG12OMDocument)doc).createTextNode(suffix));
+											}
+											textNode.removeChild(textStringNode);
+										} else {
+											// we don't know how to handle multiple lines specially in this element, just replace what we have
+											textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
+										}
+									}
 								}
 							}
 						}
