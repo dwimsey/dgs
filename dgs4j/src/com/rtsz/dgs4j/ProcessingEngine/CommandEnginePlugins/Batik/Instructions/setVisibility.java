@@ -94,12 +94,12 @@ public class setVisibility implements ImageProcessor.ProcessingEngine.Instructio
 					return (false);
 				}
 			}
-			if(!objectVisible.equalsIgnoreCase("visible") && !objectVisible.equalsIgnoreCase("inherit") && !objectVisible.equalsIgnoreCase("hidden")) {
+			if(!objectVisible.equals("visible") && !objectVisible.equals("inherit") && !objectVisible.equals("hidden")) {
 				workspace.log("Processing of command skipped because it does not have a valid value for the visible attribute: " + instructionNode.getNodeName() + "  Value: " + objectVisible);
 				return (false);
 			}
 		}
-		
+
 		ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
 		if (iBuffer == null) {
 			workspace.log("There is no buffer named '" + bufferName + "' to do a setVisibility on.");
@@ -174,14 +174,19 @@ public class setVisibility implements ImageProcessor.ProcessingEngine.Instructio
 					}
 
 					if(nodeMatchs) {
-						Node nodeVisibilityNode = attribs.getNamedItem("visibility");
-						if(nodeVisibilityNode == null) {
-							// this item does not have a visibility attribute yet, create one and add it
-							nodeVisibilityNode = doc.createAttribute("visibility");							
-							attribs.setNamedItem(nodeVisibilityNode);
+						if(objectVisible.equals("hidden")) {
+							// remove the entire named node and it WILL truely be hidden!
+							textNode.getParentNode().removeChild(textNode);
+						} else {
+							Node nodeVisibilityNode = attribs.getNamedItem("visibility");
+							if(nodeVisibilityNode == null) {
+								// this item does not have a visibility attribute yet, create one and add it
+								nodeVisibilityNode = doc.createAttribute("visibility");							
+								attribs.setNamedItem(nodeVisibilityNode);
+							}
+							// since at this point we'll always have a nodeVisibilityNode, set it.
+							nodeVisibilityNode.setNodeValue(objectVisible);
 						}
-						// since at this point we'll always have a nodeVisibilityNode, set it.
-						nodeVisibilityNode.setNodeValue(objectVisible);
 					}
 				}
 			}
