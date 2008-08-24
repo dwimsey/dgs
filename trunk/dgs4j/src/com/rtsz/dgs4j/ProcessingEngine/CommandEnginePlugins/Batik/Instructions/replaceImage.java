@@ -22,6 +22,8 @@ import javax.xml.transform.stream.*;
  */
 public class replaceImage implements ImageProcessor.ProcessingEngine.Instructions.IInstruction {
 
+	String xlinkNS = "http://www.w3.org/1999/xlink";
+
 	public boolean process(ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace, Node instructionNode) {
 		NamedNodeMap nm = instructionNode.getAttributes();
 		Node bufferNode = nm.getNamedItem("buffer");
@@ -90,9 +92,9 @@ public class replaceImage implements ImageProcessor.ProcessingEngine.Instruction
 		if (element != null) {
 			if (element.getNodeName().equals("image")) {
 				String dataUri = "";
-				dataUri = "data://" + imgBuffer.mimeType + ";base64,";
+				dataUri = "data://" + imgBuffer.mimeType.trim() + ";base64,";
 				dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) imgBuffer.data);
-				element.setAttribute("xlink:href", dataUri);
+				element.setAttributeNS(xlinkNS, "xlink:href", dataUri);
 			} else {
 				workspace.log("The element with an id of " + imageElementId + " is not an image.");
 				return (false);
@@ -110,7 +112,6 @@ public class replaceImage implements ImageProcessor.ProcessingEngine.Instruction
 			return (false);
 		}
 		iBuffer.data = outStream.toByteArray();
-
 		return (true);
 	}
 }
