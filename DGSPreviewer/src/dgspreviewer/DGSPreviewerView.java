@@ -500,7 +500,7 @@ public class DGSPreviewerView extends FrameView {
         if(dgsRequestInfo.files.length > 1) {
             for(int i = 1; i<dgsRequestInfo.files.length; i++) {
                 this.logMessage(100, "Replacing image: " + dgsRequestInfo.files[i].name);
-                dgsRequestInfo.instructionsXML += "<load filename=\"" + dgsRequestInfo.files[i].name + "\" buffer=\"" + dgsRequestInfo.files[i].name + "\" mimeType=\"image/" + dgsRequestInfo.files[i].mimeType + "\" /><replaceImage buffer=\"main\" srcImage=\"" + dgsRequestInfo.files[i].name + "\" imageElementId=\"" + dgsRequestInfo.files[i].name + "\" halign=\"center\" valign=\"center\" />";
+                dgsRequestInfo.instructionsXML += "<load filename=\"" + dgsRequestInfo.files[i].name + "\" buffer=\"" + dgsRequestInfo.files[i].name + "\" mimeType=\"" + dgsRequestInfo.files[i].mimeType + "\" /><replaceImage buffer=\"main\" srcImage=\"" + dgsRequestInfo.files[i].name + "\" imageElementId=\"" + dgsRequestInfo.files[i].name + "\" halign=\"center\" valign=\"center\" />";
             }
             this.logMessage(100, "Loaded " + (dgsRequestInfo.files.length-1) + " image files.");
         }
