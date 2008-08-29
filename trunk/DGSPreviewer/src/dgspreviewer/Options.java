@@ -4,15 +4,11 @@
  */
 package dgspreviewer;
 
-import java.awt.*;
 import java.io.*;
-import java.util.*;
 
-import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.xerces.parsers.*;
 import org.apache.xml.serialize.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
@@ -27,7 +23,7 @@ public class Options {
 
 	private java.awt.Color BackgroundColor;
 	private String MRUTemplateImageFileName;
-	private String MRUTemplateVariablesFileName;
+	private String MRUDGSPackageFileName;
 	private int LogLevel;
 	private String LogTimeFormatString;
 
@@ -39,7 +35,7 @@ public class Options {
 	private void reset() {
 		this.BackgroundColor = new Color(0xFFFFFFFF);
 		this.MRUTemplateImageFileName = "";
-		this.MRUTemplateVariablesFileName = "";
+		this.MRUDGSPackageFileName = "";
 		this.LogLevel = 255;
 		this.LogTimeFormatString = "[dd/mm/yyyy HH:MM:ss]: ";
 	}
@@ -114,9 +110,9 @@ public class Options {
 							if (value != null) {
 								this.MRUTemplateImageFileName = value;
 							}
-						} else if (name.equals("MRUTemplateVariablesFileName")) {
+						} else if (name.equals("MRUDGSPackageFileName")) {
 							if (value != null) {
-								this.MRUTemplateVariablesFileName = value;
+								this.MRUDGSPackageFileName = value;
 							}
 						}
 					}
@@ -187,10 +183,10 @@ public class Options {
 			hd.startElement("", "", "DGSPreviewerOption", atts);
 			hd.endElement("", "", "DGSPreviewerOption");
 
-			// MRUTemplateVariablesFileName
+			// MRUDGSPackageFileName
 			atts.clear();
-			atts.addAttribute("", "", "key", "CDATA", "MRUTemplateVariablesFileName");
-			atts.addAttribute("", "", "value", "CDATA", this.MRUTemplateVariablesFileName);
+			atts.addAttribute("", "", "key", "CDATA", "MRUDGSPackageFileName");
+			atts.addAttribute("", "", "value", "CDATA", this.MRUDGSPackageFileName);
 			hd.startElement("", "", "DGSPreviewerOption", atts);
 			hd.endElement("", "", "DGSPreviewerOption");
 		
@@ -271,12 +267,12 @@ public class Options {
 		return (oldName);
 	}
 
-	public String getMRUTemplateVariablesFileName() {
-		return (this.MRUTemplateVariablesFileName);
+	public String getMRUDGSPackageFileName() {
+		return (this.MRUDGSPackageFileName);
 	}
 
-	public String setMRUTemplateVariablesFileName(String newFileName) {
-		String oldName = this.MRUTemplateVariablesFileName;
+	public String setMRUDGSPackageFileName(String newFileName) {
+		String oldName = this.MRUDGSPackageFileName;
 		if (newFileName == null) {
 			newFileName = "";
 		}
@@ -284,7 +280,7 @@ public class Options {
 			return (oldName);
 		}
 
-		this.MRUTemplateVariablesFileName = newFileName;
+		this.MRUDGSPackageFileName = newFileName;
 		this.save();
 		return (oldName);
 	}

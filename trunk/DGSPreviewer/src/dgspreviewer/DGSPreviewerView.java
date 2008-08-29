@@ -143,19 +143,21 @@ public class DGSPreviewerView extends FrameView {
         });
 
 		String olm;
-
+		DGSPackage dPkg = new DGSPackage();
 		if((cmdLinePackageFile!=null) && (cmdLinePackageFile.length()>0)) {
 			// load the DGS package file specified on the command line if possible
-			setStatusMessage(10, "Loading template variables specified : " + cmdLinePackageFile);
-			if(!loadVariablesFile(cmdLinePackageFile)) {
-				setStatusMessage(0, "The template variables specified could not be loaded: " + cmdLinePackageFile);
+			setStatusMessage(10, "Loading template package specified : " + cmdLinePackageFile);
+			if(!dPkg.loadFile(cmdLinePackageFile)) {
+				setStatusMessage(0, "The template package specified could not be loaded: " + cmdLinePackageFile);
+			} else {
+				this.options.setMRUDGSPackageFileName(cmdLinePackageFile); // update the last used path
 			}
 		} else {
-			String MRUTemplateVariablesFileName = this.options.getMRUTemplateVariablesFileName();
-			if(MRUTemplateVariablesFileName.length()>0) {
-				setStatusMessage(10, "Loading last used template variables: " + MRUTemplateVariablesFileName);
-				if(!loadVariablesFile(MRUTemplateVariablesFileName)) {
-					setStatusMessage(0, "The previously loaded template variables could not be loaded: " + MRUTemplateVariablesFileName);
+			String DGSPackageFileName = this.options.getMRUDGSPackageFileName();
+			if(DGSPackageFileName.length()>0) {
+				setStatusMessage(10, "Loading last used DGS Package: " + DGSPackageFileName);
+				if(!dPkg.loadFile(DGSPackageFileName)) {
+					setStatusMessage(0, "The previously loaded DGS Package could not be loaded: " + DGSPackageFileName);
 				}
 			} else {
 			}
@@ -363,9 +365,9 @@ public class DGSPreviewerView extends FrameView {
     @Action
     public void loadVarsFile() {
         JFileChooser fc;
-		String MRUTemplateVariablesFileName = this.options.getMRUTemplateVariablesFileName();
-        if(MRUTemplateVariablesFileName.length() > 0) {
-            fc = new JFileChooser(MRUTemplateVariablesFileName);
+		String DGSPackageFileName = this.options.getMRUDGSPackageFileName();
+        if(DGSPackageFileName.length() > 0) {
+            fc = new JFileChooser(DGSPackageFileName);
         } else {
             fc = new JFileChooser();
         }
@@ -376,11 +378,13 @@ public class DGSPreviewerView extends FrameView {
         if (choice == JFileChooser.APPROVE_OPTION) {
             java.io.File f = fc.getSelectedFile();
             this.setStatusMessage(50, "Loading variable package: " + f.getPath());
-			if(loadVariablesFile(f.getPath())) {
+			DGSPackage dPkg = new DGSPackage();
+			if(!dPkg.loadFile(f.getPath())) {
+				this.options.setMRUDGSPackageFileName(f.getPath());
 				this.setStatusMessage(100, "File loaded, refreshing image.");
 				refreshImage();
 			} else {
-				this.setStatusMessage(10, "Variable file could not parsed." + f.getPath());
+				this.setStatusMessage(10, "DGS Package file could not parsed." + f.getPath());
 			}
         }
     }
@@ -457,27 +461,26 @@ public class DGSPreviewerView extends FrameView {
 		
 		DGSFileInfo replacementImages[] = null;
 		
-		String MRUTemplateVariablesFileName = this.options.getMRUTemplateVariablesFileName();
-		if((MRUTemplateVariablesFileName == null) || (MRUTemplateVariablesFileName.length() == 0)) {
+		String DGSPackageFileName = this.options.getMRUDGSPackageFileName();
+		
+		DGSPackage dPkg = new DGSPackage();
+		if((DGSPackageFileName == null) || (DGSPackageFileName.length() == 0)) {
 			dgsRequestInfo.files = new DGSFileInfo[1];
 			dgsRequestInfo.variables = null;
 		} else {
-			dgsRequestInfo.variables = loadVariables(MRUTemplateVariablesFileName);
-			replacementImages = loadImageFiles(MRUTemplateVariablesFileName);
-			if(replacementImages == null) {
-				setStatusMessage(10, "Could not load the user variables file specified: " + fileName);
-				dgsRequestInfo.files = new DGSFileInfo[1];
-			} else {
-				if(replacementImages.length==0) {
-					setStatusMessage(100, "The file specified does not contain any replacement images: " + fileName);
-					dgsRequestInfo.files = new DGSFileInfo[1];
-				} else {
-					setStatusMessage(100, replacementImages.length + " replacement image(s) found.");
-					dgsRequestInfo.files = new DGSFileInfo[replacementImages.length + 1];
-					for(int i = 0; i < replacementImages.length; i++) {
-						dgsRequestInfo.files[i+1] = replacementImages[i];
+			if(dPkg.loadFile(DGSPackageFileName)) {
+				if(dPkg.files!=null && (dPkg.files.length>0)) {
+					dgsRequestInfo.files = new DGSFileInfo[dPkg.files.length+1];
+					for(int i = 0; i<dPkg.files.length; i++) {
+						dgsRequestInfo.files[i+1] = dPkg.files[i];
 					}
+				} else {
+					dgsRequestInfo.files = new DGSFileInfo[1];
 				}
+				dgsRequestInfo.variables = dPkg.variables;
+			} else {
+				dgsRequestInfo.files = new DGSFileInfo[1];
+				dgsRequestInfo.variables = null;
 			}
 		}
 
@@ -491,21 +494,14 @@ public class DGSPreviewerView extends FrameView {
 
 
 		// Form the instruction xml fragment
-        dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"main\" mimeType=\"image/svg+xml\" />";
-        if(dgsRequestInfo.variables != null && dgsRequestInfo.variables.length > 0) {
-            dgsRequestInfo.instructionsXML += "<substituteVariables buffer=\"main\" />";
-            this.logMessage(100, "Loaded " + dgsRequestInfo.variables.length + " variables.");
-        }
-
-        if(dgsRequestInfo.files.length > 1) {
-            for(int i = 1; i<dgsRequestInfo.files.length; i++) {
-                this.logMessage(100, "Replacing image: " + dgsRequestInfo.files[i].name);
-                dgsRequestInfo.instructionsXML += "<load filename=\"" + dgsRequestInfo.files[i].name + "\" buffer=\"" + dgsRequestInfo.files[i].name + "\" mimeType=\"" + dgsRequestInfo.files[i].mimeType + "\" /><replaceImage buffer=\"main\" srcImage=\"" + dgsRequestInfo.files[i].name + "\" imageElementId=\"" + dgsRequestInfo.files[i].name + "\" halign=\"center\" valign=\"center\" />";
-            }
-            this.logMessage(100, "Loaded " + (dgsRequestInfo.files.length-1) + " image files.");
-        }
-//        dgsRequestInfo.instructionsXML += "<setVisibility buffer=\"main\" visibility=\"hidden\" targetName=\"User:BusinessPhone\" /><save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
-        dgsRequestInfo.instructionsXML += "<save snapshotTime=\"1.0\" filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
+        dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"image/svg+xml\" />";
+		dgsRequestInfo.instructionsXML += dPkg.commandString;
+        dgsRequestInfo.instructionsXML += "<save ";
+		if((dPkg.animationDuration>0.0f) && (dPkg.animationFramerate>0.0f)) {
+//			dgsRequestInfo.instructionsXML += "animationDuration=\"" + dPkg.animationDuration + "\" animationFramerate=\"" + dPkg.animationFramerate + "\" ";
+		}
+		
+		dgsRequestInfo.instructionsXML += "filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
 
         ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
         setStatusMessage(150, "Performing DGS Request ...");
@@ -539,25 +535,6 @@ public class DGSPreviewerView extends FrameView {
         return(true);
     }
 
-	// Currently this function just verifies that the variables file can be loaded and updates 
-	private boolean loadVariablesFile(String fileName)
-	{
-		DGSFileInfo replacementImages[] = null;
-		
-		DGSVariable vars[] = loadVariables(fileName);
-		if(vars==null) {
-			setStatusMessage(10, "Could not load the user variables file specified: " + fileName);
-			return(false);
-		}
-		replacementImages = loadImageFiles(fileName);
-		if(replacementImages == null) {
-			setStatusMessage(10, "Could not load the user variables file specified, an error occured while parsing the image variables: " + fileName);
-			return(false);
-		}
-		options.setMRUTemplateVariablesFileName(fileName);
-        return(true);
-	}
-
 	private byte[] fileToBytes(String fileName) throws FileNotFoundException, IOException
     {
         byte fDat[] = new byte[0];
@@ -568,102 +545,6 @@ public class DGSPreviewerView extends FrameView {
         i = fs.read(fDat);
         fs.close();
         return(fDat);
-    }
-
-    private DGSVariable[] loadVariables(String varFileName)
-    {
-        DGSVariable vars[] = null;
-        File file = null;
-        DocumentBuilderFactory dbf = null;
-        DocumentBuilder db = null;
-        Document doc = null;
-        try {
-            file = new File(varFileName);
-            dbf = DocumentBuilderFactory.newInstance();
-            db = dbf.newDocumentBuilder();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return(null);
-        }
-        try {
-            doc = db.parse(file);
-            doc.getDocumentElement().normalize();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return(null);
-        }
-        try {
-            NodeList nodeLst = doc.getElementsByTagName("DGSVariable");
-
-            int nLen = nodeLst.getLength();
-            vars = new DGSVariable[nLen];
-            for (int s = 0; s < nLen; s++) {
-                Node fstNode = nodeLst.item(s);
-                if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
-                    NamedNodeMap aMap = fstNode.getAttributes();
-                    vars[s] = new DGSVariable(aMap.getNamedItem("name").getNodeValue(), aMap.getNamedItem("value").getNodeValue());
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return(null);
-        }
-
-        return(vars);
-    }
-
-    private DGSFileInfo[] loadImageFiles(String varFileName)
-    {
-        DGSFileInfo vars[] = null;
-        File file = null;
-        DocumentBuilderFactory dbf = null;
-        DocumentBuilder db = null;
-        Document doc = null;
-        try {
-            file = new File(varFileName);
-            dbf = DocumentBuilderFactory.newInstance();
-            db = dbf.newDocumentBuilder();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            setStatusMessage(10, "loadImageFiles: An error occurred creating the XML document context: " + ex.getMessage());
-            return(null);
-        }
-        try {
-            doc = db.parse(file);
-            doc.getDocumentElement().normalize();
-        } catch (Exception ex) {
-			setStatusMessage(10, "loadImageFiles: An error occurred parsing the XML document (" + varFileName + "): " + ex.getLocalizedMessage());
-            ex.printStackTrace();
-            return(null);
-        }
-        try {
-            NodeList nodeLst = doc.getElementsByTagName("DGSImageVariable");
-
-            int nLen = nodeLst.getLength();
-            vars = new DGSFileInfo[nLen];
-            for (int s = 0; s < nLen; s++) {
-                Node fstNode = nodeLst.item(s);
-                if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
-                    NamedNodeMap aMap = fstNode.getAttributes();
-                    vars[s] = new DGSFileInfo();
-                    vars[s].name = aMap.getNamedItem("name").getNodeValue();
-                    vars[s].data = ImageProcessor.ProcessingEngine.Base64.decode(aMap.getNamedItem("data").getNodeValue());
-                    if("jpg".equalsIgnoreCase(aMap.getNamedItem("mimeType").getNodeValue())) {
-                            vars[s].mimeType = "image/jpeg";
-                    } else {
-                            vars[s].mimeType = "image/" + aMap.getNamedItem("mimeType").getNodeValue();
-                    }
-                    vars[s].width = Integer.valueOf(aMap.getNamedItem("width").getNodeValue());
-                    vars[s].height = Integer.valueOf(aMap.getNamedItem("height").getNodeValue());
-                }
-            }
-        } catch (Exception ex) {
-			setStatusMessage(10, "loadImageFiles: An error occurred parsing the variable data in" + varFileName + "\": " + ex.getLocalizedMessage());
-            ex.printStackTrace();
-            return(null);
-        }
-
-        return(vars);
     }
 
     private void logMessage(int LogLevel, String Message)
