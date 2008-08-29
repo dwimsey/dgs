@@ -13,7 +13,7 @@ public class DGSJPEGTranscoder extends org.apache.batik.transcoder.image.JPEGTra
 	public DGSJPEGTranscoder(ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace) {
 		super();
 		this.hints.put(this.KEY_EXECUTE_ONLOAD, true);
-		this.hints.put(this.KEY_ALLOWED_SCRIPT_TYPES, "text/ecmascript");
+		this.hints.put(this.KEY_ALLOWED_SCRIPT_TYPES, ""); // "text/ecmascript");
 		this.userAgent = new DGSUserAgent(this.userAgent, workspace);
 	}
 }
