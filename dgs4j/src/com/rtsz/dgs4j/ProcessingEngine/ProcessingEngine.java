@@ -75,6 +75,10 @@ public class ProcessingEngine {
 		for (int i = 0; i < commands.getLength(); i++) {
 			curNode = commands.item(i);
 			curNodeName = curNode.getNodeName().intern();
+			if(curNode.getNodeType()!=curNode.ELEMENT_NODE) {
+				// we only process ELEMENT nodes
+				continue;
+			}
 
 			attributes = curNode.getAttributes();
 			if (attributes == null) {
