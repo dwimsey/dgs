@@ -379,7 +379,7 @@ public class DGSPreviewerView extends FrameView {
             java.io.File f = fc.getSelectedFile();
             this.setStatusMessage(50, "Loading variable package: " + f.getPath());
 			DGSPackage dPkg = new DGSPackage();
-			if(!dPkg.loadFile(f.getPath())) {
+			if(dPkg.loadFile(f.getPath())) {
 				this.options.setMRUDGSPackageFileName(f.getPath());
 				this.setStatusMessage(100, "File loaded, refreshing image.");
 				refreshImage();
