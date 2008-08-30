@@ -135,21 +135,21 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 
 											if(textNode.getNodeName().equals("flowPara")) {
 											if(prefix!=null && !prefix.isEmpty()) {
-												textNode.appendChild(((org.apache.batik.dom.svg12.SVG12OMDocument)doc).createTextNode(prefix));
+												textNode.appendChild(((org.apache.batik.dom.svg.SVGOMDocument)doc).createTextNode(prefix));
 											}
 											
 											for(iii = 0; iii < lines.length; iii++) {
 												if(iii > 0) {
 													// add flowLine first, except on the first pass, this
 													// allows for the most natural feel in the wrapping
-													textNode.appendChild(((org.apache.batik.dom.svg12.SVG12OMDocument)doc).createElement("flowLine"));
+													textNode.appendChild(((org.apache.batik.dom.svg.SVGOMDocument)doc).createElement("flowLine"));
 												}
-												textNode.appendChild(((org.apache.batik.dom.svg12.SVG12OMDocument)doc).createTextNode(lines[iii]));
+												textNode.appendChild(((org.apache.batik.dom.svg.SVGOMDocument)doc).createTextNode(lines[iii]));
 											}
 
 											
 											if(suffix!=null && !suffix.isEmpty()) {
-												textNode.appendChild(((org.apache.batik.dom.svg12.SVG12OMDocument)doc).createTextNode(suffix));
+												textNode.appendChild(((org.apache.batik.dom.svg.SVGOMDocument)doc).createTextNode(suffix));
 											}
 											textNode.removeChild(textStringNode);
 										} else {
