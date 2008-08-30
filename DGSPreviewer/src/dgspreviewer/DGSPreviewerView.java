@@ -41,6 +41,7 @@ public class DGSPreviewerView extends FrameView {
 	String cmdLinePackageFile = null;
 	String cmdLineImageFile = null;
 	boolean cmdLineLoadOptions = true;
+	DGSPreviewerLoadImageWorker dgsWorker = null;
 
 	private void parseCommandLineArgs() {
 		if(args==null) {
@@ -96,7 +97,7 @@ public class DGSPreviewerView extends FrameView {
                 statusMessageLabel.setText("");
             }
         });
-        messageTimer.setRepeats(false);
+		messageTimer.setRepeats(false);
         int busyAnimationRate = resourceMap.getInteger("StatusBar.busyAnimationRate");
         for (int i = 0; i < busyIcons.length; i++) {
             busyIcons[i] = resourceMap.getIcon("StatusBar.busyIcons[" + i + "]");
@@ -165,17 +166,20 @@ public class DGSPreviewerView extends FrameView {
 
 		if((cmdLineImageFile!=null) && (cmdLineImageFile.length()>0)) {
 			setStatusMessage(10, "Loading template image specified: " + cmdLineImageFile);
-			if(!loadImageFile(cmdLineImageFile)) {
+			if(!loadImageFileData(cmdLineImageFile)) {
 				setStatusMessage(0, "The image file specified could not be loaded: " + cmdLineImageFile);
+			} else {
+				refreshImage();
 			}
 		} else {
 			String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
 			if(MRUTemplateImageFileName.length()>0) {
 				setStatusMessage(10, "Loading last used template image: " + MRUTemplateImageFileName);
-				if(!loadImageFile(MRUTemplateImageFileName)) {
+				if(!loadImageFileData(MRUTemplateImageFileName)) {
 					setStatusMessage(0, "Previously loaded image file could not be loaded: " + MRUTemplateImageFileName);
+				} else {
+					refreshImage();
 				}
-	//		} else {
 			}
 		}
 		olm = this.options.setLogTimeFormatString("");
@@ -358,7 +362,12 @@ public class DGSPreviewerView extends FrameView {
         if (choice == JFileChooser.APPROVE_OPTION) {
             java.io.File f = fc.getSelectedFile();
             this.setStatusMessage(100, "Loading image: " + f.getPath());
-            loadImageFile(f.getPath());
+            if(!loadImageFileData(f.getPath())) {
+				this.setStatusMessage(10, "Could not load template image file: " + f.getPath());
+			} else {
+				this.options.setMRUTemplateImageFileName(f.getPath());
+				refreshImage();
+			}
         }
     }
 
@@ -394,160 +403,47 @@ public class DGSPreviewerView extends FrameView {
 		String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
         if(MRUTemplateImageFileName.length() > 0) {
             this.logMessage(100, "Reloading " + MRUTemplateImageFileName + "...");
-            if(!loadImageFile(MRUTemplateImageFileName)) {
-                this.logMessage(10, "");
-                this.setStatusMessage(10, "Reload failed.");
-                this.logMessage(10, "");
-            } else {
-				this.setStatusMessage(100, "Reload completed.");
+			if(dgsWorker!=null) {
+				dgsWorker.cancel(true);
 			}
-        }
+			dgsWorker = new DGSPreviewerLoadImageWorker(this, pEngine, MRUTemplateImageFileName, this.options.getMRUDGSPackageFileName());
+			dgsWorker.execute();
+		}
     }
 
-    private DGSFileInfo loadImageFileData(String fileName)
+	private boolean loadImageFileData(String fileName)
     {
         byte fDat[] = null;
         java.io.File f = new java.io.File(fileName);
         if(!f.exists()) {
             setStatusMessage(10, "File does not exist: " + fileName);
-            return(null);
+            return(false);
         }
         try {
-            fDat = fileToBytes(fileName);
+            FileInputStream fs = new FileInputStream(fileName);
+			int i = fs.available();
+			fDat = new byte[i];
+			i = fs.read(fDat);
+			fs.close();
         } catch (FileNotFoundException fex) {
             setStatusMessage(10, "Could not find the specified file: " + fileName);
-            return(null);
+            return(false);
         } catch (IOException iex) {
             setStatusMessage(10, "Could not read the specified file: " + fileName + " Error: " + iex.getMessage());
-            return(null);
+            return(false);
         }
         if(fDat == null) {
             setStatusMessage(5, "An unknown error occurred reading file: " + fileName);
-            return(null);
+            return(false);
         }
         if(fDat.length == 0) {
             setStatusMessage(10, "The specified file is empty: " + fileName);
-            return(null);
-        }
-        DGSFileInfo fInfo = new DGSFileInfo();
-        fInfo.data = fDat;
-        fInfo.name = f.getName();
-        fInfo.width = -1;
-        fInfo.height = -1;
-        return(fInfo);
-    }
-
-    private boolean loadImageFile(String fileName)
-    {
-        imagePanel.image = null;
-        imagePanel.invalidate();
-        imagePanel.repaint();
-
-        String outputMimeType = "image/png";
-
-        DGSRequestInfo dgsRequestInfo = new DGSRequestInfo();
-        dgsRequestInfo.continueOnError = true;
-
-        setStatusMessage(200, "Reading image file: " + fileName);
-        DGSFileInfo templateFileInfo = loadImageFileData(fileName);
-        if(templateFileInfo == null) {
-            setStatusMessage(10, "Load aborted due to errors: " + fileName);
             return(false);
         }
+		return(true);
+	}
 
-		// the file itself exists and could be read, thats good enough to store it in the MRU slot so it can be debugged if there is an error in the svg
-		this.options.setMRUTemplateImageFileName(fileName);
-
-		
-		DGSFileInfo replacementImages[] = null;
-		
-		String DGSPackageFileName = this.options.getMRUDGSPackageFileName();
-		
-		DGSPackage dPkg = new DGSPackage();
-		if((DGSPackageFileName == null) || (DGSPackageFileName.length() == 0)) {
-			dgsRequestInfo.files = new DGSFileInfo[1];
-			dgsRequestInfo.variables = null;
-		} else {
-			if(dPkg.loadFile(DGSPackageFileName)) {
-				if(dPkg.files!=null && (dPkg.files.length>0)) {
-					dgsRequestInfo.files = new DGSFileInfo[dPkg.files.length+1];
-					for(int i = 0; i<dPkg.files.length; i++) {
-						dgsRequestInfo.files[i+1] = dPkg.files[i];
-					}
-				} else {
-					dgsRequestInfo.files = new DGSFileInfo[1];
-				}
-				dgsRequestInfo.variables = dPkg.variables;
-			} else {
-				dgsRequestInfo.files = new DGSFileInfo[1];
-				dgsRequestInfo.variables = null;
-			}
-		}
-
-		dgsRequestInfo.files[0] = templateFileInfo;
-        if((dgsRequestInfo.files[0].name == null) || (dgsRequestInfo.files[0].name.length() == 0)) {
-			dgsRequestInfo.files[0].name = "input.svg"; // we need this set to Something, so set it ourselves
-		}
-//        if((dgsRequestInfo.files[0].mimeType == null) || (dgsRequestInfo.files[0].mimeType.length() == 0)) {
-			dgsRequestInfo.files[0].mimeType = "image/svg+xml"; // we only process svg for now
-//		}
-
-
-		// Form the instruction xml fragment
-        dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"image/svg+xml\" />";
-		dgsRequestInfo.instructionsXML += dPkg.commandString;
-        dgsRequestInfo.instructionsXML += "<save ";
-		if((dPkg.animationDuration>0.0f) && (dPkg.animationFramerate>0.0f)) {
-//			dgsRequestInfo.instructionsXML += "animationDuration=\"" + dPkg.animationDuration + "\" animationFramerate=\"" + dPkg.animationFramerate + "\" ";
-		}
-		
-		dgsRequestInfo.instructionsXML += "filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
-
-        ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
-        setStatusMessage(150, "Performing DGS Request ...");
-        DGSResponseInfo dgsResponseInfo = pEngine.processCommandString(workspace);
-        setStatusMessage(150, " Request completed.");
-        
-        this.logMessage(200, "DGS Request Log: ");
-        for(int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
-            this.logMessage(200, "     " + dgsResponseInfo.processingLog[i]);
-        }
-        this.logMessage(200, "-- END DGS Request Log --");
-        if(dgsResponseInfo.resultFiles.length == 0) {
-            String plog[] = new String[dgsResponseInfo.processingLog.length];
-            for(int i = 0; i<dgsResponseInfo.processingLog.length; i++) {
-                plog[i] = dgsResponseInfo.processingLog[i];
-            }
-            javax.swing.JOptionPane.showMessageDialog(mainPanel, plog);
-            setStatusMessage(10, "No image files were returned by the processing engine, this generally indicates an error in the input file: " + fileName);
-            return(false);
-        }
-
-        setStatusMessage(200, "Updating display with new image ...");
-        BufferedImage image = null;
-        try {
-            image = ImageIO.read(new java.io.ByteArrayInputStream((byte[])dgsResponseInfo.resultFiles[0].data));
-        } catch (IOException ie) {
-            setStatusMessage(5, "Error processing output image: " + ie.getMessage());
-        }
-        imagePanel.image = image;
-        this.imagePanel.repaint();
-        return(true);
-    }
-
-	private byte[] fileToBytes(String fileName) throws FileNotFoundException, IOException
-    {
-        byte fDat[] = new byte[0];
-
-        FileInputStream fs = new FileInputStream(fileName);
-        int i = fs.available();
-        fDat = new byte[i];
-        i = fs.read(fDat);
-        fs.close();
-        return(fDat);
-    }
-
-    private void logMessage(int LogLevel, String Message)
+    public void logMessage(int LogLevel, String Message)
     {
 		int cLevel = this.options.getLogLevel();
 		if(LogLevel>cLevel) {
@@ -556,12 +452,17 @@ public class DGSPreviewerView extends FrameView {
 		jTextArea1.setText(jTextArea1.getText() + (new java.text.SimpleDateFormat(this.options.getLogTimeFormatString())).format(Calendar.getInstance().getTime()) + Message + "\r\n");
     }
 
-    private void setStatusMessage(int LogLevel, String Message)
+    public void setStatusMessage(int LogLevel, String Message)
     {
         statusMessageLabel.setText(Message);
         statusMessageLabel.repaint();
 		logMessage(LogLevel, Message);
     }
+	
+	public void setDisplayImage(BufferedImage nImage) {
+		imagePanel.image = nImage;
+		imagePanel.repaint();
+	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private DGSPreviewerPanel imagePanel;
