@@ -167,6 +167,7 @@ public class DGSPreviewerLoadImageWorker extends SwingWorker<DGSResponseInfo, Vo
 		setProgress(99);
 		setDisplayImage(image);
 		setProgress(100);
+		setStatusMessage(0, "Ready.");
 	}
 	
 	private void setDisplayImage(BufferedImage nImage) {
