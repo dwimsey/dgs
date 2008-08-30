@@ -5,7 +5,8 @@
 package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions;
 
 import ImageProcessor.ProcessingEngine.*;
-
+import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.*;
+import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine.*;
 import org.w3c.dom.*;
 
 import java.io.*;
@@ -50,11 +51,12 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 
 		ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
 		if (iBuffer == null) {
-			workspace.log("There is no buffer named '" + bufferName + "' to do a setVisibility on.");
+			workspace.log("There is no buffer named '" + bufferName + "' to do a substituteVariables on.");
 			return (false);
 		}
-		if (!iBuffer.mimeType.equals("image/svg+xml")) {
-			workspace.log("Buffer is not of type 'image/svg+xml' and no conversion is available for setVisibility: " + bufferName);
+
+		if ((!iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) && (!iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE))){
+			workspace.log("Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available for substituteVariables: " + bufferName);
 			return (false);
 		}
 
@@ -63,20 +65,23 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 			return (true);
 		}
 
-		String uri = "data://image/svg+xml;base64,";
-		uri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) iBuffer.data);
 		Document doc = null;
+		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
+			uri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) iBuffer.data);
 
-		try {
-			String parser = XMLResourceDescriptor.getXMLParserClassName();
-			SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-			//doc = f.createDocument(uri, new java.io.ByteArrayInputStream((byte[])iBuffer.data));
-			doc = f.createDocument(uri);
-		} catch (IOException ex) {
-			workspace.log("An error occurred parsing the SVG file data in the substituteVariables command: " + ex.getMessage());
-			return (false);
+			try {
+				String parser = XMLResourceDescriptor.getXMLParserClassName();
+				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+				//doc = f.createDocument(uri, new java.io.ByteArrayInputStream((byte[])iBuffer.data));
+				doc = f.createDocument(uri);
+			} catch (IOException ex) {
+				workspace.log("An error occurred parsing the SVG file data in the substituteVariables command: " + ex.getMessage());
+				return (false);
+			}
+		} else {
+			doc = (Document)iBuffer.data;
 		}
-
 		int i = 0;
 		int ii = 0;
 		int iii = 0;
@@ -161,17 +166,21 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 			}
 		}
 
-		TransformerFactory tf = TransformerFactory.newInstance();
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		Transformer t = null;
-		try {
-			t = tf.newTransformer();
-			t.transform(new DOMSource(doc), new StreamResult(outStream));
-		} catch (Exception ex) {
-			workspace.log("An error occurred while reconstructing the XML file after substituteVariables call: " + ex.getMessage());
-			return (false);
+		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+			TransformerFactory tf = TransformerFactory.newInstance();
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			Transformer t = null;
+			try {
+				t = tf.newTransformer();
+				t.transform(new DOMSource(doc), new StreamResult(outStream));
+			} catch (Exception ex) {
+				workspace.log("An error occurred while reconstructing the XML file after substituteVariables call: " + ex.getMessage());
+				return (false);
+			}
+			iBuffer.data = outStream.toByteArray();
+		} else {
+			iBuffer.data = doc;
 		}
-		iBuffer.data = outStream.toByteArray();
 		return (true);
 	}
 
@@ -206,7 +215,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 			workspace.log("There is no buffer named '" + bufferName + "' to do a substitution on.");
 			return (false);
 		}
-		if (!iBuffer.mimeType.equals("image/svg+xml")) {
+		if (!iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
 			return (false);
 		}
 

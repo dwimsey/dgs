@@ -5,6 +5,8 @@
 package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions;
 
 import ImageProcessor.ProcessingEngine.*;
+import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.*;
+import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine.*;
 
 import org.w3c.dom.*;
 
@@ -62,9 +64,11 @@ public class replaceImage implements ImageProcessor.ProcessingEngine.Instruction
 			workspace.log("There is no buffer named '" + bufferName + "' to do a replaceImage on.");
 			return (false);
 		}
-		if (!iBuffer.mimeType.equals("image/svg+xml")) {
+		if ((!iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) && (!iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE))) {
+			workspace.log("Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available for replaceImage: " + bufferName);
 			return (false);
 		}
+
 		ProcessingEngineImageBuffer imgBuffer = workspace.getImageBuffer(srcImageName);
 		if (imgBuffer == null) {
 			workspace.log("There is no buffer named '" + srcImageName + "' to get the new image from for a replaceImage.");
@@ -74,18 +78,23 @@ public class replaceImage implements ImageProcessor.ProcessingEngine.Instruction
 			return (false);
 		}
 
-		String uri = "data://image/svg+xml;base64,";
-		uri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) iBuffer.data);
 		Document doc = null;
 
-		try {
-			String parser = XMLResourceDescriptor.getXMLParserClassName();
-			SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-			//doc = f.createDocument(uri, new java.io.ByteArrayInputStream((byte[])iBuffer.data));
-			doc = f.createDocument(uri);
-		} catch (IOException ex) {
-			workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
-			return (false);
+		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
+			uri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) iBuffer.data);
+
+			try {
+				String parser = XMLResourceDescriptor.getXMLParserClassName();
+				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+				//doc = f.createDocument(uri, new java.io.ByteArrayInputStream((byte[])iBuffer.data));
+				doc = f.createDocument(uri);
+			} catch (IOException ex) {
+				workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
+				return (false);
+			}
+		} else {
+			doc = (Document)iBuffer.data;
 		}
 
 		Element element = doc.getElementById(imageElementId);
@@ -101,17 +110,21 @@ public class replaceImage implements ImageProcessor.ProcessingEngine.Instruction
 			}
 		}
 
-		TransformerFactory tf = TransformerFactory.newInstance();
-		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-		Transformer t = null;
-		try {
-			t = tf.newTransformer();
-			t.transform(new DOMSource(doc), new StreamResult(outStream));
-		} catch (Exception ex) {
-			workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
-			return (false);
+		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+			TransformerFactory tf = TransformerFactory.newInstance();
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			Transformer t = null;
+			try {
+				t = tf.newTransformer();
+				t.transform(new DOMSource(doc), new StreamResult(outStream));
+			} catch (Exception ex) {
+				workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
+				return (false);
+			}
+			iBuffer.data = outStream.toByteArray();
+		} else {
+			iBuffer.data = doc;
 		}
-		iBuffer.data = outStream.toByteArray();
 		return (true);
 	}
 }
