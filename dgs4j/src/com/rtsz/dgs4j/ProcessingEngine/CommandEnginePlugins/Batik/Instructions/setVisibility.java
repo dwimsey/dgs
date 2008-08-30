@@ -111,7 +111,7 @@ public class setVisibility implements ImageProcessor.ProcessingEngine.Instructio
 			workspace.log("Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available for setVisibility: " + bufferName);
 			return (false);
 		}
-		org.apache.batik.dom.svg12.SVG12OMDocument doc = null;
+		org.apache.batik.dom.svg.SVGOMDocument doc = null;
 
 		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
 			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
@@ -119,13 +119,13 @@ public class setVisibility implements ImageProcessor.ProcessingEngine.Instructio
 			try {
 				String parser = XMLResourceDescriptor.getXMLParserClassName();
 				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-				doc = (org.apache.batik.dom.svg12.SVG12OMDocument)f.createDocument(uri);
+				doc = (org.apache.batik.dom.svg.SVGOMDocument)f.createDocument(uri);
 			} catch (IOException ex) {
 				workspace.log("An error occurred parsing the SVG file data in the setVisibility command: " + ex.getMessage());
 				return (false);
 			}
 		} else {
-			doc = (org.apache.batik.dom.svg12.SVG12OMDocument)iBuffer.data;
+			doc = (org.apache.batik.dom.svg.SVGOMDocument)iBuffer.data;
 		}
 
 		
