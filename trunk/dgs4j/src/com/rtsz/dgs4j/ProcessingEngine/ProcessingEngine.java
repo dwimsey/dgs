@@ -40,6 +40,7 @@ public class ProcessingEngine {
 	}
 
 	public DGSResponseInfo processCommandString(ProcessingWorkspace workspace) {
+		java.util.Date startTime = new java.util.Date();
 		DOMParser xParser = new DOMParser();
 		try {
 			xParser.parse(new InputSource(new StringReader(workspace.requestInfo.instructionsXML)));
@@ -240,6 +241,7 @@ public class ProcessingEngine {
 				}
 			}
 		}
+		workspace.log("Processing completed in: " + Float.toString(((new java.util.Date().getTime()+1) - startTime.getTime())/1000.0f) + " seconds");
 		return (workspace.generateResultInfo());
 	}
 
