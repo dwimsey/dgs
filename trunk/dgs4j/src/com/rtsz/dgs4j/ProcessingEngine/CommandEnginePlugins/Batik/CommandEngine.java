@@ -38,6 +38,9 @@ import javax.imageio.ImageWriter;
  */
 public class CommandEngine implements ICommandEngine {
 
+	public static final String INTERNAL_BUFFERTYPE = "batik/svgdom";
+	public static final String MIME_BUFFERTYPE = "image/svg+xml";
+
 	public void init() {
 	}
 
@@ -70,35 +73,25 @@ public class CommandEngine implements ICommandEngine {
 		}
 
 		ProcessingEngineImageBuffer buffer = null;
-		if (dgsFile.mimeType.equals("image/svg+xml")) {
-			String uri = "data://image/svg+xml;base64,";
+		if (dgsFile.mimeType.equals(MIME_BUFFERTYPE)) {
+			String uri = "data://" + MIME_BUFFERTYPE + ";base64,";
 			uri += ImageProcessor.ProcessingEngine.Base64.encodeBytes(dgsFile.data);
 			Document doc = null;
 
 			try {
 				String parser = XMLResourceDescriptor.getXMLParserClassName();
 				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-				//doc = f.createDocument(uri, new java.io.ByteArrayInputStream((byte[])iBuffer.data));
 				doc = f.createDocument(uri);
 			} catch (IOException ex) {
 				workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
 				return (false);
 			}
 
-			TransformerFactory tf = TransformerFactory.newInstance();
-			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-			try {
-				Transformer t = tf.newTransformer();
-				t.transform(new DOMSource(doc), new StreamResult(outStream));
-			} catch (Exception ex) {
-				workspace.log("An error occurred while reconstructing the XML file: " + ex.getMessage());
-				return (false);
-			}
 			buffer = workspace.createImageBuffer(bufferName);
 			buffer.height = -1;
 			buffer.width = -1;
-			buffer.mimeType = mimeType.intern();
-			buffer.data = outStream.toByteArray();
+			buffer.mimeType = INTERNAL_BUFFERTYPE;
+			buffer.data = doc;
 			return (true);
 		} else {
 			if (dgsFile.mimeType.equals("image/png") || dgsFile.mimeType.equals("image/gif") || dgsFile.mimeType.equals("image/jpeg") || dgsFile.mimeType.equals("image/tiff")) {
@@ -119,7 +112,7 @@ public class CommandEngine implements ICommandEngine {
 		return (false);
 	}
 
-	public byte[] getImageData(ProcessingWorkspace workspace, byte svgData[], String mimeType, float quality, float snapshotTime) {
+	public byte[] getImageData(ProcessingWorkspace workspace, Object svgData, String mimeType, float quality, float snapshotTime, String bufferType) {
 		org.apache.batik.transcoder.Transcoder t = null;
 		if (mimeType.equals("image/png")) {
 			t = new DGSPNGTranscoder(workspace);
@@ -147,11 +140,12 @@ public class CommandEngine implements ICommandEngine {
 		try {
 			TranscoderInput input = null;
 			TranscoderOutput output = null;
-			java.io.ByteArrayInputStream inStream = new java.io.ByteArrayInputStream(svgData);
+			if(bufferType.equals(MIME_BUFFERTYPE)) {
+				input = new TranscoderInput(new java.io.ByteArrayInputStream((byte[])svgData));
+			} else {
+				input = new TranscoderInput((Document)svgData);
+			}
 			java.io.ByteArrayOutputStream outStream = new java.io.ByteArrayOutputStream();
-
-
-			input = new TranscoderInput(inStream);
 			output = new TranscoderOutput(outStream);
 
 			try {
@@ -185,7 +179,7 @@ public class CommandEngine implements ICommandEngine {
 
 		String extension = "";
 
-		if (!buffer.mimeType.equals("image/svg+xml")) {
+		if ((!buffer.mimeType.equals(MIME_BUFFERTYPE)) && (!buffer.mimeType.equals(INTERNAL_BUFFERTYPE))) {
 			return (false);
 		}
 		if (mimeType.equals("image/png")) {
@@ -250,7 +244,7 @@ public class CommandEngine implements ICommandEngine {
 			// is not included in the SVG spec, so we'll have to roll our own for user convience
 			int ii = 0; // outputCell
 			for(int i = 0; i < frameCount; i++) {
-				oDat = this.getImageData(workspace, (byte[])buffer.data, "image/png", 100.0f, (timeStep * i));
+				oDat = this.getImageData(workspace, buffer.data, "image/png", 100.0f, (timeStep * i), INTERNAL_BUFFERTYPE);
 				if(oDat == null) {
 					if(workspace.requestInfo.continueOnError) {
 						workspace.log("Animation sequence contains an invalid frame, it will be ignored.  Frame Number: " + i);
@@ -322,7 +316,7 @@ public class CommandEngine implements ICommandEngine {
 			}
 		} else {
 			// generate a single frame
-			oDat = this.getImageData(workspace, (byte[])buffer.data, mimeType, 100.0f, 0.0f);
+			oDat = this.getImageData(workspace, buffer.data, mimeType, 100.0f, 0.0f, INTERNAL_BUFFERTYPE);
 			if(oDat == null) {
 				workspace.log("Conversion from " + buffer.mimeType + " to " + mimeType + " failed.");
 				return(false);
