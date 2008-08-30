@@ -4,6 +4,7 @@
 
 package dgspreviewer;
 
+import java.beans.PropertyChangeEvent;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
@@ -404,9 +405,45 @@ public class DGSPreviewerView extends FrameView {
         if(MRUTemplateImageFileName.length() > 0) {
             this.logMessage(100, "Reloading " + MRUTemplateImageFileName + "...");
 			if(dgsWorker!=null) {
-				dgsWorker.cancel(true);
+				if(!dgsWorker.isDone()) {
+					dgsWorker.cancel(true);
+				}
 			}
 			dgsWorker = new DGSPreviewerLoadImageWorker(this, pEngine, MRUTemplateImageFileName, this.options.getMRUDGSPackageFileName());
+			dgsWorker.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+
+				public void propertyChange(PropertyChangeEvent evt) {
+                String propertyName = evt.getPropertyName();
+                if ("state".equals(propertyName)) {
+					String val = evt.getNewValue().toString();
+					if(val.toLowerCase().equals("done")) {
+						busyIconTimer.stop();
+						statusAnimationLabel.setIcon(idleIcon);
+						progressBar.setVisible(false);
+						progressBar.setValue(0);
+					} else {
+						if (!busyIconTimer.isRunning()) {
+							statusAnimationLabel.setIcon(busyIcons[0]);
+							busyIconIndex = 0;
+							busyIconTimer.start();
+						}
+						progressBar.setVisible(true);
+						progressBar.setIndeterminate(true);
+					}
+                } else if ("message".equals(propertyName)) {
+                    String text = (String)(evt.getNewValue());
+                    statusMessageLabel.setText((text == null) ? "" : text);
+                    messageTimer.restart();
+                } else if ("progress".equals(propertyName)) {
+					if (busyIconTimer.isRunning()) {
+						int value = (Integer)(evt.getNewValue());
+						progressBar.setVisible(true);
+						progressBar.setIndeterminate(false);
+						progressBar.setValue(value);
+					}
+                }
+				}
+			});
 			dgsWorker.execute();
 		}
     }
