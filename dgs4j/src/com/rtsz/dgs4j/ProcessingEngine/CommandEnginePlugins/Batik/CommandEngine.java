@@ -182,6 +182,37 @@ public class CommandEngine implements ICommandEngine {
 		if ((!buffer.mimeType.equals(MIME_BUFFERTYPE)) && (!buffer.mimeType.equals(INTERNAL_BUFFERTYPE))) {
 			return (false);
 		}
+		if(buffer.mimeType.equals(INTERNAL_BUFFERTYPE)) {
+			// BEGIN HACK
+			// this is a hack to deal with the fact
+			// that the renderer doesn't seem to work properly
+			// if rendering directly off the Document after nodes
+			// have been inserted/removed/futzed with
+			TransformerFactory tf = TransformerFactory.newInstance();
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			Transformer t = null;
+			try {
+				t = tf.newTransformer();
+				t.transform(new DOMSource((Document)buffer.data), new StreamResult(outStream));
+			} catch (Exception ex) {
+				workspace.log("An error occurred while reconstructing the XML file after substituteVariables call: " + ex.getMessage());
+				return (false);
+			}
+			buffer.data = outStream.toByteArray();
+			
+			
+			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
+			uri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) buffer.data);
+
+			try {
+				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName());
+				buffer.data = f.createDocument(uri);
+			} catch (IOException ex) {
+				workspace.log("An error occurred parsing the SVG file data in the substituteVariables command: " + ex.getMessage());
+				return (false);
+			}
+			// END HACK
+		}
 		if (mimeType.equals("image/png")) {
 			extension = ".png";
 		} else if (mimeType.equals("image/gif")) {
@@ -284,11 +315,7 @@ public class CommandEngine implements ICommandEngine {
 				// we've got our frames, make a GIF now			
 				Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("gif");
 				ImageWriter writer = writers.next(); // Always assume GIF is available
-//com.sun.imageio.plugins.gif.GIFImageWriter it = (com.sun.imageio.plugins.gif.GIFImageWriter)writer;
-//javax.imageio.ImageWriteParam param = it.getDefaultWriteParam();
-//com.sun.imageio.plugins.gif.GIFStreamMetadata md;
-//com.sun.imageio.plugins.gif.GIFImageMetadata dd;
-//dd.
+
 				// prepare the sequence writer
 				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 				writer.setOutput(outStream);
