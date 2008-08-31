@@ -93,6 +93,10 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 		String val = null;
 		String lines[] = null;
 		String oStr = null;
+		String varName = null;
+		int varNextStart = 0;
+		String varValueStr = null;
+		boolean hasChanged = false;
 
 		elements = doc.getElementsByTagName("*");
 		int eSize = elements.getLength();
@@ -106,59 +110,96 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 							// check to see if its worth parsing this string
 							oStr = textStringNode.getNodeValue();
 							if(!oStr.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ').trim().isEmpty()) {
-								for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
-									// get this each time around to make sure we see the changes made from
-									// previous passes
-									oStr = textStringNode.getNodeValue();
-									varStart = oStr.indexOf("{" + workspace.requestInfo.variables[ii].name + "}");
+								hasChanged = false;
+								varStart = 0;
+								while(true) {
+									varStart = oStr.indexOf("{", varStart);
 									if(varStart == -1) {
-										// the variable we're working with does not appear in this text,
-										// go to the next variable
+										// this string does not contain any variables, continue on
+										break;
+									}
+								
+									if(oStr.indexOf("{", varStart+1)==0) {
+										// this character is a escaping {, skip it
+										varStart = varStart+2;
 										continue;
 									}
 
-									val = workspace.requestInfo.variables[ii].data;
-									lines = val.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
-									//textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
-									if (lines.length == 1) {
-										textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
-									} else if (lines.length > 1) {
-										String prefix = null;
-										String suffix = null;
-										if(varStart>0) {
-											prefix = oStr.substring(0, varStart);
+									varEnd = oStr.indexOf("}", varStart);
+									if(varEnd == -1) {
+										//  no end of variable name was found, ignore this string
+										break;
+									}
+									varNextStart = oStr.indexOf("{", varStart+1);
+									if(varNextStart > 0) {
+										if(varNextStart < varEnd) {
+											// the end we're looking at is for another variable it seems
+											varStart = varStart+1;
+											continue;
 										}
-										varEnd = varStart + workspace.requestInfo.variables[ii].name.length() + 2;
-										if(varEnd < oStr.length()) {
-											suffix = oStr.substring(varEnd);
+									}
+									
+									// so at this point, we in theory have a variable name
+									varName = oStr.substring(varStart+1, varEnd);
+
+									varValueStr = null;
+									for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
+										if(workspace.requestInfo.variables[ii].name.equals(varName)) {
+											varValueStr = workspace.requestInfo.variables[ii].data.toString();
+											break;
 										}
+									}
 
-											if(textNode.getNodeName().equals("flowPara")) {
-											if(prefix!=null && !prefix.isEmpty()) {
-												textNode.appendChild(((org.apache.batik.dom.svg.SVGOMDocument)doc).createTextNode(prefix));
-											}
-											
-											for(iii = 0; iii < lines.length; iii++) {
-												if(iii > 0) {
-													// add flowLine first, except on the first pass, this
-													// allows for the most natural feel in the wrapping
-													textNode.appendChild(((org.apache.batik.dom.svg.SVGOMDocument)doc).createElement("flowLine"));
-												}
-												textNode.appendChild(((org.apache.batik.dom.svg.SVGOMDocument)doc).createTextNode(lines[iii]));
-											}
+									if(varValueStr == null) {
+										// no variable by that name found, ignore it
+										varStart = varEnd + 1;
+										continue;
+									}
+									
+									// we have a variable that has a replacement, do we have to deal with muliline?
+									if(varValueStr.indexOf("\n") > -1) {
+										// this is multiline, deal with it
+										String nStr;
+										Node ltn = null;
+										Node fl = null;
 
-											
-											if(suffix!=null && !suffix.isEmpty()) {
-												textNode.appendChild(((org.apache.batik.dom.svg.SVGOMDocument)doc).createTextNode(suffix));
+										if(textNode.getNodeName().equals("flowPara")) {
+											nStr = oStr.substring(0, varStart);
+											lines = varValueStr.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
+											nStr += lines[0];
+											textStringNode.setNodeValue(nStr);
+											ltn = textStringNode;
+											for(iii = 1; iii<lines.length; iii++) {
+												fl = doc.createElement("flowLine");
+												textNode.insertBefore(fl, ltn.getNextSibling());
+
+												ltn = doc.createTextNode(lines[iii]);
+												textNode.insertBefore(ltn, fl.getNextSibling());
 											}
-											textNode.removeChild(textStringNode);
+											nStr = oStr.substring(varEnd+1);
+											textStringNode = doc.createTextNode(nStr);
+											textNode.insertBefore(textStringNode, ltn.getNextSibling());
+											varStart = 0;
+											oStr = nStr;
+											hasChanged = false;
 										} else {
-											// we don't know how to handle multiple lines specially in this element, just replace what we have
-											textStringNode.setNodeValue(oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[ii].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[ii].data)));
+											nStr = oStr.substring(0, varStart) + varValueStr + oStr.substring(varEnd+1);
+											varStart = varStart + varValueStr.length();
+											oStr = nStr;
+											hasChanged = true;
 										}
+									} else {
+										String nStr = oStr.substring(0, varStart) + varValueStr + oStr.substring(varEnd+1);
+										varStart = varStart + varValueStr.length();
+										oStr = nStr;
+										hasChanged = true;
 									}
 								}
 							}
+						}
+						if(hasChanged == true) {
+							textStringNode.setNodeValue(oStr);
+							hasChanged = false;
 						}
 						textStringNode = textStringNode.getNextSibling();
 					}
@@ -180,66 +221,6 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 			iBuffer.data = outStream.toByteArray();
 		} else {
 			iBuffer.data = doc;
-		}
-		return (true);
-	}
-
-	public boolean process2(ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace, Node instructionNode) {
-		NamedNodeMap attributes = instructionNode.getAttributes();
-		Node bufferNode = attributes.getNamedItem("buffer");
-		String bufferName = null;
-
-		if (bufferNode == null) {
-			if (!workspace.requestInfo.continueOnError) {
-				workspace.log("Processing halted because the command does not have a buffer attribute: " + instructionNode.getNodeName());
-				return (false);  // this should throw an exception instead
-			} else {
-				workspace.log("Processing of command skipped because it does not have a buffer attribute: " + instructionNode.getNodeName());
-				return (false);  // this should throw an exception instead
-			}
-		} else {
-			bufferName = bufferNode.getNodeValue();
-			if (bufferName == null || bufferName.length() == 0) {
-				if (!workspace.requestInfo.continueOnError) {
-					workspace.log("Processing halted because the command does not have a value for the buffer attribute: " + instructionNode.getNodeName());
-					return (false);  // this should throw an exception instead
-				} else {
-					workspace.log("Processing of command skipped because it does not have a value for the buffer attribute: " + instructionNode.getNodeName());
-					return (false);  // this should throw an exception instead
-				}
-			}
-		}
-
-		ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
-		if (iBuffer == null) {
-			workspace.log("There is no buffer named '" + bufferName + "' to do a substitution on.");
-			return (false);
-		}
-		if (!iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
-			return (false);
-		}
-
-		if (workspace.requestInfo.variables == null || workspace.requestInfo.variables.length == 0) {
-			return (true);
-		}
-
-		String oStr = null;
-
-		try {
-			oStr = new String((byte[]) iBuffer.data, "UTF-8");
-		} catch (UnsupportedEncodingException ex) {
-			workspace.log("An unexpected encoding error has occurred: " + ex.getMessage());
-			return (false);
-		}
-		for (int i = 0; i < workspace.requestInfo.variables.length; i++) {
-			oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{" + workspace.requestInfo.variables[i].name + "}"), java.util.regex.Matcher.quoteReplacement(workspace.requestInfo.variables[i].data));
-		}
-		oStr = oStr.replaceAll(java.util.regex.Pattern.quote("{{"), java.util.regex.Matcher.quoteReplacement("{"));
-		try {
-			iBuffer.data = oStr.getBytes("UTF-8");
-		} catch (Exception ex) {
-			workspace.log("An exception occurred during variable replacement while preparing the SVG result buffer: " + ex.getMessage());
-			return (false);
 		}
 		return (true);
 	}
