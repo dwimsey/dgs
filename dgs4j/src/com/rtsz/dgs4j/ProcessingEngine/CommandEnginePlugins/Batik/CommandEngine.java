@@ -48,6 +48,7 @@ public class CommandEngine implements ICommandEngine {
 		pEngine.addCommandInstruction("replaceImage", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.replaceImage());
 		pEngine.addCommandInstruction("setVisibility", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.setVisibility());
 		pEngine.addCommandInstruction("substituteVariables", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.substituteVariables());
+                pEngine.addCommandInstruction("addWatermark", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.addWatermark());
 	}
 
 
