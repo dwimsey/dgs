@@ -7,6 +7,8 @@ package dgspreviewer;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 
+import org.apache.batik.util.ApplicationSecurityEnforcer;
+
 /**
  * The main class of the application.
  */
@@ -15,6 +17,15 @@ public class DGSPreviewerApp extends SingleFrameApplication {
     private DGSPreviewerApp()
     {
         super();
+		
+		// Apply script security option
+        ApplicationSecurityEnforcer securityEnforcer =
+            new ApplicationSecurityEnforcer(this.getClass(),
+                                            "dgspreviewer/resources/DGSPreviewer.policy");
+
+        securityEnforcer.enforceSecurity(false);
+
+		
     }
 
     /**
@@ -43,7 +54,7 @@ public class DGSPreviewerApp extends SingleFrameApplication {
     /**
      * Main method launching the application.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) {		
 		Application.getInstance(DGSPreviewerApp.class).args = args;
         launch(DGSPreviewerApp.class, args);
     }
