@@ -148,7 +148,7 @@ public class DGSPreviewerView extends FrameView {
 		DGSPackage dPkg = new DGSPackage();
 		if((cmdLinePackageFile!=null) && (cmdLinePackageFile.length()>0)) {
 			// load the DGS package file specified on the command line if possible
-			setStatusMessage(10, "Loading template package specified : " + cmdLinePackageFile);
+			setStatusMessage(10, "   Loading template package specified: " + cmdLinePackageFile);
 			if(!dPkg.loadFile(cmdLinePackageFile)) {
 				setStatusMessage(0, "The template package specified could not be loaded: " + cmdLinePackageFile);
 			} else {
@@ -170,7 +170,8 @@ public class DGSPreviewerView extends FrameView {
 			if(!loadImageFileData(cmdLineImageFile)) {
 				setStatusMessage(0, "The image file specified could not be loaded: " + cmdLineImageFile);
 			} else {
-				refreshImage();
+				this.options.setMRUTemplateImageFileName(cmdLineImageFile);
+				refreshImageEx(false);
 			}
 		} else {
 			String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
@@ -179,13 +180,10 @@ public class DGSPreviewerView extends FrameView {
 				if(!loadImageFileData(MRUTemplateImageFileName)) {
 					setStatusMessage(0, "Previously loaded image file could not be loaded: " + MRUTemplateImageFileName);
 				} else {
-					refreshImage();
+					refreshImageEx(false);
 				}
 			}
 		}
-		olm = this.options.setLogTimeFormatString("");
-		setStatusMessage(0, "The DGS Previewer is ready.");
-   		this.options.setLogTimeFormatString(olm);
 	}
 
     @Action
@@ -367,7 +365,7 @@ public class DGSPreviewerView extends FrameView {
 				this.setStatusMessage(10, "Could not load template image file: " + f.getPath());
 			} else {
 				this.options.setMRUTemplateImageFileName(f.getPath());
-				refreshImage();
+				refreshImageEx(false);
 			}
         }
     }
@@ -392,7 +390,7 @@ public class DGSPreviewerView extends FrameView {
 			if(dPkg.loadFile(f.getPath())) {
 				this.options.setMRUDGSPackageFileName(f.getPath());
 				this.setStatusMessage(100, "File loaded, refreshing image.");
-				refreshImage();
+				refreshImageEx(false);
 			} else {
 				this.setStatusMessage(10, "DGS Package file could not parsed." + f.getPath());
 			}
@@ -401,9 +399,17 @@ public class DGSPreviewerView extends FrameView {
 
 	@Action
     public void refreshImage() {
+		refreshImageEx(true);
+	}
+	
+	public void refreshImageEx(boolean isReload) {
 		String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
         if(MRUTemplateImageFileName.length() > 0) {
-            this.logMessage(100, "Reloading " + MRUTemplateImageFileName + "...");
+			if(isReload) {
+				this.logMessage(100, "Reloading " + MRUTemplateImageFileName + "...");
+			} else {
+				this.logMessage(100, "Loading " + MRUTemplateImageFileName + "...");
+			}
 			if(dgsWorker!=null) {
 				if(!dgsWorker.isDone()) {
 					dgsWorker.cancel(true);
