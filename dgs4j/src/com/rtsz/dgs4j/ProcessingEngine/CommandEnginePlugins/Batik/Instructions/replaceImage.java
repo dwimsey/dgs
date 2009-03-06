@@ -75,6 +75,7 @@ public class replaceImage implements ImageProcessor.ProcessingEngine.Instruction
 			return (false);
 		}
 		if (!imgBuffer.mimeType.equals("image/png") && !imgBuffer.mimeType.equals("image/jpeg") && !imgBuffer.mimeType.equals("image/tiff")) {
+			workspace.log("New image for replaceImage is not an acceptable type, use png, tiff or jpeg instead.  Buffer Name: " + srcImageName + " Image MIME Type: " + imgBuffer.mimeType);
 			return (false);
 		}
 
