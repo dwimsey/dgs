@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DiscoveryClientResultsFile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Results>
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="http://LETTERMARK_GRAPHICS_SERVER:8080/DGS/ImageProcesserService?WSDL" filename="ImageProcesserService.wsdl" />
-    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://LETTERMARK_GRAPHICS_SERVER:8080/DGS/ImageProcesserService?xsd=1" filename="ImageProcesserService.xsd" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="http://lettermark_dgs_server:9090/DGS/ImageProcesserService?WSDL" filename="ImageProcesserService.wsdl" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://lettermark_dgs_server:9090/DGS/ImageProcesserService?xsd=1" filename="ImageProcesserService.xsd" />
   </Results>
 </DiscoveryClientResultsFile>

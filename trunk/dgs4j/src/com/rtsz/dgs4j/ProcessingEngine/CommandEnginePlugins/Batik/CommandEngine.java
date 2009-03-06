@@ -48,7 +48,7 @@ public class CommandEngine implements ICommandEngine {
 		pEngine.addCommandInstruction("replaceImage", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.replaceImage());
 		pEngine.addCommandInstruction("setVisibility", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.setVisibility());
 		pEngine.addCommandInstruction("substituteVariables", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.substituteVariables());
-                pEngine.addCommandInstruction("addWatermark", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.addWatermark());
+                //pEngine.addCommandInstruction("addWatermark", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.addWatermark());
 	}
 
 
@@ -115,11 +115,12 @@ public class CommandEngine implements ICommandEngine {
 
 	public byte[] getImageData(ProcessingWorkspace workspace, Object svgData, String mimeType, float quality, float snapshotTime, String bufferType) {
 		org.apache.batik.transcoder.Transcoder t = null;
-		if (mimeType.equals("image/png")) {
+		if((mimeType.equals("image/png")) || (mimeType.equals("image/gif"))) {
+		    // we use the PNG transcoder for GIF images as well, since there isn't native support for GIF in batik since it is non-standard
 			t = new DGSPNGTranscoder(workspace);
 		} else if (mimeType.equals("image/jpeg")) {
 			t = new DGSJPEGTranscoder(workspace);
-            t.addTranscodingHint(DGSJPEGTranscoder.KEY_QUALITY, new Float(quality));
+			t.addTranscodingHint(DGSJPEGTranscoder.KEY_QUALITY, new Float(quality));
 		} else if (mimeType.equals("image/tiff")) {
 			t = new DGSTIFFTranscoder(workspace);
 		} else if (mimeType.equals("application/pdf")) {
@@ -274,6 +275,8 @@ public class CommandEngine implements ICommandEngine {
 			BufferedImage imgs[] = new BufferedImage[frameCount];
 			// we use png as an intermediate because Batik does not support GIF natively, rightly so as GIF
 			// is not included in the SVG spec, so we'll have to roll our own for user convience
+			// ideally, we would use an uncompressed format, but the only one available is TIFF, which doesn't
+			// support transparency properly in some implementations.
 			int ii = 0; // outputCell
 			for(int i = 0; i < frameCount; i++) {
 				oDat = this.getImageData(workspace, buffer.data, "image/png", 100.0f, (timeStep * i), INTERNAL_BUFFERTYPE);

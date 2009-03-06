@@ -26,7 +26,7 @@ namespace DGSTestInterface.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://LETTERMARK_GRAPHICS_SERVER:8080/DGS/ImageProcesserService")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://lettermark_dgs_server:9090/DGS/ImageProcesserService")]
         public string DGSTestInterface_DGS_ImageProcesserService {
             get {
                 return ((string)(this["DGSTestInterface_DGS_ImageProcesserService"]));

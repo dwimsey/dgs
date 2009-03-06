@@ -30,6 +30,8 @@ namespace DGSTestInterface
 					return (".tif");
 				case "pdf":
 					return (".pdf");
+				case "gif":
+					return (".gif");
 				default:
 					throw new Exception("Unexpected image format specified.");
 			}
@@ -80,12 +82,20 @@ namespace DGSTestInterface
 				case "tiff":
 					outputMimeType = "image/tiff";
 					break;
+				case "gif":
+					outputMimeType = "image/gif";
+					break;
 				case "pdf":
 					outputMimeType = "application/pdf";
 					break;
 			}
 			requestInfo.instructionsXML = "<commands><load filename=\"test.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /><substituteVariables buffer=\"main\" /><save snapshotTime=\"1.0\" filename=\"test.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
-			requestInfo.variables = LoadVariablesFile(tb_VariablesFile.Text);
+			//requestInfo.variables = LoadVariablesFile(tb_VariablesFile.Text);
+			requestInfo.variables = new dgsVariable[1];
+			requestInfo.variables[0] = new dgsVariable();
+			requestInfo.variables[0].name = "User:NULL";
+			requestInfo.variables[0].visibility = true;
+			requestInfo.variables[0].data = " ";
 			DGS.dgsResponseInfo responseInfo = null;
 			tb_ProcessingLog.Text += "Issuing SOAP request ...\r\n";
 			tb_ProcessingLog.Update();

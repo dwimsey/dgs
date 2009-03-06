@@ -170,7 +170,8 @@
 			this.cb_ImageFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.cb_ImageFormat.FormattingEnabled = true;
 			this.cb_ImageFormat.Items.AddRange(new object[] {
-            "PNG",
+            "GIF",
+			"PNG",
             "JPG",
             "TIFF",
             "PDF"});
