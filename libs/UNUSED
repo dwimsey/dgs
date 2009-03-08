@@ -1,0 +1,6 @@
+The following files are included in the CVS repository for completeness and are not currently used by the previewer or the web service:
+batik-extension.jar
+batik-gui-util.jar
+batik-svggen.jar
+xalan-2.6.0.jar
+xml-apis.jar
