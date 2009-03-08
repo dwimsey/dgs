@@ -31,6 +31,11 @@ public class DGSUserAgent implements UserAgent {
 		}
 		ua = oldAgent;
 		workspace = cWorkspace;
+		
+	}
+
+	public void loadDocument(String arg0) {
+	    ua.loadDocument(arg0);
 	}
 
 	public void checkLoadExternalResource(ParsedURL resourceURL, ParsedURL docURL) throws SecurityException {

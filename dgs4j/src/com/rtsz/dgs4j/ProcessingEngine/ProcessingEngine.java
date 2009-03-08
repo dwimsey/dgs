@@ -266,20 +266,21 @@ public class ProcessingEngine {
 	}
 
 	private void loadCommandPlugins() {
-		if (pluginsLoaded == true) {
-			return;
-		} else {
-			pluginsLoaded = true; // BUG: this allows for a race condition and should be fixed
-		}
+		synchronized (this) {
+		    if (pluginsLoaded == true) {
+			    return;
+		    } else {
+			    pluginsLoaded = true;
+		    }
 
-		ICommandEngine pluginEngine;
+		    ICommandEngine pluginEngine;
 
-		switchToPluginSecurity();
-		pluginEngine = new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine();
-		switchToStandardSecurity();
+		    switchToPluginSecurity();
+		    pluginEngine = new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine();
+		    switchToStandardSecurity();
 
-		loadPlugin(pluginEngine);
-
+		    loadPlugin(pluginEngine);
+	    }
 	}
 
 	public void addCommandInstruction(String commandName, IInstruction instruction) {
@@ -299,7 +300,7 @@ public class ProcessingEngine {
 				commandList.put(commandName, cmd);
 			}
 		} catch (Exception ex) {
+		    // we should report this exception somehow!
 		}
-
 	}
 }
