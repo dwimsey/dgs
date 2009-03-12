@@ -46,7 +46,19 @@ public class CommandEngine implements ICommandEngine {
 			// add our GIF support to batik first
 			batikGIFRegistryEntry = new DGSGIFRegistryEntry();
 			org.apache.batik.ext.awt.image.spi.ImageTagRegistry ir = org.apache.batik.ext.awt.image.spi.ImageTagRegistry.getRegistry();
-			ir.register(batikGIFRegistryEntry);
+//			java.util.List mTypes = ir.getRegisteredMimeTypes();
+//			if(!mTypes.contains("image/gif")) {
+				ir.register(batikGIFRegistryEntry);
+//			}
+//			if(!mTypes.contains("image/png")) {
+				ir.register(new org.apache.batik.ext.awt.image.codec.png.PNGRegistryEntry());
+//			}
+//			if(!mTypes.contains("image/jpeg")) {
+				ir.register(new org.apache.batik.ext.awt.image.codec.jpeg.JPEGRegistryEntry());
+//			}
+//			if(!mTypes.contains("image/tiff")) {
+				ir.register(new org.apache.batik.ext.awt.image.codec.tiff.TIFFRegistryEntry());
+//			}
 		}
 	}
 
