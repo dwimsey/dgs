@@ -42,13 +42,16 @@ public class CommandEngine implements ICommandEngine {
 	public static final String MIME_BUFFERTYPE = "image/svg+xml";
 
 	public void init() {
+		// add our GIF support to batik first
+		org.apache.batik.ext.awt.image.spi.ImageTagRegistry ir = org.apache.batik.ext.awt.image.spi.ImageTagRegistry.getRegistry();
+		ir.register(new DGSGIFRegistryEntry());
 	}
 
 	public void addCommands(ProcessingEngine pEngine) {
 		pEngine.addCommandInstruction("replaceImage", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.replaceImage());
 		pEngine.addCommandInstruction("setVisibility", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.setVisibility());
 		pEngine.addCommandInstruction("substituteVariables", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.substituteVariables());
-                //pEngine.addCommandInstruction("addWatermark", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.addWatermark());
+		//pEngine.addCommandInstruction("addWatermark", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.addWatermark());
 	}
 
 
