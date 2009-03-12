@@ -40,11 +40,14 @@ public class CommandEngine implements ICommandEngine {
 
 	public static final String INTERNAL_BUFFERTYPE = "batik/svgdom";
 	public static final String MIME_BUFFERTYPE = "image/svg+xml";
-
-	public void init() {
-		// add our GIF support to batik first
-		org.apache.batik.ext.awt.image.spi.ImageTagRegistry ir = org.apache.batik.ext.awt.image.spi.ImageTagRegistry.getRegistry();
-		ir.register(new DGSGIFRegistryEntry());
+	public static DGSGIFRegistryEntry batikGIFRegistryEntry;
+	public synchronized void init() {
+		if(batikGIFRegistryEntry == null) {
+			// add our GIF support to batik first
+			batikGIFRegistryEntry = new DGSGIFRegistryEntry();
+			org.apache.batik.ext.awt.image.spi.ImageTagRegistry ir = org.apache.batik.ext.awt.image.spi.ImageTagRegistry.getRegistry();
+			ir.register(batikGIFRegistryEntry);
+		}
 	}
 
 	public void addCommands(ProcessingEngine pEngine) {

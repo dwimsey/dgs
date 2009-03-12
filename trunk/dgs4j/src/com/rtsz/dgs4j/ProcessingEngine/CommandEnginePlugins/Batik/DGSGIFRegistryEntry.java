@@ -35,6 +35,23 @@ public class DGSGIFRegistryEntry extends MagicNumberRegistryEntry {
         new MagicNumberRegistryEntry.MagicNumber(0, sigGIF89)
 	};
 
+	private boolean entryEnabled = true;
+	public synchronized boolean isEnabled()
+	{
+		return(entryEnabled);
+	}
+	public synchronized boolean enable()
+	{
+		boolean old = entryEnabled;
+		entryEnabled = true;
+		return(old);
+	}
+	public synchronized boolean disable()
+	{
+		boolean old = entryEnabled;
+		entryEnabled = false;
+		return(old);
+	}
 	public DGSGIFRegistryEntry() {
 		super("GIF", "gif", "image/gif", magicNumbers);
     }
@@ -50,10 +67,17 @@ public class DGSGIFRegistryEntry extends MagicNumberRegistryEntry {
     public Filter handleStream(InputStream inIS,
                                ParsedURL   origURL,
                                boolean needRawData) {
-
-        final DeferRable  dr  = new DeferRable();
+		if(!this.isEnabled()) {
+			// I can not remember WHERE I saw this documented, but the API takes
+			// a null return value to mean that this registry entry was unable to
+			// deal with the url provided but not that the data is invalid, which
+			// effectively causes this entry to be ignored, as if it were never
+			// registered.
+			return null;
+		}
+  
+		final DeferRable  dr  = new DeferRable();
         final InputStream is  = inIS;
-        final boolean     raw = needRawData;
         final String      errCode;
         final Object []   errParam;
         if (origURL != null) {
@@ -63,8 +87,7 @@ public class DGSGIFRegistryEntry extends MagicNumberRegistryEntry {
             errCode  = ERR_STREAM_FORMAT_UNREADABLE;
             errParam = new Object[] {"GIF"};
         }
-
-        Thread t = new Thread() {
+      Thread t = new Thread() {
                 public void run() {
                     Filter filt;
                     try {
@@ -83,72 +106,6 @@ public class DGSGIFRegistryEntry extends MagicNumberRegistryEntry {
 						throw td;
 					} catch (Throwable t) {
 						filt = ImageTagRegistry.getBrokenLinkImage(DGSGIFRegistryEntry.this, errCode, errParam);
-					}
-					dr.setSource(filt);
-				}
-            };
-        t.start();
-        return dr;
-    }	
-	
-	
-	
-	
-	public Filter handleStream_ORIG(InputStream inIS,
-                               ParsedURL   origURL,
-                               boolean needRawData) {
-
-        final DeferRable  dr  = new DeferRable();
-        final InputStream is  = inIS;
-        final boolean     raw = needRawData;
-        final String      errCode;
-        final Object []   errParam;
-        if (origURL != null) {
-            errCode  = ERR_URL_FORMAT_UNREADABLE;
-            errParam = new Object[] {"PNG", origURL};
-        } else {
-            errCode  = ERR_STREAM_FORMAT_UNREADABLE;
-            errParam = new Object[] {"PNG"};
-        }
-
-        Thread t = new Thread() {
-                public void run() {
-                    Filter filt;
-                    try {
-//                        PNGDecodeParam param = new PNGDecodeParam();
-//                        param.setExpandPalette(true);
-
-                        if (raw) {
-//                            param.setPerformGammaCorrection(false);
-						} else {
-//                            param.setPerformGammaCorrection(true);
-//                            param.setDisplayExponent(2.2f); // sRGB gamma
-                        }
-//                        
-//						CachableRed cr = new PNGRed(is, param);
-						BufferedImage bi = javax.imageio.ImageIO.read(is);
-						CachableRed cr = GraphicsUtil.wrap(bi);
-
-						dr.setBounds(new Rectangle2D.Double (0, 0, cr.getWidth(), cr.getHeight()));
-						cr = new Any2sRGBRed(cr);
-						cr = new FormatRed(cr, GraphicsUtil.sRGB_Unpre);
-						WritableRaster wr = (WritableRaster)cr.getData();
-						ColorModel cm = cr.getColorModel();
-						BufferedImage image;
-						image = new BufferedImage(cm, wr, cm.isAlphaPremultiplied(), null);
-						cr = GraphicsUtil.wrap(image);
-						filt = new RedRable(cr);
-					} catch (IOException ioe) {
-						filt = ImageTagRegistry.getBrokenLinkImage
-							(DGSGIFRegistryEntry.this, errCode, errParam);
-					} catch (ThreadDeath td) {
-						filt = ImageTagRegistry.getBrokenLinkImage
-							(DGSGIFRegistryEntry.this, errCode, errParam);
-						dr.setSource(filt);
-						throw td;
-					} catch (Throwable t) {
-						filt = ImageTagRegistry.getBrokenLinkImage
-							(DGSGIFRegistryEntry.this, errCode, errParam);
 					}
 					dr.setSource(filt);
 				}
