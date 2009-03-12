@@ -92,7 +92,7 @@ public class CommandEngine implements ICommandEngine {
 			buffer.data = doc;
 			return (true);
 		} else {
-			if (dgsFile.mimeType.equals("image/png") || dgsFile.mimeType.equals("image/gif") || dgsFile.mimeType.equals("image/jpeg") || dgsFile.mimeType.equals("image/tiff")) {
+			if (dgsFile.mimeType.equals("image/png") || dgsFile.mimeType.equals("image/jpeg") || dgsFile.mimeType.equals("image/tiff")) {
 				BufferedImage bi = null;
 				try {
 					bi = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(dgsFile.data));
@@ -105,6 +105,31 @@ public class CommandEngine implements ICommandEngine {
 				} catch (IOException ie) {
 					workspace.log("Image could not be loaded because it is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
 				}
+			} else if (dgsFile.mimeType.equals("image/gif")) {
+				// for gif's we have to convert them to an internal acceptable format
+				// TIFF would be prefered if it supported transparencies like PNG since
+				// it is uncompressed and the memory required has to be allocated at
+				// some point anyway.
+
+				BufferedImage bi = null;
+				java.io.ByteArrayOutputStream os;
+
+				try {
+					bi = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(dgsFile.data));
+					os = new java.io.ByteArrayOutputStream();
+					if(!javax.imageio.ImageIO.write(bi, "png", os)) {
+						workspace.log("GIF Image could not be converted to an acceptable internal format.");
+						return(false);
+					}
+					buffer = workspace.createImageBuffer(bufferName);
+					buffer.height = bi.getHeight();
+					buffer.width = bi.getWidth();
+					buffer.mimeType = dgsFile.mimeType.intern();
+					buffer.data = os.toByteArray().clone();
+					return (true);
+				} catch (IOException ie) {
+					workspace.log("An error occurred in the load command: Image could not be loaded because it is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
+				}
 			}
 		}
 		return (false);
@@ -112,9 +137,10 @@ public class CommandEngine implements ICommandEngine {
 
 	public byte[] getImageData(ProcessingWorkspace workspace, Object svgData, String mimeType, float quality, float snapshotTime, String bufferType, java.awt.Dimension size) {
 		org.apache.batik.transcoder.Transcoder t = null;
-		if((mimeType.equals("image/png")) || (mimeType.equals("image/gif"))) {
-			// we use the PNG transcoder for GIF images as well, since there isn't native support for GIF in batik since it is non-standard
+		if(mimeType.equals("image/png")) {
 			t = new DGSPNGTranscoder(workspace);
+		} else if (mimeType.equals("image/gif")) {
+			t = new DGSGIFTranscoder(workspace);
 		} else if (mimeType.equals("image/jpeg")) {
 			t = new DGSJPEGTranscoder(workspace, new Float(quality)/100.0f); // the encoder expects a value between 1 and 0, so we must normalize the input value from the range of 0 - 100
 		} else if (mimeType.equals("image/tiff")) {
@@ -156,7 +182,8 @@ public class CommandEngine implements ICommandEngine {
 				t.transcode(input, output);
 			} catch (Exception ex) {
 				// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
-				workspace.log("Transcoder Error.");
+				workspace.log("Transcoder Error:");
+				workspace.log(" -> " + ex.toString());
 				return(null);
 			}
 
@@ -175,14 +202,18 @@ public class CommandEngine implements ICommandEngine {
 			return(null);
 		}
 
+		BufferedImage image = null;
 		if(size != null) {
-			BufferedImage image = null;
 			try {
 				image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(oDat));
 				size.height = image.getHeight();
 				size.width = image.getWidth();
 			} catch (IOException ie) {
 				workspace.log("Transcoder frame output is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
+				return(null);
+			}
+			if(image == null) {
+				workspace.log("Transcoder frame output returns null from internal image loader.");
 				return(null);
 			}
 		}
@@ -360,13 +391,11 @@ public class CommandEngine implements ICommandEngine {
 			}
 		} else {
 			// generate a single frame
-			oDat = this.getImageData(workspace, buffer.data, mimeType, 100.0f, 0.0f, INTERNAL_BUFFERTYPE, size);
+ 			oDat = this.getImageData(workspace, buffer.data, mimeType, 100.0f, 0.0f, INTERNAL_BUFFERTYPE, size);
 			if(oDat == null) {
 				workspace.log("Conversion from " + buffer.mimeType + " to " + mimeType + " failed.");
 				return(false);
 			}
-			// TODO: We need to convert the PNG we got back to a GIF here if the output type is image/gif
-
 
 			/// this block of code is now obsolete as we get the size while render the image for faster results
 ////			try {
