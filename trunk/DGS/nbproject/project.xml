@@ -81,6 +81,10 @@
                     <file>${file.reference.js.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
+                <library files="1">
+                    <file>${file.reference.batik-extension.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
             </web-module-libraries>
             <web-module-additional-libraries/>
             <source-roots>
