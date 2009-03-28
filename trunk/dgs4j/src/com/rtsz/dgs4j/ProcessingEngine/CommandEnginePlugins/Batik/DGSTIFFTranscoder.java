@@ -12,8 +12,6 @@ public class DGSTIFFTranscoder extends org.apache.batik.transcoder.image.TIFFTra
 
 	public DGSTIFFTranscoder(ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace) {
 		super();
-		this.hints.put(this.KEY_EXECUTE_ONLOAD, true);
-		this.hints.put(this.KEY_ALLOWED_SCRIPT_TYPES, ""); // "text/ecmascript");
 		this.userAgent = new DGSUserAgent(this.getUserAgent(), workspace);
 	}
 }

@@ -13,8 +13,6 @@ public class DGSGIFTranscoder extends org.apache.batik.transcoder.image.PNGTrans
 	public DGSGIFTranscoder(ImageProcessor.ProcessingEngine.ProcessingWorkspace wrkspc) {
 		super();
 		this.workspace = wrkspc;
-		this.hints.put(this.KEY_EXECUTE_ONLOAD, true);
-		this.hints.put(this.KEY_ALLOWED_SCRIPT_TYPES, ""); // "text/ecmascript");
 		this.userAgent = new DGSUserAgent(this.getUserAgent(), wrkspc);
 	}
 	
