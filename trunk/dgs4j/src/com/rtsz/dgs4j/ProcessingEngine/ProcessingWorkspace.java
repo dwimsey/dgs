@@ -17,12 +17,14 @@ public class ProcessingWorkspace {
 	private List<ProcessingEngineImageBuffer> images;
 	private List<String> processingLog;
 	public List<DGSFileInfo> files;
+	public String activeStylesheet;
 
 	public ProcessingWorkspace(DGSRequestInfo iRequestInfo) {
 		this.requestInfo = iRequestInfo;
 		this.processingLog = new ArrayList<String>();
 		this.images = new ArrayList<ProcessingEngineImageBuffer>();
 		this.files = new ArrayList<DGSFileInfo>();
+		this.activeStylesheet = null;
 	}
 
 	public void log(String logString) {

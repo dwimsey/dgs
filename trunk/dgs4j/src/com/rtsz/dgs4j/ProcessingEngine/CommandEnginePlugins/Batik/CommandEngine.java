@@ -172,6 +172,10 @@ public class CommandEngine implements ICommandEngine {
 
 		// for now we do our best to completely disable scripting
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_ALLOWED_SCRIPT_TYPES, "");
+		if(workspace.activeStylesheet != null && (!workspace.activeStylesheet.isEmpty())) {
+			t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_USER_STYLESHEET_URI, workspace.activeStylesheet);
+		}
+
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_CONSTRAIN_SCRIPT_ORIGIN, true);
 		if(snapshotTime>0.0f) {
 			t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_EXECUTE_ONLOAD, true);
