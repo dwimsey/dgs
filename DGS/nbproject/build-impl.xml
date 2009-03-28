@@ -541,9 +541,11 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
         <copy-ear-war file="${file.reference.batik-codec.jar}" propname="included.lib.file.reference.batik-codec.jar.X"/>
         <basename file="${file.reference.js.jar}" property="included.lib.file.reference.js.jar"/>
         <copy-ear-war file="${file.reference.js.jar}" propname="included.lib.file.reference.js.jar.X"/>
+        <basename file="${file.reference.batik-extension.jar}" property="included.lib.file.reference.batik-extension.jar"/>
+        <copy-ear-war file="${file.reference.batik-extension.jar}" propname="included.lib.file.reference.batik-extension.jar.X"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${included.lib.file.reference.xerces_2_5_0.jar} ${included.lib.file.reference.batik-transcoder.jar} ${included.lib.file.reference.pdf-transcoder.jar} ${included.lib.file.reference.batik-bridge.jar} ${included.lib.file.reference.batik-util.jar} ${included.lib.file.reference.batik-gvt.jar} ${included.lib.file.reference.xml-apis-ext.jar} ${included.lib.file.reference.batik-dom.jar} ${included.lib.file.reference.batik-css.jar} ${included.lib.file.reference.batik-svg-dom.jar} ${included.lib.file.reference.batik-ext.jar} ${included.lib.file.reference.batik-xml.jar} ${included.lib.file.reference.batik-anim.jar} ${included.lib.file.reference.batik-parser.jar} ${included.lib.file.reference.batik-script.jar} ${included.lib.file.reference.batik-awt-util.jar} ${included.lib.file.reference.batik-codec.jar} ${included.lib.file.reference.js.jar} "/>
+            <attribute name="Class-Path" value="${included.lib.file.reference.xerces_2_5_0.jar} ${included.lib.file.reference.batik-transcoder.jar} ${included.lib.file.reference.pdf-transcoder.jar} ${included.lib.file.reference.batik-bridge.jar} ${included.lib.file.reference.batik-util.jar} ${included.lib.file.reference.batik-gvt.jar} ${included.lib.file.reference.xml-apis-ext.jar} ${included.lib.file.reference.batik-dom.jar} ${included.lib.file.reference.batik-css.jar} ${included.lib.file.reference.batik-svg-dom.jar} ${included.lib.file.reference.batik-ext.jar} ${included.lib.file.reference.batik-xml.jar} ${included.lib.file.reference.batik-anim.jar} ${included.lib.file.reference.batik-parser.jar} ${included.lib.file.reference.batik-script.jar} ${included.lib.file.reference.batik-awt-util.jar} ${included.lib.file.reference.batik-codec.jar} ${included.lib.file.reference.js.jar} ${included.lib.file.reference.batik-extension.jar} "/>
         </manifest>
         <delete dir="${dist.ear.dir}/temp"/>
     </target>
@@ -566,6 +568,7 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
         <copy file="${file.reference.batik-awt-util.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${file.reference.batik-codec.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${file.reference.js.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.batik-extension.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>
