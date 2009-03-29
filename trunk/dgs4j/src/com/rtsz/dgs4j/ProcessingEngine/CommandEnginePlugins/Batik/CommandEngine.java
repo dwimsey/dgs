@@ -7,11 +7,6 @@ package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
 import ImageProcessor.ProcessingEngine.*;
 import ImageProcessor.DGSFileInfo;
 
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-
-import org.w3c.dom.*;
-
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 
@@ -20,17 +15,15 @@ import org.apache.batik.util.XMLResourceDescriptor;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
-
+import org.apache.batik.transcoder.*;
+import org.w3c.dom.*;
 
 // all these are required for GIF stuffs
-//import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-//import java.io.File;
 import java.util.Iterator;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
-//import javax.imageio.stream.FileImageOutputStream;
 
 /**
  *
@@ -40,6 +33,7 @@ public class CommandEngine implements ICommandEngine {
 
 	public static final String INTERNAL_BUFFERTYPE = "batik/svgdom";
 	public static final String MIME_BUFFERTYPE = "image/svg+xml";
+	public static final String COMMAND_ENGINE_ALLOWED_SCRIPT_TYPES = "text/javascript,application/javascript,application/ecmascript,text/ecmascript";
 	public static DGSGIFRegistryEntry batikGIFRegistryEntry;
 	public synchronized void init() {
 		if(batikGIFRegistryEntry == null) {
@@ -165,43 +159,56 @@ public class CommandEngine implements ICommandEngine {
 			t = new DGSTIFFTranscoder(workspace);
 		} else if (mimeType.equals("application/pdf")) {
 			t = new DGSPDFTranscoder(workspace);
+		} else if (mimeType.equals(MIME_BUFFERTYPE)) {
+			t = new DGSSVGTranscoder(workspace);
 		} else {
 			workspace.log("Transcoder Error: Unsupported MIME type requested: " + mimeType.toString());
 			return (null);
 		}
 
 		// for now we do our best to completely disable scripting
-		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_ALLOWED_SCRIPT_TYPES, "");
+		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_ALLOWED_SCRIPT_TYPES, COMMAND_ENGINE_ALLOWED_SCRIPT_TYPES);
 		if(workspace.activeStylesheet != null && (!workspace.activeStylesheet.isEmpty())) {
 			t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_USER_STYLESHEET_URI, workspace.activeStylesheet);
 		}
 
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_CONSTRAIN_SCRIPT_ORIGIN, true);
-		if(snapshotTime>0.0f) {
-			t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_EXECUTE_ONLOAD, true);
-		} else {
-			t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_EXECUTE_ONLOAD, false);
-		}
+		// we now allow scripts to run
+		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_EXECUTE_ONLOAD, true);
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_SNAPSHOT_TIME, snapshotTime);
+
 		byte oDat[];
-//				org.apache.batik.bridge.GVTBuilder builder = new org.apache.batik.bridge.GVTBuilder();
-//				org.apache.batik.bridge.BridgeContext bctx;
-//				bctx = new org.apache.batik.bridge.BridgeContext(new org.apache.batik.bridge.UserAgent());
-//				GraphicsNode gvtRoot = builder.build(ctx, svgData);
-//				gvtRoot.getSensitiveBounds();
 		try {
 			TranscoderInput input = null;
 			TranscoderOutput output = null;
+			Document svgDoc = null;
 			if(bufferType.equals(MIME_BUFFERTYPE)) {
-				input = new TranscoderInput(new java.io.ByteArrayInputStream((byte[])svgData.toString().getBytes()));
+				//input = new TranscoderInput(new java.io.ByteArrayInputStream((byte[])svgData.toString().getBytes()));
+				try {
+					String parser = XMLResourceDescriptor.getXMLParserClassName();
+					SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String)new String(((byte[])svgData.toString().getBytes()), "UTF8")));
+				} catch (IOException ex) {
+					workspace.log("An error occurred parsing the SVG file data for transcoding: " + ex.getMessage());
+					return(null);
+				}
 			} else {
-				input = new TranscoderInput((Document)svgData);
+				svgDoc = (Document)svgData;
 			}
+			// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
+			// a real cause and fix needs to be found
+			svgDoc.setDocumentURI("http://");
+			input = new TranscoderInput((Document)svgData);
 			java.io.ByteArrayOutputStream outStream = new java.io.ByteArrayOutputStream();
 			output = new TranscoderOutput(outStream);
 
 			try {
 				t.transcode(input, output);
+			} catch (TranscoderException ex) {
+				// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
+				workspace.log("Transcoder Error:");
+				workspace.log(" -> " + ex.toString());
+				return(null);
 			} catch (Exception ex) {
 				// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
 				workspace.log("Transcoder Error:");
@@ -212,7 +219,7 @@ public class CommandEngine implements ICommandEngine {
 			// Flush and close the stream.
 			outStream.flush();
 			outStream.close();
-		
+
 			oDat = outStream.toByteArray();
 			if (oDat == null || oDat.length == 0) {
 				workspace.log("Transcoder did not return any data.");
@@ -224,19 +231,25 @@ public class CommandEngine implements ICommandEngine {
 			return(null);
 		}
 
-		BufferedImage image = null;
 		if(size != null) {
-			try {
-				image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(oDat));
-				size.height = image.getHeight();
-				size.width = image.getWidth();
-			} catch (IOException ie) {
-				workspace.log("Transcoder frame output is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
-				return(null);
-			}
-			if(image == null) {
-				workspace.log("Transcoder frame output returns null from internal image loader.");
-				return(null);
+			if (mimeType.equals(MIME_BUFFERTYPE)) {
+				// SVG outputs do not have sizes that we have access to at this time.
+			} else if (mimeType.equals("application/pdf")) {
+				// PDF sizes must be handled differently
+			} else {
+				BufferedImage image = null;
+				try {
+					image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(oDat));
+					size.height = image.getHeight();
+					size.width = image.getWidth();
+				} catch (IOException ie) {
+					workspace.log("Transcoder frame output is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
+					return(null);
+				}
+				if(image == null) {
+					workspace.log("Transcoder frame output returns null from internal image loader.");
+					return(null);
+				}
 			}
 		}
 		return(oDat);
@@ -291,6 +304,8 @@ public class CommandEngine implements ICommandEngine {
 			extension = ".tif";
 		} else if (mimeType.equals("application/pdf")) {
 			extension = ".pdf";
+		} else if (mimeType.equals(MIME_BUFFERTYPE)) {
+			extension = ".svg";
 		} else {
 			workspace.log("An error occurred in the save command: Unsupported MIME type specified: " + mimeType.toString());
 			return (false);
@@ -413,7 +428,7 @@ public class CommandEngine implements ICommandEngine {
 			}
 		} else {
 			// generate a single frame
- 			oDat = this.getImageData(workspace, buffer.data, mimeType, 100.0f, 0.0f, INTERNAL_BUFFERTYPE, size);
+ 			oDat = this.getImageData(workspace, buffer.data, mimeType, 100.0f, 0.0f, buffer.mimeType, size);
 			if(oDat == null) {
 				workspace.log("Conversion from " + buffer.mimeType + " to " + mimeType + " failed.");
 				return(false);
