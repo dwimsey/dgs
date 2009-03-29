@@ -209,14 +209,18 @@ public class DGSPreviewerView extends FrameView {
         jSplitPane1 = new javax.swing.JSplitPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
-        imagePanel = new DGSPreviewerPanel();
+        jPanel1 = new javax.swing.JPanel();
+        imagePanel = new dgspreviewer.DGSPreviewerPanel();
+        draftCanvas = new org.apache.batik.swing.JSVGCanvas();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
-	loadVarsMenuItem = new javax.swing.JMenuItem();
+        loadVarsMenuItem = new javax.swing.JMenuItem();
         refreshMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
+        menuView = new javax.swing.JMenu();
+        menuCbDraftMode = new javax.swing.JCheckBoxMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
@@ -234,10 +238,13 @@ public class DGSPreviewerView extends FrameView {
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
+        jTextArea1.setMinimumSize(new java.awt.Dimension(200, 150));
         jTextArea1.setName("logDisplay"); // NOI18N
         jScrollPane1.setViewportView(jTextArea1);
 
         jSplitPane1.setRightComponent(jScrollPane1);
+
+        jPanel1.setName("imagePanel"); // NOI18N
 
         imagePanel.setName("imagePanel"); // NOI18N
 
@@ -252,7 +259,35 @@ public class DGSPreviewerView extends FrameView {
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
-        jSplitPane1.setLeftComponent(imagePanel);
+        draftCanvas.setName("draftCanvas"); // NOI18N
+
+        javax.swing.GroupLayout draftCanvasLayout = new javax.swing.GroupLayout(draftCanvas);
+        draftCanvas.setLayout(draftCanvasLayout);
+        draftCanvasLayout.setHorizontalGroup(
+            draftCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 398, Short.MAX_VALUE)
+        );
+        draftCanvasLayout.setVerticalGroup(
+            draftCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(imagePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(draftCanvas, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(imagePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(draftCanvas, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
+        );
+
+        jSplitPane1.setLeftComponent(jPanel1);
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -272,14 +307,12 @@ public class DGSPreviewerView extends FrameView {
         fileMenu.setName("fileMenu"); // NOI18N
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(dgspreviewer.DGSPreviewerApp.class).getContext().getActionMap(DGSPreviewerView.class, this);
-
         openMenuItem.setAction(actionMap.get("loadFile")); // NOI18N
         openMenuItem.setName("openMenuItem"); // NOI18N
         fileMenu.add(openMenuItem);
 
-	loadVarsMenuItem.setAction(actionMap.get("loadVarsFile")); // NOI18N
-	loadVarsMenuItem.setName("loadVarsMenuItem"); // NOI18N
-	fileMenu.add(loadVarsMenuItem);
+        loadVarsMenuItem.setAction(actionMap.get("loadVarsFile")); // NOI18N
+        fileMenu.add(loadVarsMenuItem);
 
         refreshMenuItem.setAction(actionMap.get("refreshImage")); // NOI18N
         refreshMenuItem.setName("jMenuItemRefresh"); // NOI18N
@@ -293,6 +326,21 @@ public class DGSPreviewerView extends FrameView {
         fileMenu.add(exitMenuItem);
 
         menuBar.add(fileMenu);
+
+        menuView.setText(resourceMap.getString("menuView.text")); // NOI18N
+        menuView.setName("menuView"); // NOI18N
+
+        menuCbDraftMode.setSelected(true);
+        menuCbDraftMode.setText(resourceMap.getString("menuCbDraftMode.text")); // NOI18N
+        menuCbDraftMode.setName("menuCbDraftMode"); // NOI18N
+        menuCbDraftMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuCbDraftModeActionPerformed(evt);
+            }
+        });
+        menuView.add(menuCbDraftMode);
+
+        menuBar.add(menuView);
 
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
@@ -344,6 +392,17 @@ public class DGSPreviewerView extends FrameView {
         setMenuBar(menuBar);
         setStatusBar(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
+
+private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCbDraftModeActionPerformed
+		if(this.menuCbDraftMode.isSelected()) {
+			imagePanel.setVisible(false);
+			draftCanvas.setVisible(true);
+		} else {
+			imagePanel.setVisible(true);
+			draftCanvas.setVisible(false);
+		}
+		refreshImageEx(true);
+}//GEN-LAST:event_menuCbDraftModeActionPerformed
 
     @Action
     public void loadFile() {
@@ -456,6 +515,8 @@ public class DGSPreviewerView extends FrameView {
 
 	private boolean loadImageFileData(String fileName)
     {
+		imagePanel.setVisible(false);
+		draftCanvas.setVisible(true);
         byte fDat[] = null;
         java.io.File f = new java.io.File(fileName);
         if(!f.exists()) {
@@ -502,21 +563,57 @@ public class DGSPreviewerView extends FrameView {
 		logMessage(LogLevel, Message);
     }
 	
-	public void setDisplayImage(BufferedImage nImage) {
+	public void setDisplayImage(BufferedImage nImage)
+	{
 		imagePanel.image = nImage;
 		imagePanel.repaint();
 	}
 
+	public void setDraftSvgImage(String uri)
+	{
+		draftCanvas.setURI(uri);
+		draftCanvas.repaint();
+	}
+
+	public boolean getDraftMode()
+	{
+		return(menuCbDraftMode.isSelected());
+	}
+	
+	public boolean setDraftMode(boolean selected)
+	{
+		boolean old = menuCbDraftMode.isSelected();
+		if(old != selected) {
+			menuCbDraftMode.setSelected(selected);
+			if(selected) {
+				imagePanel.setVisible(false);
+				draftCanvas.setVisible(true);
+				draftCanvas.repaint();
+				draftCanvas.setEnabled(true);
+			} else {
+				imagePanel.setVisible(true);
+				draftCanvas.setVisible(false);
+				draftCanvas.setEnabled(false);
+			}
+			refreshImageEx(true);
+		}
+		return(old);
+	}
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private DGSPreviewerPanel imagePanel;
+    private org.apache.batik.swing.JSVGCanvas draftCanvas;
+    private dgspreviewer.DGSPreviewerPanel imagePanel;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JMenuItem loadVarsMenuItem;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
+    private javax.swing.JCheckBoxMenuItem menuCbDraftMode;
+    private javax.swing.JMenu menuView;
     private javax.swing.JMenuItem openMenuItem;
-    private javax.swing.JMenuItem loadVarsMenuItem;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JMenuItem refreshMenuItem;
     private javax.swing.JLabel statusAnimationLabel;
