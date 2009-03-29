@@ -188,20 +188,28 @@ public class ProcessingEngine {
 							}
 						}
 						switchToPluginSecurity();
-						if (cEngine.save(workspace, fileName, iBuffer, mimeType, attributes)) {
+						try {
+							if (cEngine.save(workspace, fileName, iBuffer, mimeType, attributes)) {
+								cmdHandled = true;
+								break;
+							}
+						} catch(Exception ex) {
+							workspace.log("Processing of command caused an internal error: Command: " + curNodeName + " Buffer: " + bufferName + " Error: " + ex.getMessage());
+						} finally {
 							switchToStandardSecurity();
-							cmdHandled = true;
-							break;
 						}
-						switchToStandardSecurity();
 					} else {
 						switchToPluginSecurity();
-						if (cEngine.load(workspace, fileName, bufferName, mimeType, attributes)) {
+						try {
+							if(cEngine.load(workspace, fileName, bufferName, mimeType, attributes)) {
+								cmdHandled = true;
+								break;
+							}
+						} catch(Exception ex) {
+							workspace.log("Processing of command caused an internal error: Command: " + curNodeName + " Buffer: " + bufferName + " Error: " + ex.getMessage());
+						} finally {
 							switchToStandardSecurity();
-							cmdHandled = true;
-							break;
 						}
-						switchToStandardSecurity();
 					}
 				}
 
@@ -219,8 +227,14 @@ public class ProcessingEngine {
 				if (cmd != null) {
 					workspace.log("Processing command: " + curNodeName);
 					switchToPluginSecurity();
-					boolean rval = cmd.process(workspace, curNode);
-					switchToStandardSecurity();
+					boolean rval = false;
+					try{
+						rval = cmd.process(workspace, curNode);
+					} catch(Exception ex) {
+						workspace.log("Processing of command caused an internal error: Command: " + curNodeName + " Error: " + ex.getMessage());
+					} finally {
+						switchToStandardSecurity();
+					}
 					if (!rval) {
 						if (!workspace.requestInfo.continueOnError) {
 							workspace.log("Processing halted due to an error: " + curNodeName);
