@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: rts.dgs.plugins.sketsa.dgstools
+OpenIDE-Module-Implementation-Version: 3
+OpenIDE-Module-Layer: rts/dgs/plugins/sketsa/dgstools/layer.xml
+OpenIDE-Module-Localizing-Bundle: rts/dgs/plugins/sketsa/dgstools/Bundle.properties
+
