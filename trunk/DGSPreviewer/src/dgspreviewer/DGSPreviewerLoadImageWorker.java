@@ -97,15 +97,18 @@ public class DGSPreviewerLoadImageWorker extends SwingWorker<DGSResponseInfo, Vo
 		setProgress(12);
 		// Form the instruction xml fragment
         //dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"image/svg+xml\" />";
-	dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"main\" mimeType=\"image/svg+xml\" />";
+		dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"main\" mimeType=\"image/svg+xml\" />";
 //		dgsRequestInfo.instructionsXML += dPkg.commandString;
         dgsRequestInfo.instructionsXML += "<save ";
 		if((dPkg.animationDuration>0.0f) && (dPkg.animationFramerate>0.0f)) {
 //			dgsRequestInfo.instructionsXML += "animationDuration=\"" + dPkg.animationDuration + "\" animationFramerate=\"" + dPkg.animationFramerate + "\" ";
 		}
 		
-		dgsRequestInfo.instructionsXML += "filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
-
+		if(this.mainWin.getDraftMode()) {
+			dgsRequestInfo.instructionsXML += "filename=\"output.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /></commands>";
+		} else {
+			dgsRequestInfo.instructionsXML += "filename=\"output.png\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
+		}
 		setProgress(13);
 		if(this.isCancelled()) { // this check is done after any possibly lengthy operation
 			return(null);
@@ -157,16 +160,22 @@ public class DGSPreviewerLoadImageWorker extends SwingWorker<DGSResponseInfo, Vo
 			// nothing to work with anyway
 			return;
 		}
+		
 		setStatusMessage(200, "Updating display with new image ...");
-        BufferedImage image = null;
-        try {
-            image = ImageIO.read(new java.io.ByteArrayInputStream((byte[])dgsResponseInfo.resultFiles[0].data));
-        } catch (IOException ie) {
-            setStatusMessage(5, "Error processing output image: " + ie.getMessage());
-        }
+		if(this.mainWin.getDraftMode()) {
+			String uri = "data://image/svg+xml;base64," + ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])dgsResponseInfo.resultFiles[0].data);
+			this.mainWin.setDraftSvgImage(uri);
+		} else {
+			BufferedImage image = null;
+			try {
+				image = ImageIO.read(new java.io.ByteArrayInputStream((byte[])dgsResponseInfo.resultFiles[0].data));
+			} catch (IOException ie) {
+				setStatusMessage(5, "Error processing output image: " + ie.getMessage());
+			}
 
-		setProgress(99);
-		setDisplayImage(image);
+			setProgress(99);
+			setDisplayImage(image);
+		}
 		setProgress(100);
 		setStatusMessage(0, "Ready.");
 	}
@@ -178,6 +187,15 @@ public class DGSPreviewerLoadImageWorker extends SwingWorker<DGSResponseInfo, Vo
 		}
         final BufferedImage image  = nImage;
 		javax.swing.SwingUtilities.invokeLater(new Runnable() { public void run() { mainWin.setDisplayImage(image); } } );
+	}
+
+	private void setDraftSvgImage(String uri) {
+		// if we've been canceled, is possible that the mainWin is no longer valid, abort to be safe
+		if(this.isCancelled()) {
+			return;
+		}
+		final String furi = uri;
+     	javax.swing.SwingUtilities.invokeLater(new Runnable() { public void run() { mainWin.setDraftSvgImage(furi); } } );
 	}
 
 	private void setStatusMessage(int LogLevel, String LogMessage) {
