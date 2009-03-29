@@ -28,7 +28,7 @@ public class DGSSVGTranscoder extends AbstractTranscoder {
 		//this.userAgent = new DGSUserAgent(this.getUserAgent(), workspace);
 	}
 	
-	private void transcodeElement(org.apache.batik.dom.svg.SVG)
+	private void transcodeNode(Object node)
 	{
 		// we don't do anything yet, the workspace url must be supported first
 	}
@@ -38,7 +38,7 @@ public class DGSSVGTranscoder extends AbstractTranscoder {
 		java.io.OutputStream outStream = output.getOutputStream();
 		// get the input data type
 		java.io.InputStream inStream = input.getInputStream();
-		SVGDocument svgDoc = input.getDocument();
+		Document svgDoc = input.getDocument();
 		if(svgDoc == null) {
 			if(inStream != null) {
 				try {
