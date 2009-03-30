@@ -9,6 +9,8 @@ import org.jdesktop.application.SingleFrameApplication;
 
 import org.apache.batik.util.ApplicationSecurityEnforcer;
 
+import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.*;
+
 /**
  * The main class of the application.
  */
@@ -25,6 +27,8 @@ public class DGSPreviewerApp extends SingleFrameApplication {
 
         securityEnforcer.enforceSecurity(false);
 
+		DGSWorkspaceParsedURLProtocolHandler ph = new DGSWorkspaceParsedURLProtocolHandler();
+		org.apache.batik.util.ParsedURL.registerHandler(ph);
 		
     }
 
