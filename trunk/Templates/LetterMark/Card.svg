@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/css" href="system.css" ?> 
+<!--
+<?xml-stylesheet type="text/css" href="workspace://system.css" ?> 
+-->
 <!-- Generator: Adobe Illustrator 13.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 14948)  -->
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.2" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -3014,6 +3016,19 @@
 <glyph unicode="&#xFB1E;" horiz-adv-x="0" d="M175,1542l137,0C304,1451 272,1380 217,1329C161,1277 89,1251 0,1251C-89,1251 -161,1277 -216,1329C-272,1380 -304,1451 -312,1542l137,0C-170,1495 -154,1459 -125,1435C-96,1410 -55,1398 0,1398C55,1398 96,1410 125,1435C154,1459 170,1495 175,1542z"/>
 <glyph unicode="&#xFB1F;" horiz-adv-x="1118" d="M983,1061l0,-592l-289,0l0,592M424,1061l0,-592l-289,0l0,592M135,287l0,104l848,0l0,-104z"/>
 </font>
+
+<!-- card style, this will eventually be external and system provided -->
+<style type="text/css">
+<![CDATA[
+.cardText { fill: #363895; stroke: none; }
+.cardBackground { fill: #FFFFFF; stroke: #000000; }
+.cardCompanyName { fill: #363895; stroke: none; }
+.cardUrl { fill: #363895; stroke: none;}
+.cardSeperator { stroke: #363895; }
+.cardTab { stroke: #000000; fill: #363895; }
+.cardTab text { fill: #FFFFFF; stroke: none; }
+]]>
+</style>
 
 <!-- card background and border -->
 <rect x="0.5" y="19.93" class="cardBackground" width="288" height="154.667"/>
