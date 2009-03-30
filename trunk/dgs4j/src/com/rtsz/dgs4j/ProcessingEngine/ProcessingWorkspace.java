@@ -12,6 +12,16 @@ import java.util.*;
  * @author dwimsey
  */
 public class ProcessingWorkspace {
+	private static class ThreadLocalWorkspace extends ThreadLocal {
+	}
+	private static ThreadLocalWorkspace activeWorkspace = new ThreadLocalWorkspace();
+	public static ProcessingWorkspace getCurrentWorkspace() {
+		return((ProcessingWorkspace)activeWorkspace.get());
+	}
+	public static void setCurrentWorkspace(ProcessingWorkspace workspace) {
+		activeWorkspace.set(workspace);
+	}
+  
 
 	public DGSRequestInfo requestInfo;
 	private List<ProcessingEngineImageBuffer> images;

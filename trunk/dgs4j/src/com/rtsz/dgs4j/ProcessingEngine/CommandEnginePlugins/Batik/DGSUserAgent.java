@@ -54,7 +54,7 @@ public class DGSUserAgent implements UserAgent {
 			rProto = resourceURL.getProtocol();
 		}
 
-		if (!rProto.equals("data")) {
+		if (!rProto.equals("data") && !rProto.equals("workspace")) {
 			throw new SecurityException("Only embedded resource links are allowed.");
 		}
 		ua.checkLoadExternalResource(resourceURL, docURL);
