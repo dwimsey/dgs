@@ -88,9 +88,12 @@ public class DGSPreviewerView extends FrameView {
 
 		pEngine = new ImageProcessor.ProcessingEngine.ProcessingEngine();
         initComponents();
-        imagePanel.options = options;
+        this.imagePanel.options = options;
+		
+		// at startup, draft mode is disabled
+		this.menuCbDraftMode.setSelected(false);
 
-        // status bar initialization - message timeout, idle icon and busy animation, etc
+		// status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
         int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
         messageTimer = new Timer(messageTimeout, new ActionListener() {
@@ -183,6 +186,19 @@ public class DGSPreviewerView extends FrameView {
 					refreshImageEx(false);
 				}
 			}
+		}
+		
+		// set the initial state of the draft/rendered view areas
+		if(menuCbDraftMode.isSelected()) {
+			imagePanel.setVisible(false);
+			draftCanvas.setVisible(true);
+			draftCanvas.setEnabled(true);
+			draftCanvas.repaint();
+		} else {
+			draftCanvas.setVisible(false);
+			draftCanvas.setEnabled(false);
+			imagePanel.setVisible(true);
+			imagePanel.repaint();
 		}
 	}
 

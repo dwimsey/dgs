@@ -96,14 +96,18 @@ public class DGSPreviewerLoadImageWorker extends SwingWorker<DGSResponseInfo, Vo
 
 		setProgress(12);
 		// Form the instruction xml fragment
-        //dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"image/svg+xml\" />";
-		dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"main\" mimeType=\"image/svg+xml\" />";
-//		dgsRequestInfo.instructionsXML += dPkg.commandString;
-        dgsRequestInfo.instructionsXML += "<save ";
+		if(dPkg.commandString != null && dPkg.commandString.length() > 0) {
+			dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"image/svg+xml\" />";
+			dgsRequestInfo.instructionsXML += dPkg.commandString;		
+		} else {
+			dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"main\" mimeType=\"image/svg+xml\" />";
+			dgsRequestInfo.instructionsXML += "<substituteVariables buffer=\"main\" />";
+		}
+		dgsRequestInfo.instructionsXML += "<save ";
 		if((dPkg.animationDuration>0.0f) && (dPkg.animationFramerate>0.0f)) {
 //			dgsRequestInfo.instructionsXML += "animationDuration=\"" + dPkg.animationDuration + "\" animationFramerate=\"" + dPkg.animationFramerate + "\" ";
 		}
-		
+
 		if(this.mainWin.getDraftMode()) {
 			dgsRequestInfo.instructionsXML += "filename=\"output.svg\" buffer=\"main\" mimeType=\"image/svg+xml\" /></commands>";
 		} else {

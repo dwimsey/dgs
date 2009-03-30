@@ -72,11 +72,12 @@ public class DGSPackage {
 		}
 		try {
 			NodeList tLst = doc.getElementsByTagName("DGSCommands");
+			int nLen = tLst.getLength();
 			if(tLst.getLength()>0) {
 				NodeList nodeLst = tLst.item(0).getChildNodes();
 				Node dgsCommands = tLst.item(0);
+				nLen = nodeLst.getLength();
 				this.commandString = dgsCommands.getTextContent();
-				
 				NamedNodeMap aMap = dgsCommands.getAttributes();
 				Node templateBufferNode = aMap.getNamedItem("templateBuffer");
 				Node animationDurationNode = aMap.getNamedItem("animationDuration");
@@ -144,7 +145,7 @@ public class DGSPackage {
 		}
 
 		try {
-			NodeList nodeLst = doc.getElementsByTagName("DGSImageVariable");
+			NodeList nodeLst = doc.getElementsByTagName("DGSFile");
 
 			int nLen = nodeLst.getLength();
 			DGSFileInfo vars[] = new DGSFileInfo[nLen];
@@ -155,11 +156,7 @@ public class DGSPackage {
 					vars[s] = new DGSFileInfo();
 					vars[s].name = aMap.getNamedItem("name").getNodeValue();
 					vars[s].data = ImageProcessor.ProcessingEngine.Base64.decode(aMap.getNamedItem("data").getNodeValue());
-					if("jpg".equalsIgnoreCase(aMap.getNamedItem("mimeType").getNodeValue())) {
-							vars[s].mimeType = "image/jpeg";
-					} else {
-							vars[s].mimeType = "image/" + aMap.getNamedItem("mimeType").getNodeValue();
-					}
+					vars[s].mimeType = "" + aMap.getNamedItem("mimeType").getNodeValue();
 					vars[s].width = Integer.valueOf(aMap.getNamedItem("width").getNodeValue());
 					vars[s].height = Integer.valueOf(aMap.getNamedItem("height").getNodeValue());
 				}
