@@ -81,7 +81,6 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 	}
 
 	public void loadUri(String fileUri, String dgsPackageFile, NotificationMethods newMethods) {
-		//this.setBounds(WIDTH, WIDTH, WIDTH, WIDTH);
 		this.cancelWorker(true);
 		lastLoadedURI = fileUri;
 		lastLoadedDGSPackageURI = dgsPackageFile;
@@ -132,7 +131,8 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 
 	public void setBackgroundColor(java.awt.Color newColor) {
 		this.backgroundColor = newColor;
-		this.renderedCanvas.BackgroundColor = this.backgroundColor;
+		this.renderedCanvas.setBackgroundColor(this.getBackgroundColor());
+		this.draftCanvas.setBackground(this.getBackgroundColor());
 	}
 
 	@Override
@@ -169,28 +169,29 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
         draftCanvas = new org.apache.batik.swing.JSVGCanvas();
         renderedCanvas = new dgspreviewer.DGSPreviewerPanel();
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(dgspreviewer.DGSPreviewerApp.class).getContext().getResourceMap(DGSPreviewCanvas.class);
-        setBackground(resourceMap.getColor("Form.background")); // NOI18N
         setName("Form"); // NOI18N
         setPreferredSize(new java.awt.Dimension(32676, 32676));
 
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(dgspreviewer.DGSPreviewerApp.class).getContext().getResourceMap(DGSPreviewCanvas.class);
+        layers.setBackground(resourceMap.getColor("layers.background")); // NOI18N
         layers.setName("layers"); // NOI18N
         layers.setPreferredSize(new java.awt.Dimension(32676, 32676));
 
+        draftCanvas.setBackground(resourceMap.getColor("draftCanvas.background")); // NOI18N
         draftCanvas.setName("draftCanvas"); // NOI18N
 
         javax.swing.GroupLayout draftCanvasLayout = new javax.swing.GroupLayout(draftCanvas);
         draftCanvas.setLayout(draftCanvasLayout);
         draftCanvasLayout.setHorizontalGroup(
             draftCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 32676, Short.MAX_VALUE)
+            .addGap(0, 200, Short.MAX_VALUE)
         );
         draftCanvasLayout.setVerticalGroup(
             draftCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 32676, Short.MAX_VALUE)
+            .addGap(0, 200, Short.MAX_VALUE)
         );
 
-        draftCanvas.setBounds(0, 0, 200, 200);
+        draftCanvas.setBounds(0, 0, -1, -1);
         layers.add(draftCanvas, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         renderedCanvas.setName("renderedCanvas"); // NOI18N
@@ -200,25 +201,25 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
         renderedCanvas.setLayout(renderedCanvasLayout);
         renderedCanvasLayout.setHorizontalGroup(
             renderedCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGap(0, 32676, Short.MAX_VALUE)
         );
         renderedCanvasLayout.setVerticalGroup(
             renderedCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGap(0, 32676, Short.MAX_VALUE)
         );
 
-        renderedCanvas.setBounds(0, 0, 32676, 32676);
+        renderedCanvas.setBounds(0, 0, -1, -1);
         layers.add(renderedCanvas, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(layers, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(layers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(layers, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .addComponent(layers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 public class DGSPreviewerPanel extends javax.swing.JPanel {
 
 	public BufferedImage image = null;
-	public java.awt.Color BackgroundColor = new java.awt.Color(0x0000FFFF);
+	private java.awt.Color BackgroundColor = new java.awt.Color(0xFFFFFFFF);
 
 	public void paint(java.awt.Graphics g) {
 		java.awt.Rectangle r = g.getClipBounds();
@@ -27,5 +27,11 @@ public class DGSPreviewerPanel extends javax.swing.JPanel {
 		if (image != null) {
 			g.drawImage(image, 0, 0, null);
 		}
+	}
+	
+	protected void setBackgroundColor(java.awt.Color newBackgroundColor)
+	{
+		this.BackgroundColor = newBackgroundColor;
+		this.repaint();
 	}
 }
