@@ -132,6 +132,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 
 	public void setBackgroundColor(java.awt.Color newColor) {
 		this.backgroundColor = newColor;
+		this.renderedCanvas.BackgroundColor = this.backgroundColor;
 	}
 
 	@Override
