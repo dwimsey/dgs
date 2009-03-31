@@ -3,7 +3,6 @@
  *
  * Created on March 30, 2009, 3:35 PM
  */
-
 package dgspreviewer;
 
 import java.awt.*;
@@ -13,13 +12,19 @@ import java.beans.*;
  *
  * @author  dwimsey
  */
-public class DGSPreviewCanvas extends javax.swing.JPanel {
+public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.event.ComponentListener {
+
 	public interface NotificationMethods {
+
 		public void logEvent(int LogLevel, String Message);
+
 		public void statusMessage(int LogLevel, String Message);
+
 		public void propertyChangeNotification(PropertyChangeEvent evt);
 	}
+
 	public enum DisplayMode {
+
 		Draft,
 		PNG,
 		GIF,
@@ -27,30 +32,27 @@ public class DGSPreviewCanvas extends javax.swing.JPanel {
 		TIFF,
 		PDF;
 	};
-	
 	private DisplayMode displayMode;
 	private Color backgroundColor;
 	private String lastLoadedURI = null;
 	private String lastLoadedDGSPackageURI = null;
 	protected NotificationMethods notificationMethods = null;
 	private java.beans.PropertyChangeListener pcListener = null;
-
 	private DGSPreviewCanvasLoaderWorker workerThread = null;
 	public ImageProcessor.ProcessingEngine.ProcessingEngine pEngine = null;
-	
-    /** Creates new form DGSPreviewCanvas */
-    public DGSPreviewCanvas() {
+
+	/** Creates new form DGSPreviewCanvas */
+	public DGSPreviewCanvas() {
 		this.displayMode = DisplayMode.Draft;
 		this.backgroundColor = new Color(0xFFFFFFFF);
 		this.initComponents();
-		
+		this.addComponentListener(this);
 		// do the initial layer ordering
 		this.updateLayers();
-    }
+	}
 
-	private void updateLayers()
-	{
-		switch(displayMode) {
+	private void updateLayers() {
+		switch (displayMode) {
 			case Draft:
 				this.layers.setLayer(renderedCanvas, 0);
 				this.layers.setLayer(draftCanvas, 1);
@@ -66,37 +68,37 @@ public class DGSPreviewCanvas extends javax.swing.JPanel {
 				break;
 		}
 	}
-	
-	private synchronized boolean cancelWorker(boolean mayInterruptIfNeeded)
-	{
-		if(workerThread != null) {
-			if(!workerThread.isDone()) {
+
+	private synchronized boolean cancelWorker(boolean mayInterruptIfNeeded) {
+		if (workerThread != null) {
+			if (!workerThread.isDone()) {
 				workerThread.cancel(mayInterruptIfNeeded);
-				return(true);
+				return (true);
 			}
 			workerThread = null;
 		}
-		return(false);
+		return (false);
 	}
 
-	public void loadUri(String fileUri, String dgsPackageFile, NotificationMethods newMethods)
-	{
+	public void loadUri(String fileUri, String dgsPackageFile, NotificationMethods newMethods) {
+		//this.setBounds(WIDTH, WIDTH, WIDTH, WIDTH);
 		this.cancelWorker(true);
 		lastLoadedURI = fileUri;
 		lastLoadedDGSPackageURI = dgsPackageFile;
 		notificationMethods = newMethods;
-		if(lastLoadedURI == null) {
+		if (lastLoadedURI == null) {
 			renderedCanvas.image = null;
 			renderedCanvas.repaint();
 			draftCanvas.setURI(null);
 			return;
 		}
 		workerThread = new DGSPreviewCanvasLoaderWorker(this, pEngine, fileUri, dgsPackageFile);
-		if(pcListener == null) {
+		if (pcListener == null) {
 			pcListener = new java.beans.PropertyChangeListener() {
+
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
-					if(notificationMethods != null) {
+					if (notificationMethods != null) {
 						notificationMethods.propertyChangeNotification(evt);
 					}
 				}
@@ -106,42 +108,59 @@ public class DGSPreviewCanvas extends javax.swing.JPanel {
 		workerThread.execute();
 	}
 
-	public DisplayMode getDisplayMode()
-	{
-		return(this.displayMode);
+	public DisplayMode getDisplayMode() {
+		return (this.displayMode);
 	}
 
-	public void setDisplayMode(DisplayMode newMode)
-	{
-		if(newMode != this.displayMode) {
+	public void setDisplayMode(DisplayMode newMode) {
+		if (newMode != this.displayMode) {
 			boolean loadInProgress = this.cancelWorker(true);
 			this.displayMode = newMode;
 			this.updateLayers();
 			renderedCanvas.image = null;
 			draftCanvas.setDocument(null);
-			if(lastLoadedURI != null) {
+			if (lastLoadedURI != null) {
 				// refresh the loaded image
 				this.loadUri(lastLoadedURI, lastLoadedDGSPackageURI, notificationMethods);
 			}
 		}
 	}
-	
-	public java.awt.Color getBackgroundColor()
-	{
-		return(this.backgroundColor);
+
+	public java.awt.Color getBackgroundColor() {
+		return (this.backgroundColor);
 	}
 
-	public void setBackgroundColor(java.awt.Color newColor)
-	{
+	public void setBackgroundColor(java.awt.Color newColor) {
 		this.backgroundColor = newColor;
 	}
 
+	@Override
+	public void componentHidden(java.awt.event.ComponentEvent e) {
+	}
+
+	@Override
+	public void componentMoved(java.awt.event.ComponentEvent e) {
+	}
+
+	@Override
+	public void componentResized(java.awt.event.ComponentEvent e) {
+		if(e.getSource() == this) {
+			java.awt.Rectangle r = this.getBounds();
+			draftCanvas.setBounds(r);
+			renderedCanvas.setBounds(r);
+		}
+	}
+
+	@Override
+	public void componentShown(java.awt.event.ComponentEvent e) {
+	}
+
 	/** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
+	 * initialize the form.
+	 * WARNING: Do NOT modify this code. The content of this method is
+	 * always regenerated by the Form Editor.
+	 */
+	@SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -201,12 +220,9 @@ public class DGSPreviewCanvas extends javax.swing.JPanel {
             .addComponent(layers, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     protected org.apache.batik.swing.JSVGCanvas draftCanvas;
     private javax.swing.JLayeredPane layers;
     protected dgspreviewer.DGSPreviewerPanel renderedCanvas;
     // End of variables declaration//GEN-END:variables
-
 }
