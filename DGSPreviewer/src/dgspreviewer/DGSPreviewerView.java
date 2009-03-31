@@ -30,11 +30,14 @@ import org.w3c.dom.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import dgspreviewer.DGSPreviewCanvas.*;
+
 /**
  * The application's main frame.
  */
 public class DGSPreviewerView extends FrameView {
 
+	private dgspreviewer.DGSPreviewCanvas.NotificationMethods notifcationMethods = null;
     private Options options;
     private static ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
 	private String[] args;
@@ -88,10 +91,11 @@ public class DGSPreviewerView extends FrameView {
 
 		pEngine = new ImageProcessor.ProcessingEngine.ProcessingEngine();
         initComponents();
-        this.imagePanel.options = options;
+		previewCanvas.pEngine = this.pEngine;
+		previewCanvas.setBackgroundColor(options.getBackgroundColor());
 		
 		// at startup, draft mode is disabled
-		this.menuCbDraftMode.setSelected(false);
+		this.menuCbDraftMode.setSelected(true);
 
 		// status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
@@ -190,15 +194,9 @@ public class DGSPreviewerView extends FrameView {
 		
 		// set the initial state of the draft/rendered view areas
 		if(menuCbDraftMode.isSelected()) {
-			imagePanel.setVisible(false);
-			draftCanvas.setVisible(true);
-			draftCanvas.setEnabled(true);
-			draftCanvas.repaint();
+			previewCanvas.setDisplayMode(DisplayMode.Draft);
 		} else {
-			draftCanvas.setVisible(false);
-			draftCanvas.setEnabled(false);
-			imagePanel.setVisible(true);
-			imagePanel.repaint();
+			previewCanvas.setDisplayMode(DisplayMode.GIF);
 		}
 	}
 
@@ -226,8 +224,7 @@ public class DGSPreviewerView extends FrameView {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
-        imagePanel = new dgspreviewer.DGSPreviewerPanel();
-        draftCanvas = new org.apache.batik.swing.JSVGCanvas();
+        previewCanvas = new dgspreviewer.DGSPreviewCanvas();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
@@ -262,45 +259,22 @@ public class DGSPreviewerView extends FrameView {
 
         jPanel1.setName("imagePanel"); // NOI18N
 
-        imagePanel.setName("imagePanel"); // NOI18N
-
-        javax.swing.GroupLayout imagePanelLayout = new javax.swing.GroupLayout(imagePanel);
-        imagePanel.setLayout(imagePanelLayout);
-        imagePanelLayout.setHorizontalGroup(
-            imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 398, Short.MAX_VALUE)
-        );
-        imagePanelLayout.setVerticalGroup(
-            imagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
-        draftCanvas.setName("draftCanvas"); // NOI18N
-
-        javax.swing.GroupLayout draftCanvasLayout = new javax.swing.GroupLayout(draftCanvas);
-        draftCanvas.setLayout(draftCanvasLayout);
-        draftCanvasLayout.setHorizontalGroup(
-            draftCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 398, Short.MAX_VALUE)
-        );
-        draftCanvasLayout.setVerticalGroup(
-            draftCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
+        previewCanvas.setName("previewCanvas"); // NOI18N
+        previewCanvas.setPreferredSize(new java.awt.Dimension(32767, 32767));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(imagePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGap(0, 420, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(draftCanvas, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE))
+                .addComponent(previewCanvas, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(imagePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGap(0, 282, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(draftCanvas, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
+                .addComponent(previewCanvas, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 282, Short.MAX_VALUE))
         );
 
         jSplitPane1.setLeftComponent(jPanel1);
@@ -309,11 +283,11 @@ public class DGSPreviewerView extends FrameView {
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 312, Short.MAX_VALUE)
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -382,11 +356,11 @@ public class DGSPreviewerView extends FrameView {
         statusPanel.setLayout(statusPanelLayout);
         statusPanelLayout.setHorizontalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 230, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 252, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -411,13 +385,10 @@ public class DGSPreviewerView extends FrameView {
 
 private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCbDraftModeActionPerformed
 		if(this.menuCbDraftMode.isSelected()) {
-			imagePanel.setVisible(false);
-			draftCanvas.setVisible(true);
+			this.previewCanvas.setDisplayMode(DGSPreviewCanvas.DisplayMode.Draft);
 		} else {
-			imagePanel.setVisible(true);
-			draftCanvas.setVisible(false);
+			this.previewCanvas.setDisplayMode(DGSPreviewCanvas.DisplayMode.GIF);
 		}
-		refreshImageEx(true);
 }//GEN-LAST:event_menuCbDraftModeActionPerformed
 
     @Action
@@ -490,49 +461,61 @@ private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//G
 					dgsWorker.cancel(true);
 				}
 			}
-			dgsWorker = new DGSPreviewerLoadImageWorker(this, pEngine, MRUTemplateImageFileName, this.options.getMRUDGSPackageFileName());
-			dgsWorker.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-
-				public void propertyChange(PropertyChangeEvent evt) {
-                String propertyName = evt.getPropertyName();
-                if ("state".equals(propertyName)) {
-					String val = evt.getNewValue().toString();
-					if(val.toLowerCase().equals("done")) {
-						busyIconTimer.stop();
-						statusAnimationLabel.setIcon(idleIcon);
-						progressBar.setVisible(false);
-						progressBar.setValue(0);
-					} else {
-						if (!busyIconTimer.isRunning()) {
-							statusAnimationLabel.setIcon(busyIcons[0]);
-							busyIconIndex = 0;
-							busyIconTimer.start();
+			
+			
+			if(notifcationMethods == null) {
+				notifcationMethods = new dgspreviewer.DGSPreviewCanvas.NotificationMethods() {
+					@Override
+					public void logEvent(int LogLevel, String Message)
+					{
+						logMessage(LogLevel, Message);
+					}
+					@Override
+					public void statusMessage(int LogLevel, String Message)
+					{
+						setStatusMessage(LogLevel, Message);
+					}
+					@Override
+					public void propertyChangeNotification(PropertyChangeEvent evt)
+					{
+						String propertyName = evt.getPropertyName();
+						if ("state".equals(propertyName)) {
+							String val = evt.getNewValue().toString();
+							if(val.toLowerCase().equals("done")) {
+								busyIconTimer.stop();
+								statusAnimationLabel.setIcon(idleIcon);
+								progressBar.setVisible(false);
+								progressBar.setValue(0);
+							} else {
+								if (!busyIconTimer.isRunning()) {
+									statusAnimationLabel.setIcon(busyIcons[0]);
+									busyIconIndex = 0;
+									busyIconTimer.start();
+								}
+								progressBar.setVisible(true);
+								progressBar.setIndeterminate(true);
+							}
+						} else if ("message".equals(propertyName)) {
+							String text = (String)(evt.getNewValue());
+							statusMessageLabel.setText((text == null) ? "" : text);
+							messageTimer.restart();
+						} else if ("progress".equals(propertyName)) {
+							if (busyIconTimer.isRunning()) {
+								int value = (Integer)(evt.getNewValue());
+								progressBar.setVisible(true);
+								progressBar.setIndeterminate(false);
+								progressBar.setValue(value);
+							}
 						}
-						progressBar.setVisible(true);
-						progressBar.setIndeterminate(true);
 					}
-                } else if ("message".equals(propertyName)) {
-                    String text = (String)(evt.getNewValue());
-                    statusMessageLabel.setText((text == null) ? "" : text);
-                    messageTimer.restart();
-                } else if ("progress".equals(propertyName)) {
-					if (busyIconTimer.isRunning()) {
-						int value = (Integer)(evt.getNewValue());
-						progressBar.setVisible(true);
-						progressBar.setIndeterminate(false);
-						progressBar.setValue(value);
-					}
-                }
-				}
-			});
-			dgsWorker.execute();
+				};
+			}
+			previewCanvas.loadUri(MRUTemplateImageFileName, this.options.getMRUDGSPackageFileName(), notifcationMethods);
 		}
     }
 
 	private boolean loadImageFileData(String fileName)
     {
-		imagePanel.setVisible(false);
-		draftCanvas.setVisible(true);
         byte fDat[] = null;
         java.io.File f = new java.io.File(fileName);
         if(!f.exists()) {
@@ -581,14 +564,15 @@ private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//G
 	
 	public void setDisplayImage(BufferedImage nImage)
 	{
-		imagePanel.image = nImage;
-		imagePanel.repaint();
+//		imagePanel.image = nImage;
+//		imagePanel.invalidate();
+//		imagePanel.repaint();
 	}
 
 	public void setDraftSvgImage(String uri)
 	{
-		draftCanvas.setURI(uri);
-		draftCanvas.repaint();
+//		draftCanvas.setURI(uri);
+//		draftCanvas.repaint();
 	}
 
 	public boolean getDraftMode()
@@ -602,14 +586,9 @@ private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//G
 		if(old != selected) {
 			menuCbDraftMode.setSelected(selected);
 			if(selected) {
-				imagePanel.setVisible(false);
-				draftCanvas.setVisible(true);
-				draftCanvas.repaint();
-				draftCanvas.setEnabled(true);
+				previewCanvas.setDisplayMode(DisplayMode.Draft);
 			} else {
-				imagePanel.setVisible(true);
-				draftCanvas.setVisible(false);
-				draftCanvas.setEnabled(false);
+				previewCanvas.setDisplayMode(DisplayMode.GIF);
 			}
 			refreshImageEx(true);
 		}
@@ -617,8 +596,6 @@ private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//G
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private org.apache.batik.swing.JSVGCanvas draftCanvas;
-    private dgspreviewer.DGSPreviewerPanel imagePanel;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
@@ -630,6 +607,7 @@ private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//G
     private javax.swing.JCheckBoxMenuItem menuCbDraftMode;
     private javax.swing.JMenu menuView;
     private javax.swing.JMenuItem openMenuItem;
+    private dgspreviewer.DGSPreviewCanvas previewCanvas;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JMenuItem refreshMenuItem;
     private javax.swing.JLabel statusAnimationLabel;
