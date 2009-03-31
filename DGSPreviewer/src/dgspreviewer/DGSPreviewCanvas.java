@@ -15,16 +15,12 @@ import java.beans.*;
 public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.event.ComponentListener {
 
 	public interface NotificationMethods {
-
 		public void logEvent(int LogLevel, String Message);
-
 		public void statusMessage(int LogLevel, String Message);
-
 		public void propertyChangeNotification(PropertyChangeEvent evt);
 	}
 
 	public enum DisplayMode {
-
 		Draft,
 		PNG,
 		GIF,
@@ -131,8 +127,11 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 
 	public void setBackgroundColor(java.awt.Color newColor) {
 		this.backgroundColor = newColor;
-		this.renderedCanvas.setBackgroundColor(this.getBackgroundColor());
-		this.draftCanvas.setBackground(this.getBackgroundColor());
+		if(this.backgroundColor == null) {
+			this.backgroundColor = new java.awt.Color(0xFFFFFFFF);
+		}
+		this.renderedCanvas.setBackgroundColor(this.backgroundColor);
+		this.draftCanvas.setBackground(this.backgroundColor);
 	}
 
 	@Override
@@ -169,15 +168,12 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
         draftCanvas = new org.apache.batik.swing.JSVGCanvas();
         renderedCanvas = new dgspreviewer.DGSPreviewerPanel();
 
-        setName("Form"); // NOI18N
+        setName("DGSPreviewCanvas"); // NOI18N
         setPreferredSize(new java.awt.Dimension(32676, 32676));
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(dgspreviewer.DGSPreviewerApp.class).getContext().getResourceMap(DGSPreviewCanvas.class);
-        layers.setBackground(resourceMap.getColor("layers.background")); // NOI18N
         layers.setName("layers"); // NOI18N
         layers.setPreferredSize(new java.awt.Dimension(32676, 32676));
 
-        draftCanvas.setBackground(resourceMap.getColor("draftCanvas.background")); // NOI18N
         draftCanvas.setName("draftCanvas"); // NOI18N
 
         javax.swing.GroupLayout draftCanvasLayout = new javax.swing.GroupLayout(draftCanvas);
