@@ -45,7 +45,6 @@ public class DGSPreviewerView extends FrameView {
 	String cmdLinePackageFile = null;
 	String cmdLineImageFile = null;
 	boolean cmdLineLoadOptions = true;
-	DGSPreviewerLoadImageWorker dgsWorker = null;
 
 	private void parseCommandLineArgs() {
 		if(args==null) {
@@ -456,13 +455,7 @@ private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//G
 			} else {
 				this.logMessage(100, "Loading " + MRUTemplateImageFileName + "...");
 			}
-			if(dgsWorker!=null) {
-				if(!dgsWorker.isDone()) {
-					dgsWorker.cancel(true);
-				}
-			}
-			
-			
+
 			if(notifcationMethods == null) {
 				notifcationMethods = new dgspreviewer.DGSPreviewCanvas.NotificationMethods() {
 					@Override
