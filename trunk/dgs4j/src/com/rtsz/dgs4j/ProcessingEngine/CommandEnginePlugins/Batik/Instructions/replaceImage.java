@@ -7,6 +7,7 @@ package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions;
 import ImageProcessor.ProcessingEngine.*;
 import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.*;
 import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine.*;
+import ImageProcessor.ProcessingEngine.Instructions.*;
 
 import org.w3c.dom.*;
 
@@ -22,7 +23,7 @@ import javax.xml.transform.stream.*;
  *
  * @author dwimsey
  */
-public class replaceImage implements ImageProcessor.ProcessingEngine.Instructions.IInstruction {
+public class replaceImage implements IInstruction {
 
 	String xlinkNS = "http://www.w3.org/1999/xlink";
 
@@ -74,8 +75,8 @@ public class replaceImage implements ImageProcessor.ProcessingEngine.Instruction
 			workspace.log("There is no buffer named '" + srcImageName + "' to get the new image from for a replaceImage.");
 			return (false);
 		}
-		if (!imgBuffer.mimeType.equals("image/png") && !imgBuffer.mimeType.equals("image/gif") && !imgBuffer.mimeType.equals("image/jpeg") && !imgBuffer.mimeType.equals("image/tiff")) {
-			workspace.log("New image for replaceImage is not an acceptable type, use png, gif, jpeg, or tiff instead.  Buffer Name: " + srcImageName + " Image MIME Type: " + imgBuffer.mimeType);
+		if (!imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE) && !imgBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE) && !imgBuffer.mimeType.equals("image/png") && !imgBuffer.mimeType.equals("image/gif") && !imgBuffer.mimeType.equals("image/jpeg") && !imgBuffer.mimeType.equals("image/tiff")) {
+			workspace.log("New image for replaceImage is not an acceptable type, use png, gif, jpeg, svg, or tiff instead.  Buffer Name: " + srcImageName + " Image MIME Type: " + imgBuffer.mimeType);
 			return (false);
 		}
 
@@ -102,8 +103,34 @@ public class replaceImage implements ImageProcessor.ProcessingEngine.Instruction
 		if (element != null) {
 			if (element.getNodeName().equals("image")) {
 				String dataUri = "";
-				dataUri = "data://" + imgBuffer.mimeType.trim() + ";base64,";
-				dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) imgBuffer.data);
+				if(imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
+					Document imgDoc = (Document)imgBuffer.data;
+					dataUri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
+					DGSSVGTranscoder tc = new DGSSVGTranscoder(workspace);
+					org.apache.batik.transcoder.TranscoderInput in = null;
+					org.apache.batik.transcoder.TranscoderOutput out = null;
+					imgDoc.setDocumentURI("http://");
+					in = new org.apache.batik.transcoder.TranscoderInput((Document)imgDoc);
+					java.io.ByteArrayOutputStream outStream = new java.io.ByteArrayOutputStream();
+					out = new org.apache.batik.transcoder.TranscoderOutput(outStream);
+					try {
+						tc.transcode(in, out);
+					} catch (org.apache.batik.transcoder.TranscoderException ex) {
+						// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
+						workspace.log("Transcoder Error:");
+						workspace.log(" -> " + ex.toString());
+						return(false);
+					} catch (Exception ex) {
+						// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
+						workspace.log("Transcoder Error:");
+						workspace.log(" -> " + ex.toString());
+						return(false);
+					}
+					dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes(outStream.toByteArray());
+				} else {
+					dataUri = "data://" + imgBuffer.mimeType.trim() + ";base64,";
+					dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) imgBuffer.data);
+				}
 				element.setAttributeNS(xlinkNS, "xlink:href", dataUri);
 			} else {
 				workspace.log("The element with an id of " + imageElementId + " is not an image.");
