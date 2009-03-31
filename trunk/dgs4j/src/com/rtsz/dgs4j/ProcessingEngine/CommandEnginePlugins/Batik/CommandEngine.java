@@ -4,8 +4,10 @@
  */
 package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
 
+import org.w3c.dom.*;
 import ImageProcessor.ProcessingEngine.*;
 import ImageProcessor.DGSFileInfo;
+import ImageProcessor.ProcessingEngine.Instructions.*;
 
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
@@ -16,7 +18,6 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 import org.apache.batik.transcoder.*;
-import org.w3c.dom.*;
 
 // all these are required for GIF stuffs
 import java.awt.image.BufferedImage;
@@ -35,6 +36,7 @@ public class CommandEngine implements ICommandEngine {
 	public static final String MIME_BUFFERTYPE = "image/svg+xml";
 	public static final String COMMAND_ENGINE_ALLOWED_SCRIPT_TYPES = "text/javascript,application/javascript,application/ecmascript,text/ecmascript";
 	public static DGSGIFRegistryEntry batikGIFRegistryEntry;
+	@Override
 	public synchronized void init() {
 		if(batikGIFRegistryEntry == null) {
 			// add our GIF support to batik first
@@ -60,7 +62,7 @@ public class CommandEngine implements ICommandEngine {
 		pEngine.addCommandInstruction("replaceImage", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.replaceImage());
 		pEngine.addCommandInstruction("setVisibility", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.setVisibility());
 		pEngine.addCommandInstruction("substituteVariables", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.substituteVariables());
-		//pEngine.addCommandInstruction("addWatermark", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.addWatermark());
+		pEngine.addCommandInstruction("addWatermark", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.addWatermark());
 	}
 
 
