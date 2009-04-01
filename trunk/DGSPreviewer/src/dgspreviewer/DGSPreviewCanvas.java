@@ -80,7 +80,24 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 		this.cancelWorker(true);
 		lastLoadedURI = fileUri;
 		lastLoadedDGSPackageURI = dgsPackageFile;
-		notificationMethods = newMethods;
+		if(newMethods == null) {
+			notificationMethods = new dgspreviewer.DGSPreviewCanvas.NotificationMethods() {
+					@Override
+					public void logEvent(int LogLevel, String Message)
+					{
+					}
+					@Override
+					public void statusMessage(int LogLevel, String Message)
+					{
+					}
+					@Override
+					public void propertyChangeNotification(PropertyChangeEvent evt)
+					{
+					}
+				};
+		} else {
+			notificationMethods = newMethods;
+		}
 		if (lastLoadedURI == null) {
 			renderedCanvas.image = null;
 			renderedCanvas.repaint();
@@ -90,12 +107,9 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 		workerThread = new DGSPreviewCanvasLoaderWorker(this, pEngine, fileUri, dgsPackageFile);
 		if (pcListener == null) {
 			pcListener = new java.beans.PropertyChangeListener() {
-
 				@Override
 				public void propertyChange(PropertyChangeEvent evt) {
-					if (notificationMethods != null) {
-						notificationMethods.propertyChangeNotification(evt);
-					}
+					notificationMethods.propertyChangeNotification(evt);
 				}
 			};
 		}
@@ -109,7 +123,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 
 	public void setDisplayMode(DisplayMode newMode) {
 		if (newMode != this.displayMode) {
-			boolean loadInProgress = this.cancelWorker(true);
+			this.cancelWorker(true);
 			this.displayMode = newMode;
 			this.updateLayers();
 			renderedCanvas.image = null;
