@@ -131,13 +131,13 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		} else {
 			dgsRequestInfo.instructionsXML += "<substituteVariables buffer=\"main\" />";
 		}
-		dgsRequestInfo.instructionsXML += "<addWatermark buffer=\"main\" srcImage=\"watermark\" opacity=\"0.05\"/>";
+		dgsRequestInfo.instructionsXML += "<addWatermark buffer=\"" + dPkg.templateBuffer + "\" srcImage=\"watermark\" opacity=\"0.05\"/>";
 		dgsRequestInfo.instructionsXML += "<save ";
 		if((dPkg.animationDuration>0.0f) && (dPkg.animationFramerate>0.0f)) {
 //			dgsRequestInfo.instructionsXML += "animationDuration=\"" + dPkg.animationDuration + "\" animationFramerate=\"" + dPkg.animationFramerate + "\" ";
 		}
 
-		dgsRequestInfo.instructionsXML += "filename=\"" + outputFileName + "\" buffer=\"main\" mimeType=\"" + outputMimeType + "\" /></commands>";
+		dgsRequestInfo.instructionsXML += "filename=\"" + outputFileName + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"" + outputMimeType + "\" /></commands>";
 		setProgress(13);
 		if(this.isCancelled()) { // this check is done after any possibly lengthy operation
 			return(null);
