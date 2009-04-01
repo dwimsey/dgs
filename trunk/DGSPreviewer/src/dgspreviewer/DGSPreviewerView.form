@@ -76,9 +76,9 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="282" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="1" max="32767" attributes="0"/>
                       <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                          <Component id="previewCanvas" alignment="1" pref="282" max="32767" attributes="0"/>
+                          <Component id="previewCanvas" alignment="1" pref="1" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -165,16 +165,79 @@
             <Property name="name" type="java.lang.String" value="menuView" noResource="true"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="menuCbDraftMode">
+            <Menu class="javax.swing.JMenu" name="menuDisplayMode">
               <Properties>
-                <Property name="selected" type="boolean" value="true"/>
-                <Property name="text" type="java.lang.String" resourceKey="menuCbDraftMode.text"/>
-                <Property name="name" type="java.lang.String" value="menuCbDraftMode" noResource="true"/>
+                <Property name="label" type="java.lang.String" resourceKey="menuDisplayMode.label"/>
+                <Property name="name" type="java.lang.String" value="menuDisplayMode" noResource="true"/>
               </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="menuCbDraftModeActionPerformed"/>
-              </Events>
-            </MenuItem>
+              <SubComponents>
+                <MenuItem class="javax.swing.JRadioButtonMenuItem" name="menuDisplayModeDraft">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuDisplayModeDraftAction" methodName="menuDisplayModeDraftAction"/>
+                    </Property>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="toolTipText" type="java.lang.String" resourceKey="menuDisplayModeDraft.toolTipText"/>
+                    <Property name="name" type="java.lang.String" value="menuDisplayModeDraft" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JRadioButtonMenuItem" name="menuDisplayModePNG">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuDisplayModePNGAction" methodName="menuDisplayModePNGAction"/>
+                    </Property>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="toolTipText" type="java.lang.String" resourceKey="menuDisplayModePNG.toolTipText"/>
+                    <Property name="label" type="java.lang.String" resourceKey="menuDisplayModePNG.label"/>
+                    <Property name="name" type="java.lang.String" value="menuDisplayModePNG" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JRadioButtonMenuItem" name="menuDisplayModeGIF">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuDisplayModeGIFAction" methodName="menuDisplayModeGIFAction"/>
+                    </Property>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="toolTipText" type="java.lang.String" resourceKey="menuDisplayModeGIF.toolTipText"/>
+                    <Property name="label" type="java.lang.String" resourceKey="menuDisplayModeGIF.label"/>
+                    <Property name="name" type="java.lang.String" value="menuDisplayModeGIF" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JRadioButtonMenuItem" name="menuDisplayModeJPEG">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuDisplayModeJPEGAction" methodName="menuDisplayModeJPEGAction"/>
+                    </Property>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="toolTipText" type="java.lang.String" resourceKey="menuDisplayModeJPEG.toolTipText"/>
+                    <Property name="label" type="java.lang.String" resourceKey="menuDisplayModeJPEG.label"/>
+                    <Property name="name" type="java.lang.String" value="menuDisplayModeJPEG" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JRadioButtonMenuItem" name="menuDisplayModeTIFF">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuDisplayModeTIFFAction" methodName="menuDisplayModeTIFFAction"/>
+                    </Property>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="toolTipText" type="java.lang.String" resourceKey="menuDisplayModeTIFF.toolTipText"/>
+                    <Property name="label" type="java.lang.String" resourceKey="menuDisplayModeTIFF.label"/>
+                    <Property name="name" type="java.lang.String" value="menuDisplayModeTIFF" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JRadioButtonMenuItem" name="menuDisplayModePDF">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuDisplayModePDFAction" methodName="menuDisplayModePDFAction"/>
+                    </Property>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="toolTipText" type="java.lang.String" resourceKey="menuDisplayModePDF.toolTipText"/>
+                    <Property name="label" type="java.lang.String" resourceKey="menuDisplayModePDF.label"/>
+                    <Property name="name" type="java.lang.String" value="menuDisplayModePDF" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">
