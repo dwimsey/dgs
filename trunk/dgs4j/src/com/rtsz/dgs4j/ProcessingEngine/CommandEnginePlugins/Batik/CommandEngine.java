@@ -4,10 +4,10 @@
  */
 package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
 
+import org.w3c.dom.svg.*;
 import org.w3c.dom.*;
 import ImageProcessor.ProcessingEngine.*;
 import ImageProcessor.DGSFileInfo;
-import ImageProcessor.ProcessingEngine.Instructions.*;
 
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
@@ -89,7 +89,7 @@ public class CommandEngine implements ICommandEngine {
 
 		ProcessingEngineImageBuffer buffer = null;
 		if (dgsFile.mimeType.equals(MIME_BUFFERTYPE)) {
-			Document doc = null;
+			SVGDocument doc = null;
 			try {
 				String parser = XMLResourceDescriptor.getXMLParserClassName();
 				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
@@ -100,8 +100,33 @@ public class CommandEngine implements ICommandEngine {
 			}
 
 			buffer = workspace.createImageBuffer(bufferName);
-			buffer.height = -1;
-			buffer.width = -1;
+			SVGElement rootNode = doc.getRootElement();
+			if(rootNode != null) {
+				String valStr = rootNode.getAttribute("height");
+				if(valStr != null && valStr.length() > 0) {
+					valStr = valStr.trim();
+					if(valStr.endsWith(("px"))) {
+						valStr = valStr.substring(0, (valStr.length()-2));
+					}
+					Float ff = Float.parseFloat(valStr);
+					buffer.height = (int)ff.intValue();
+				} else {
+					buffer.height = 0;
+				}
+				if(valStr != null && valStr.length() > 0) {
+					valStr = valStr.trim();
+					if(valStr.endsWith(("px"))) {
+						valStr = valStr.substring(0, (valStr.length()-2));
+					}
+					Float ff = Float.parseFloat(valStr);
+					buffer.width = (int)ff.intValue();
+				} else {
+					buffer.width = 0;
+				}
+			} else {
+				buffer.height = 0;
+				buffer.width = 0;
+			}
 			buffer.mimeType = INTERNAL_BUFFERTYPE;
 			buffer.data = doc;
 			return (true);
