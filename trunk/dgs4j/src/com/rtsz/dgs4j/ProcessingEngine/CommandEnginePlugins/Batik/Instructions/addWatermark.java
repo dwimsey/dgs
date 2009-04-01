@@ -40,11 +40,11 @@ public class addWatermark implements ImageProcessor.ProcessingEngine.Instruction
 
 		String bufferName = bufferNode.getNodeValue();
 		String srcImageName = srcImageNode.getNodeValue();
-		if (bufferName.length() == 0) {
+		if (bufferName==null || bufferName.length() == 0) {
 		    workspace.log(instructionName + " command failed: buffer attribute has no data.");
 		    return (false);
 		}
-		if (srcImageName.length() == 0) {
+		if (srcImageName==null || srcImageName.length() == 0) {
 		    workspace.log(instructionName + " command failed: srcImageNode attribute has no data.");
 		    return (false);
 		}
@@ -59,14 +59,96 @@ public class addWatermark implements ImageProcessor.ProcessingEngine.Instruction
 			return (false);
 		}
 
+		String opacityStr = "0.1";
+		Node opacityNode = nm.getNamedItem("opacity");
+		if (opacityNode != null) {
+			String tStr = opacityNode.getNodeValue();
+			if(tStr != null) {
+				if(tStr.length() > 0) {
+					opacityStr = tStr;
+				}
+			}
+		}
+		
+		org.apache.batik.dom.svg.SVGOMDocument doc = null;
+
+		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])iBuffer.data);
+			try {
+				String parser = XMLResourceDescriptor.getXMLParserClassName();
+				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+				doc = (org.apache.batik.dom.svg.SVGOMDocument)f.createDocument(uri);
+			} catch (IOException ex) {
+				workspace.log("An error occurred parsing the SVG file data in the addWatermark command: " + ex.getMessage());
+				return (false);
+			}
+		} else {
+			doc = (org.apache.batik.dom.svg.SVGOMDocument)iBuffer.data;
+		}
+		
 		ProcessingEngineImageBuffer imgBuffer = workspace.getImageBuffer(srcImageName);
 		if (imgBuffer == null) {
 			workspace.log(instructionName + " command failed: There is no buffer named '" + srcImageName + "' to get the watermark image from.");
 			return (false);
 		}
-		if (!imgBuffer.mimeType.equals("image/png") && !imgBuffer.mimeType.equals("image/jpeg") && !imgBuffer.mimeType.equals("image/tiff")) {
+		if (!imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE) && !imgBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE) && !imgBuffer.mimeType.equals("image/png") && !imgBuffer.mimeType.equals("image/jpeg") && !imgBuffer.mimeType.equals("image/tiff")) {
 			return (false);
 		}
-		return (false);
+		
+		String dataUri = "";
+		if(imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
+			Document imgDoc = (Document)imgBuffer.data;
+			dataUri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
+			TransformerFactory tf = TransformerFactory.newInstance();
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			Transformer t = null;
+			try {
+				t = tf.newTransformer();
+				t.transform(new DOMSource(imgDoc), new StreamResult(outStream));
+			} catch (Exception ex) {
+				workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
+				return (false);
+			}
+			dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes(outStream.toByteArray());
+		} else {
+			dataUri = "data://" + imgBuffer.mimeType.trim() + ";base64,";
+			dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) imgBuffer.data);
+		}
+
+		org.w3c.dom.svg.SVGSVGElement rootNode = doc.getRootElement();
+		
+		org.w3c.dom.Element wmNode = doc.createElement("image");
+		wmNode.setAttribute("x", rootNode.getAttribute("x"));
+		wmNode.setAttribute("y", rootNode.getAttribute("y"));
+		wmNode.setAttribute("height", rootNode.getAttribute("height"));
+		wmNode.setAttribute("width", rootNode.getAttribute("width"));
+		wmNode.setAttribute("opacity", opacityStr);
+		wmNode.setAttribute("xlink:href", dataUri);
+		rootNode.appendChild(wmNode);
+		
+		// TODO: this extra conversion should be fixed somehow to speed things up
+		TransformerFactory tf = TransformerFactory.newInstance();
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		Transformer t = null;
+		try {
+			t = tf.newTransformer();
+			t.transform(new DOMSource(doc), new StreamResult(outStream));
+		} catch (Exception ex) {
+			workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
+			return (false);
+		}
+		iBuffer.data = outStream.toByteArray();
+		if(iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
+			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])iBuffer.data);
+			try {
+				String parser = XMLResourceDescriptor.getXMLParserClassName();
+				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+				iBuffer.data = (org.apache.batik.dom.svg.SVGOMDocument)f.createDocument(uri);
+			} catch (IOException ex) {
+				workspace.log("An error occurred re-parsing the SVG file data in the addWatermark command: " + ex.getMessage());
+				return (false);
+			}
+		}
+		return (true);
 	}
 }
