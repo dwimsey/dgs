@@ -106,25 +106,15 @@ public class replaceImage implements IInstruction {
 				if(imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
 					Document imgDoc = (Document)imgBuffer.data;
 					dataUri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
-					DGSSVGTranscoder tc = new DGSSVGTranscoder(workspace);
-					org.apache.batik.transcoder.TranscoderInput in = null;
-					org.apache.batik.transcoder.TranscoderOutput out = null;
-					imgDoc.setDocumentURI("http://");
-					in = new org.apache.batik.transcoder.TranscoderInput((Document)imgDoc);
-					java.io.ByteArrayOutputStream outStream = new java.io.ByteArrayOutputStream();
-					out = new org.apache.batik.transcoder.TranscoderOutput(outStream);
+					TransformerFactory tf = TransformerFactory.newInstance();
+					ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+					Transformer t = null;
 					try {
-						tc.transcode(in, out);
-					} catch (org.apache.batik.transcoder.TranscoderException ex) {
-						// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
-						workspace.log("Transcoder Error:");
-						workspace.log(" -> " + ex.toString());
-						return(false);
+						t = tf.newTransformer();
+						t.transform(new DOMSource(imgDoc), new StreamResult(outStream));
 					} catch (Exception ex) {
-						// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
-						workspace.log("Transcoder Error:");
-						workspace.log(" -> " + ex.toString());
-						return(false);
+						workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
+						return (false);
 					}
 					dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes(outStream.toByteArray());
 				} else {
