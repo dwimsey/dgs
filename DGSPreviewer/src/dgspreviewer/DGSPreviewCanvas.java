@@ -39,7 +39,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 
 	/** Creates new form DGSPreviewCanvas */
 	public DGSPreviewCanvas() {
-		this.displayMode = DisplayMode.Draft;
+		this.displayMode = DisplayMode.GIF;
 		this.backgroundColor = new Color(0xFFFFFFFF);
 		this.initComponents();
 		this.addComponentListener(this);

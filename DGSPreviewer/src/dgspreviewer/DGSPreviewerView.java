@@ -85,7 +85,9 @@ public class DGSPreviewerView extends FrameView {
 		previewCanvas.setBackgroundColor(options.getBackgroundColor());
 		
 		// at startup, draft mode is disabled
-		this.menuCbDraftMode.setSelected(true);
+		this.menuDisplayModeTIFF.setVisible(false);
+		this.menuDisplayModePDF.setVisible(false);
+		this.setDisplayMode(previewCanvas.getDisplayMode());
 
 		// status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
@@ -184,15 +186,63 @@ public class DGSPreviewerView extends FrameView {
 				}
 			}
 		}
-		
-		// set the initial state of the draft/rendered view areas
-		if(menuCbDraftMode.isSelected()) {
-			previewCanvas.setDisplayMode(DisplayMode.Draft);
-		} else {
-			previewCanvas.setDisplayMode(DisplayMode.GIF);
-		}
 	}
 
+	private void setDisplayMode(DisplayMode newDisplayMode)
+	{
+		switch(newDisplayMode) {
+			case Draft:
+				menuDisplayModeDraft.setSelected(true);
+				menuDisplayModePNG.setSelected(false);
+				menuDisplayModeGIF.setSelected(false);
+				menuDisplayModeJPEG.setSelected(false);
+				menuDisplayModeTIFF.setSelected(false);
+				menuDisplayModePDF.setSelected(false);
+				break;
+			case TIFF:
+//				menuDisplayModeDraft.setSelected(false);
+//				menuDisplayModePNG.setSelected(false);
+//				menuDisplayModeGIF.setSelected(false);
+//				menuDisplayModeJPEG.setSelected(false);
+//				menuDisplayModeTIFF.setSelected(true);
+//				menuDisplayModePDF.setSelected(false);
+//				break;
+			case PDF:
+//				menuDisplayModeDraft.setSelected(false);
+//				menuDisplayModePNG.setSelected(false);
+//				menuDisplayModeGIF.setSelected(false);
+//				menuDisplayModeJPEG.setSelected(false);
+//				menuDisplayModeTIFF.setSelected(false);
+//				menuDisplayModePDF.setSelected(true);
+//				break;
+				newDisplayMode = DisplayMode.PNG;
+			case PNG:
+				menuDisplayModeDraft.setSelected(false);
+				menuDisplayModePNG.setSelected(true);
+				menuDisplayModeGIF.setSelected(false);
+				menuDisplayModeJPEG.setSelected(false);
+				menuDisplayModeTIFF.setSelected(false);
+				menuDisplayModePDF.setSelected(false);
+				break;
+			case GIF:
+				menuDisplayModeDraft.setSelected(false);
+				menuDisplayModePNG.setSelected(false);
+				menuDisplayModeGIF.setSelected(true);
+				menuDisplayModeJPEG.setSelected(false);
+				menuDisplayModeTIFF.setSelected(false);
+				menuDisplayModePDF.setSelected(false);
+				break;
+			case JPEG:
+				menuDisplayModeDraft.setSelected(false);
+				menuDisplayModePNG.setSelected(false);
+				menuDisplayModeGIF.setSelected(false);
+				menuDisplayModeJPEG.setSelected(true);
+				menuDisplayModeTIFF.setSelected(false);
+				menuDisplayModePDF.setSelected(false);
+				break;
+		}
+		previewCanvas.setDisplayMode(newDisplayMode);
+	}
     @Action
     public void showAboutBox() {
         if (aboutBox == null) {
@@ -226,7 +276,13 @@ public class DGSPreviewerView extends FrameView {
         jSeparator1 = new javax.swing.JSeparator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         menuView = new javax.swing.JMenu();
-        menuCbDraftMode = new javax.swing.JCheckBoxMenuItem();
+        menuDisplayMode = new javax.swing.JMenu();
+        menuDisplayModeDraft = new javax.swing.JRadioButtonMenuItem();
+        menuDisplayModePNG = new javax.swing.JRadioButtonMenuItem();
+        menuDisplayModeGIF = new javax.swing.JRadioButtonMenuItem();
+        menuDisplayModeJPEG = new javax.swing.JRadioButtonMenuItem();
+        menuDisplayModeTIFF = new javax.swing.JRadioButtonMenuItem();
+        menuDisplayModePDF = new javax.swing.JRadioButtonMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
@@ -265,9 +321,9 @@ public class DGSPreviewerView extends FrameView {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 282, Short.MAX_VALUE)
+            .addGap(0, 1, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(previewCanvas, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 282, Short.MAX_VALUE))
+                .addComponent(previewCanvas, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 1, Short.MAX_VALUE))
         );
 
         jSplitPane1.setLeftComponent(jPanel1);
@@ -313,15 +369,51 @@ public class DGSPreviewerView extends FrameView {
         menuView.setText(resourceMap.getString("menuView.text")); // NOI18N
         menuView.setName("menuView"); // NOI18N
 
-        menuCbDraftMode.setSelected(true);
-        menuCbDraftMode.setText(resourceMap.getString("menuCbDraftMode.text")); // NOI18N
-        menuCbDraftMode.setName("menuCbDraftMode"); // NOI18N
-        menuCbDraftMode.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menuCbDraftModeActionPerformed(evt);
-            }
-        });
-        menuView.add(menuCbDraftMode);
+        menuDisplayMode.setLabel(resourceMap.getString("menuDisplayMode.label")); // NOI18N
+        menuDisplayMode.setName("menuDisplayMode"); // NOI18N
+
+        menuDisplayModeDraft.setAction(actionMap.get("menuDisplayModeDraftAction")); // NOI18N
+        menuDisplayModeDraft.setSelected(true);
+        menuDisplayModeDraft.setToolTipText(resourceMap.getString("menuDisplayModeDraft.toolTipText")); // NOI18N
+        menuDisplayModeDraft.setName("menuDisplayModeDraft"); // NOI18N
+        menuDisplayMode.add(menuDisplayModeDraft);
+
+        menuDisplayModePNG.setAction(actionMap.get("menuDisplayModePNGAction")); // NOI18N
+        menuDisplayModePNG.setSelected(true);
+        menuDisplayModePNG.setToolTipText(resourceMap.getString("menuDisplayModePNG.toolTipText")); // NOI18N
+        menuDisplayModePNG.setLabel(resourceMap.getString("menuDisplayModePNG.label")); // NOI18N
+        menuDisplayModePNG.setName("menuDisplayModePNG"); // NOI18N
+        menuDisplayMode.add(menuDisplayModePNG);
+
+        menuDisplayModeGIF.setAction(actionMap.get("menuDisplayModeGIFAction")); // NOI18N
+        menuDisplayModeGIF.setSelected(true);
+        menuDisplayModeGIF.setToolTipText(resourceMap.getString("menuDisplayModeGIF.toolTipText")); // NOI18N
+        menuDisplayModeGIF.setLabel(resourceMap.getString("menuDisplayModeGIF.label")); // NOI18N
+        menuDisplayModeGIF.setName("menuDisplayModeGIF"); // NOI18N
+        menuDisplayMode.add(menuDisplayModeGIF);
+
+        menuDisplayModeJPEG.setAction(actionMap.get("menuDisplayModeJPEGAction")); // NOI18N
+        menuDisplayModeJPEG.setSelected(true);
+        menuDisplayModeJPEG.setToolTipText(resourceMap.getString("menuDisplayModeJPEG.toolTipText")); // NOI18N
+        menuDisplayModeJPEG.setLabel(resourceMap.getString("menuDisplayModeJPEG.label")); // NOI18N
+        menuDisplayModeJPEG.setName("menuDisplayModeJPEG"); // NOI18N
+        menuDisplayMode.add(menuDisplayModeJPEG);
+
+        menuDisplayModeTIFF.setAction(actionMap.get("menuDisplayModeTIFFAction")); // NOI18N
+        menuDisplayModeTIFF.setSelected(true);
+        menuDisplayModeTIFF.setToolTipText(resourceMap.getString("menuDisplayModeTIFF.toolTipText")); // NOI18N
+        menuDisplayModeTIFF.setLabel(resourceMap.getString("menuDisplayModeTIFF.label")); // NOI18N
+        menuDisplayModeTIFF.setName("menuDisplayModeTIFF"); // NOI18N
+        menuDisplayMode.add(menuDisplayModeTIFF);
+
+        menuDisplayModePDF.setAction(actionMap.get("menuDisplayModePDFAction")); // NOI18N
+        menuDisplayModePDF.setSelected(true);
+        menuDisplayModePDF.setToolTipText(resourceMap.getString("menuDisplayModePDF.toolTipText")); // NOI18N
+        menuDisplayModePDF.setLabel(resourceMap.getString("menuDisplayModePDF.label")); // NOI18N
+        menuDisplayModePDF.setName("menuDisplayModePDF"); // NOI18N
+        menuDisplayMode.add(menuDisplayModePDF);
+
+        menuView.add(menuDisplayMode);
 
         menuBar.add(menuView);
 
@@ -375,14 +467,6 @@ public class DGSPreviewerView extends FrameView {
         setMenuBar(menuBar);
         setStatusBar(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
-
-private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCbDraftModeActionPerformed
-		if(this.menuCbDraftMode.isSelected()) {
-			this.previewCanvas.setDisplayMode(DGSPreviewCanvas.DisplayMode.Draft);
-		} else {
-			this.previewCanvas.setDisplayMode(DGSPreviewCanvas.DisplayMode.GIF);
-		}
-}//GEN-LAST:event_menuCbDraftModeActionPerformed
 
     @Action
     public void loadFile() {
@@ -548,38 +632,35 @@ private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//G
         statusMessageLabel.repaint();
 		logMessage(LogLevel, Message);
     }
-	
-	public void setDisplayImage(BufferedImage nImage)
-	{
-//		imagePanel.image = nImage;
-//		imagePanel.invalidate();
-//		imagePanel.repaint();
+
+	@Action
+	public void menuDisplayModeDraftAction() {
+		this.setDisplayMode(DisplayMode.Draft);
 	}
 
-	public void setDraftSvgImage(String uri)
-	{
-//		draftCanvas.setURI(uri);
-//		draftCanvas.repaint();
+	@Action
+	public void menuDisplayModePNGAction() {
+		this.setDisplayMode(DisplayMode.PNG);
 	}
 
-	public boolean getDraftMode()
-	{
-		return(menuCbDraftMode.isSelected());
+	@Action
+	public void menuDisplayModeGIFAction() {
+		this.setDisplayMode(DisplayMode.GIF);
 	}
-	
-	public boolean setDraftMode(boolean selected)
-	{
-		boolean old = menuCbDraftMode.isSelected();
-		if(old != selected) {
-			menuCbDraftMode.setSelected(selected);
-			if(selected) {
-				previewCanvas.setDisplayMode(DisplayMode.Draft);
-			} else {
-				previewCanvas.setDisplayMode(DisplayMode.GIF);
-			}
-			refreshImageEx(true);
-		}
-		return(old);
+
+	@Action
+	public void menuDisplayModeJPEGAction() {
+		this.setDisplayMode(DisplayMode.JPEG);
+	}
+
+	@Action
+	public void menuDisplayModeTIFFAction() {
+		this.setDisplayMode(DisplayMode.TIFF);
+	}
+
+	@Action
+	public void menuDisplayModePDFAction() {
+		this.setDisplayMode(DisplayMode.PDF);
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -591,7 +672,13 @@ private void menuCbDraftModeActionPerformed(java.awt.event.ActionEvent evt) {//G
     private javax.swing.JMenuItem loadVarsMenuItem;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
-    private javax.swing.JCheckBoxMenuItem menuCbDraftMode;
+    private javax.swing.JMenu menuDisplayMode;
+    private javax.swing.JRadioButtonMenuItem menuDisplayModeDraft;
+    private javax.swing.JRadioButtonMenuItem menuDisplayModeGIF;
+    private javax.swing.JRadioButtonMenuItem menuDisplayModeJPEG;
+    private javax.swing.JRadioButtonMenuItem menuDisplayModePDF;
+    private javax.swing.JRadioButtonMenuItem menuDisplayModePNG;
+    private javax.swing.JRadioButtonMenuItem menuDisplayModeTIFF;
     private javax.swing.JMenu menuView;
     private javax.swing.JMenuItem openMenuItem;
     private dgspreviewer.DGSPreviewCanvas previewCanvas;
