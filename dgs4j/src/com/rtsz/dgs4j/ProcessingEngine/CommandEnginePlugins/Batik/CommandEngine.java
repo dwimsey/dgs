@@ -214,18 +214,19 @@ public class CommandEngine implements ICommandEngine {
 				try {
 					String parser = XMLResourceDescriptor.getXMLParserClassName();
 					SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String)new String(((byte[])svgData.toString().getBytes()), "UTF8")));
-				} catch (IOException ex) {
+					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String)new String(((byte[])svgData), "UTF8")));
+					// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
+					// a real cause and fix needs to be found
+					svgDoc.setDocumentURI("http://localhost/workspace.svg");
+				} catch (Exception ex) {
 					workspace.log("An error occurred parsing the SVG file data for transcoding: " + ex.getMessage());
 					return(null);
 				}
 			} else {
 				svgDoc = (Document)svgData;
 			}
-			// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
-			// a real cause and fix needs to be found
-			svgDoc.setDocumentURI("http://");
-			input = new TranscoderInput((Document)svgData);
+			input = new TranscoderInput((Document)svgDoc);
+
 			java.io.ByteArrayOutputStream outStream = new java.io.ByteArrayOutputStream();
 			output = new TranscoderOutput(outStream);
 
@@ -261,6 +262,17 @@ public class CommandEngine implements ICommandEngine {
 		if(size != null) {
 			if (mimeType.equals(MIME_BUFFERTYPE)) {
 				// SVG outputs do not have sizes that we have access to at this time.
+////			try {
+////				String parser = XMLResourceDescriptor.getXMLParserClassName();
+////				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+////				SVGDocument doc = (org.apache.batik.dom.svg.SVGDocument)f..createDocument(svg);
+////				org.apache.batik.swing.svg.GVTBuilder builder = new GVTBuilder();
+////				BridgeContext ctx;
+////				ctx = new BridgeContext(new UserAgentAdapter());
+////				GraphicsNode gvtRoot = builder.build(ctx, doc);
+////				return gvtRoot.getSensitiveBounds();
+////			} catch (Exception ex) {
+////			}
 			} else if (mimeType.equals("application/pdf")) {
 				// PDF sizes must be handled differently
 			} else {
@@ -289,12 +301,22 @@ public class CommandEngine implements ICommandEngine {
 			return (false);
 		}
 
+		byte[] originalDocument = null;
+		Document inputDoc;
+		byte[] oDat = null;
 		if(buffer.mimeType.equals(INTERNAL_BUFFERTYPE)) {
 			// BEGIN HACK
 			// this is a hack to deal with the fact
 			// that the renderer doesn't seem to work properly
 			// if rendering directly off the Document after nodes
 			// have been inserted/removed/futzed with
+			//
+			// NOTE: This also makes it so we can pass a byte array
+			//		to getImageData and it will copy and convert it 
+			//		to a batik/svgdom style internal copy to render.
+			//		This prevents the modifications the transcoder
+			//		makes to the document during animation from 
+			//		affecting future frames.
 			TransformerFactory tf = TransformerFactory.newInstance();
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			Transformer t = null;
@@ -305,19 +327,14 @@ public class CommandEngine implements ICommandEngine {
 				workspace.log("An error occurred while reconstructing the XML file during save call: " + ex.getMessage());
 				return (false);
 			}
-			buffer.data = outStream.toByteArray();
-
-			try {
-				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName());
-				buffer.data = f.createSVGDocument(null, new java.io.StringReader(new String((byte[])buffer.data, "UTF8")));
-			
-			} catch (IOException ex) {
-				workspace.log("An error occurred in the save command: Parser Error: " + ex.getMessage());
-				return (false);
-			}
+			originalDocument = outStream.toByteArray();
 			// END HACK
+		} else {
+			originalDocument = new byte[((byte[])buffer.data).length];
+			System.arraycopy((byte[])buffer.data, 0, originalDocument, 0, ((byte[])buffer.data).length);
 		}
-
+		String documentURI = "http://lccalhost/workspace.svg";
+		
 		if (mimeType.equals("image/png")) {
 			extension = ".png";
 		} else if (mimeType.equals("image/gif")) {
@@ -345,6 +362,33 @@ public class CommandEngine implements ICommandEngine {
 		if (mimeType.equals("image/gif")) {
 			String aDurationStr = this.getAttributeValue(attributes, "animationDuration");
 			String aFramerateStr = this.getAttributeValue(attributes, "animationFramerate");
+			try {
+				String parser = XMLResourceDescriptor.getXMLParserClassName();
+				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+				String ss = (String)new String(originalDocument, "UTF8");
+				inputDoc = f.createSVGDocument(null, new java.io.StringReader(ss));
+				// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
+				// a real cause and fix needs to be found
+				inputDoc.setDocumentURI("http://localhost/workspace.svg");
+			} catch (IOException ex) {
+				workspace.log("An error occurred parsing the SVG file data for transcoding: " + ex.getMessage());
+				return(false);
+			}
+			Element rootNode = null;
+			rootNode = inputDoc.getDocumentElement();
+			// if the above aren't found, let the svg specify its own animation information
+			if (aDurationStr == null || aDurationStr.length() == 0) {
+				String tStr = rootNode.getAttributeNS("http://schemas.rtsz.com/DGS", "AnimationDuration");
+				if ((tStr != null) && (tStr.length() > 0)) {
+					aDurationStr = tStr;
+				}
+			}
+			if (aFramerateStr == null || aFramerateStr.length() == 0) {
+				String tStr = rootNode.getAttributeNS("http://schemas.rtsz.com/DGS", "AnimationFrameRate");
+				if ((tStr != null) && (tStr.length() > 0)) {
+					aFramerateStr = tStr;
+				}
+			}
 			if((aDurationStr != null) && (aFramerateStr != null)) {
 				float duration = 0.0f;
 				float framerate = 0.0f;
@@ -374,7 +418,7 @@ public class CommandEngine implements ICommandEngine {
 			}
 		}
 
-		byte oDat[] = null;
+		oDat = null;
 		java.awt.Dimension size = new java.awt.Dimension();
 		if((frameCount > 0) && (timeStep > 0.0f)) {
 			// generate the images and combine them
@@ -386,7 +430,7 @@ public class CommandEngine implements ICommandEngine {
 			int ii = 0; // outputCell
 			BufferedImage image = null;
 			for(int i = 0; i < frameCount; i++) {
-				oDat = this.getImageData(workspace, buffer.data, "image/png", 100.0f, (timeStep * i), INTERNAL_BUFFERTYPE, null);
+				oDat = this.getImageData(workspace, originalDocument, "image/png", 100.0f, (timeStep * i), MIME_BUFFERTYPE, null);
 				if(oDat == null) {
 					if(workspace.requestInfo.continueOnError) {
 						workspace.log("Animation sequence contains an invalid frame, it will be ignored.  Frame Number: " + i);
@@ -425,24 +469,18 @@ public class CommandEngine implements ICommandEngine {
 
 			try {
 				// we've got our frames, make a GIF now			
-				Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("gif");
-				ImageWriter writer = writers.next(); // Always assume GIF is available
-
 				// prepare the sequence writer
 				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-				writer.setOutput(outStream);
-
-				writer.prepareWriteSequence(null);
-
-				// write the sequence
+				gif4free.AnimatedGifEncoder e = new gif4free.AnimatedGifEncoder();
+				e.start(outStream);
+				int v = new Float(timeStep*100.0f).intValue();
+				e.setDelay(v);   // 1 frame per sec
 				IIOImage img;
 				for(int i = 0; i < imgs.length; i++) {
 					img = new IIOImage(imgs[i], null, null);
-					writer.writeToSequence(img, null);
+					e.addFrame(imgs[i]);
 				}
-
-				// terminate the sequence writer
-				writer.endWriteSequence();
+				e.finish();
 
 				// Flush and close the stream.
 				outStream.flush();
@@ -455,9 +493,9 @@ public class CommandEngine implements ICommandEngine {
 			}
 		} else {
 			// generate a single frame
- 			oDat = this.getImageData(workspace, buffer.data, mimeType, 100.0f, 0.0f, buffer.mimeType, size);
+ 			oDat = this.getImageData(workspace, originalDocument, mimeType, 100.0f, 0.0f, MIME_BUFFERTYPE, size);
 			if(oDat == null) {
-				workspace.log("Conversion from " + buffer.mimeType + " to " + mimeType + " failed.");
+				workspace.log("Save failed.  Input type: " + MIME_BUFFERTYPE + " Output type: " + mimeType);
 				return(false);
 			}
 
