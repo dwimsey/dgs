@@ -7,6 +7,8 @@ package dgspreviewer;
 
 import java.awt.*;
 import java.beans.*;
+import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.*;
+import org.apache.batik.swing.svg.*;
 
 /**
  *
@@ -28,6 +30,8 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 		TIFF,
 		PDF;
 	};
+	private static SVGUserAgent defaultUserAgent = null;
+	private SVGUserAgent userAgent = null;
 	private DisplayMode displayMode;
 	private Color backgroundColor;
 	private String lastLoadedURI = null;
@@ -41,6 +45,12 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 	public DGSPreviewCanvas() {
 		this.displayMode = DisplayMode.GIF;
 		this.backgroundColor = new Color(0xFFFFFFFF);
+		if(defaultUserAgent == null) {
+			// create the single default instance of the user agent
+			defaultUserAgent = new DGSPreviewCanvasUserAgent(this);
+			//defaultUserAgent = new org.apache.batik.swing.svg.SVGUserAgentGUIAdapter(this);
+		}
+		userAgent = defaultUserAgent;
 		this.initComponents();
 		this.addComponentListener(this);
 		// do the initial layer ordering
@@ -148,6 +158,16 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 		this.draftCanvas.setBackground(this.backgroundColor);
 	}
 
+	public void setUserAgent(SVGUserAgent newUa)
+	{
+		
+	}
+
+	public SVGUserAgent getUserAgent()
+	{
+		return(null);
+	}
+
 	@Override
 	public void componentHidden(java.awt.event.ComponentEvent e) {
 	}
@@ -167,6 +187,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 
 	@Override
 	public void componentShown(java.awt.event.ComponentEvent e) {
+		
 	}
 
 	/** This method is called from within the constructor to
@@ -179,7 +200,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
     private void initComponents() {
 
         layers = new javax.swing.JLayeredPane();
-        draftCanvas = new org.apache.batik.swing.JSVGCanvas();
+        draftCanvas = new org.apache.batik.swing.JSVGCanvas(userAgent, true, true);
         renderedCanvas = new dgspreviewer.DGSPreviewerPanel();
 
         setName("DGSPreviewCanvas"); // NOI18N
