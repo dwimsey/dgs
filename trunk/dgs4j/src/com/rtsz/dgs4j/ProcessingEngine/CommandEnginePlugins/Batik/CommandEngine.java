@@ -21,10 +21,7 @@ import org.apache.batik.transcoder.*;
 
 // all these are required for GIF stuffs
 import java.awt.image.BufferedImage;
-import java.util.Iterator;
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
+import org.apache.batik.transcoder.keys.*;
 
 /**
  *
@@ -32,6 +29,7 @@ import javax.imageio.ImageWriter;
  */
 public class CommandEngine implements ICommandEngine {
 
+	public static final TranscodingHints.Key KEY_ANIMATION_ENABLED = new BooleanKey();
 	public static final String INTERNAL_BUFFERTYPE = "batik/svgdom";
 	public static final String MIME_BUFFERTYPE = "image/svg+xml";
 	public static final String COMMAND_ENGINE_ALLOWED_SCRIPT_TYPES = "text/javascript,application/javascript,application/ecmascript,text/ecmascript";
@@ -200,8 +198,9 @@ public class CommandEngine implements ICommandEngine {
 		}
 
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_CONSTRAIN_SCRIPT_ORIGIN, true);
-		// we now allow scripts to run
+		// we now allow scripts and animation to run
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_EXECUTE_ONLOAD, true);
+		t.addTranscodingHint(KEY_ANIMATION_ENABLED, true);
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_SNAPSHOT_TIME, snapshotTime);
 
 		byte oDat[];
@@ -274,7 +273,8 @@ public class CommandEngine implements ICommandEngine {
 ////			} catch (Exception ex) {
 ////			}
 			} else if (mimeType.equals("application/pdf")) {
-				// PDF sizes must be handled differently
+				// PDF sizes must be handled differently, might be able to use the
+				// same as above if the pdf is set to fit the image.
 			} else {
 				BufferedImage image = null;
 				try {
@@ -333,15 +333,11 @@ public class CommandEngine implements ICommandEngine {
 			originalDocument = new byte[((byte[])buffer.data).length];
 			System.arraycopy((byte[])buffer.data, 0, originalDocument, 0, ((byte[])buffer.data).length);
 		}
-		String documentURI = "http://lccalhost/workspace.svg";
 		
 		if (mimeType.equals("image/png")) {
 			extension = ".png";
 		} else if (mimeType.equals("image/gif")) {
 			extension = ".gif";
-			// we use the png transcoder with some special options, and convert it from png to gif
-			// afterwords since batik doesn't do it natively, for good reasons (its not part of the
-			// svg spec)
 		} else if (mimeType.equals("image/jpeg")) {
 			extension = ".jpg";
 		} else if (mimeType.equals("image/tiff")) {
@@ -355,174 +351,11 @@ public class CommandEngine implements ICommandEngine {
 			return (false);
 		}
 
-		int frameCount = 0;
-		float timeStep = 0.0f;
-		// if its a gif file output, see if animation values are supported.  GIF is the only
-		// output type supporting animation at this time
-		if (mimeType.equals("image/gif")) {
-			String aDurationStr = this.getAttributeValue(attributes, "animationDuration");
-			String aFramerateStr = this.getAttributeValue(attributes, "animationFramerate");
-			try {
-				String parser = XMLResourceDescriptor.getXMLParserClassName();
-				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-				String ss = (String)new String(originalDocument, "UTF8");
-				inputDoc = f.createSVGDocument(null, new java.io.StringReader(ss));
-				// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
-				// a real cause and fix needs to be found
-				inputDoc.setDocumentURI("http://localhost/workspace.svg");
-			} catch (IOException ex) {
-				workspace.log("An error occurred parsing the SVG file data for transcoding: " + ex.getMessage());
-				return(false);
-			}
-			Element rootNode = null;
-			rootNode = inputDoc.getDocumentElement();
-			// if the above aren't found, let the svg specify its own animation information
-			if (aDurationStr == null || aDurationStr.length() == 0) {
-				String tStr = rootNode.getAttributeNS("http://schemas.rtsz.com/DGS", "AnimationDuration");
-				if ((tStr != null) && (tStr.length() > 0)) {
-					aDurationStr = tStr;
-				}
-			}
-			if (aFramerateStr == null || aFramerateStr.length() == 0) {
-				String tStr = rootNode.getAttributeNS("http://schemas.rtsz.com/DGS", "AnimationFrameRate");
-				if ((tStr != null) && (tStr.length() > 0)) {
-					aFramerateStr = tStr;
-				}
-			}
-			if((aDurationStr != null) && (aFramerateStr != null)) {
-				float duration = 0.0f;
-				float framerate = 0.0f;
-				try {
-					duration = Float.parseFloat(aDurationStr);
-				} catch(NumberFormatException ex) {
-						workspace.log("Could not parse animationDuration attribute: " + ex.getMessage());
-				}
-				try {
-					framerate = Float.parseFloat(aFramerateStr);
-				} catch(NumberFormatException ex) {
-						workspace.log("Could not parse animationFramerate attribute: " + ex.getMessage());
-				}
-				if(duration >= Float.MIN_VALUE) {
-					if(framerate >= Float.MIN_VALUE) {
-						frameCount = (int)(duration*framerate);
-						timeStep = 1.0f/framerate;
-					} else {
-						workspace.log("animationFramerate attribute must be a positive value.");
-					}
-				} else {
-					if(framerate < Float.MIN_VALUE) {
-						workspace.log("animationFramerate attribute must be a positive value.");
-					}
-					workspace.log("animationDuration attribute must be a positive value.");
-				}
-			}
-		}
-
-		oDat = null;
 		java.awt.Dimension size = new java.awt.Dimension();
-		if((frameCount > 0) && (timeStep > 0.0f)) {
-			// generate the images and combine them
-			BufferedImage imgs[] = new BufferedImage[frameCount];
-			// we use png as an intermediate because Batik does not support GIF natively, rightly so as GIF
-			// is not included in the SVG spec, so we'll have to roll our own for user convience
-			// ideally, we would use an uncompressed format, but the only one available is TIFF, which doesn't
-			// support transparency properly in some implementations.
-			int ii = 0; // outputCell
-			BufferedImage image = null;
-			for(int i = 0; i < frameCount; i++) {
-				oDat = this.getImageData(workspace, originalDocument, "image/png", 100.0f, (timeStep * i), MIME_BUFFERTYPE, null);
-				if(oDat == null) {
-					if(workspace.requestInfo.continueOnError) {
-						workspace.log("Animation sequence contains an invalid frame, it will be ignored.  Frame Number: " + i);
-						continue;
-					} else {
-						workspace.log("Animation sequence contains an invalid frame, creation aborted due to error.  Frame Number: " + i);
-						return(false);
-					}
-				}
-				/// this block of code is now obsolete as we get the size while render the image for faster results
-				try {
-					image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(oDat));
-					size.height = image.getHeight();
-					size.width = image.getWidth();
-				} catch (IOException ie) {
-					workspace.log("Transcoder frame output is corrupt or can't be loaded by the internal image loader.  Frame Number: " + i + "Error: " + ie.getMessage());
-					if(workspace.requestInfo.continueOnError) {
-						continue;
-					} else {
-						return(false);
-					}
-				}
-				imgs[ii++] = image;
-			}
-			if(ii==0) {
-				workspace.log("Animation sequence does not contain any invalid frames, Expected Frames: " + frameCount);
-				return(false);
-			} else if (ii != frameCount) {
-				// resize our image buffer
-				BufferedImage nimg[] = new BufferedImage[ii];
-				for(int iii = 0; iii < ii; iii++) {
-					nimg[iii] = imgs[iii];
-				}
-				imgs = nimg;
-			}
-
-			try {
-				// we've got our frames, make a GIF now			
-				// prepare the sequence writer
-				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-				gif4free.AnimatedGifEncoder e = new gif4free.AnimatedGifEncoder();
-				e.start(outStream);
-				int v = new Float(timeStep*100.0f).intValue();
-				e.setDelay(v);   // 1 frame per sec
-				IIOImage img;
-				for(int i = 0; i < imgs.length; i++) {
-					img = new IIOImage(imgs[i], null, null);
-					e.addFrame(imgs[i]);
-				}
-				e.finish();
-
-				// Flush and close the stream.
-				outStream.flush();
-				outStream.close();
-				// oDat is our byte array representing an animated GIF
-				oDat = outStream.toByteArray();
-			} catch(IOException ex) {
-				workspace.log("Could not assemble animation sequence into GIF.  Exception: " + ex.getMessage());
-				return(false);
-			}
-		} else {
-			// generate a single frame
- 			oDat = this.getImageData(workspace, originalDocument, mimeType, 100.0f, 0.0f, MIME_BUFFERTYPE, size);
-			if(oDat == null) {
-				workspace.log("Save failed.  Input type: " + MIME_BUFFERTYPE + " Output type: " + mimeType);
-				return(false);
-			}
-
-			/// this block of code is now obsolete as we get the size while render the image for faster results
-////			try {
-////				String parser = XMLResourceDescriptor.getXMLParserClassName();
-////				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-////				SVGDocument doc = (org.apache.batik.dom.svg.SVGDocument)f..createDocument(svg);
-////				org.apache.batik.swing.svg.GVTBuilder builder = new GVTBuilder();
-////				BridgeContext ctx;
-////				ctx = new BridgeContext(new UserAgentAdapter());
-////				GraphicsNode gvtRoot = builder.build(ctx, doc);
-////				return gvtRoot.getSensitiveBounds();
-////			} catch (Exception ex) {
-//				try {
-//				    
-//					image = null;
-//					image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(oDat));
-//					height = image.getHeight();
-//					width = image.getWidth();
-//				} catch (IOException ie) {
-//					workspace.log("Transcoder output is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
-//					if(!workspace.requestInfo.continueOnError) {
-//						return(false);
-//					}
-//				}
-////			}
+		oDat = this.getImageData(workspace, originalDocument, mimeType, 100.0f, 0.0f, MIME_BUFFERTYPE, size);
+		if(oDat == null) {
+			workspace.log("Image creation failed.  Input type: " + MIME_BUFFERTYPE + " Output type: " + mimeType);
+			return(false);
 		}
 
 		String fname = "";
