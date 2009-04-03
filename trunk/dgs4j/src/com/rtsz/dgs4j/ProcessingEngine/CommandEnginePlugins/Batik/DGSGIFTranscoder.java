@@ -61,8 +61,8 @@ public class DGSGIFTranscoder extends org.apache.batik.transcoder.SVGAbstractTra
 			float animationStartTime = 45.0f;
 			float animationRepeatDelay = 2.0f;
 			float animationTimeStep = 0.2f;
-			int animationFrameCount = 30;
-			int animationRepeatCount = 0;
+			int animationFrameCount = 1;
+			int animationRepeatCount = 1;
 
 			if (!this.hints.containsKey(CommandEngine.KEY_ANIMATION_ENABLED)) {
 				animationRepeatDelay = 0.0f;
@@ -145,6 +145,8 @@ public class DGSGIFTranscoder extends org.apache.batik.transcoder.SVGAbstractTra
 		}
 		super.hints.remove(KEY_SNAPSHOT_TIME);
 		super.hints.put(KEY_SNAPSHOT_TIME, snapshotTime);
+		super.hints.remove(ImageTranscoder.KEY_FORCE_TRANSPARENT_WHITE);
+		super.hints.put(ImageTranscoder.KEY_FORCE_TRANSPARENT_WHITE, true);
 		super.transcode(document, uri, null); // this transcoder doesn't write anything to output so we pass in null
 
 		// prepare the image to be painted
