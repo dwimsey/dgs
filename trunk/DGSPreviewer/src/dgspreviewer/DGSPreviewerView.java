@@ -28,7 +28,7 @@ import dgspreviewer.DGSPreviewCanvas.*;
  */
 public class DGSPreviewerView extends FrameView {
 
-	private dgspreviewer.DGSPreviewCanvas.NotificationMethods notifcationMethods = null;
+	private dgspreviewer.DGSPreviewCanvas.NotificationMethods notificationMethods = null;
     private Options options;
     private ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
 	private String[] args;
@@ -272,7 +272,7 @@ public class DGSPreviewerView extends FrameView {
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
         loadVarsMenuItem = new javax.swing.JMenuItem();
-        refreshMenuItem = new javax.swing.JMenuItem();
+        menuPrint = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         menuView = new javax.swing.JMenu();
@@ -283,6 +283,7 @@ public class DGSPreviewerView extends FrameView {
         menuDisplayModeJPEG = new javax.swing.JRadioButtonMenuItem();
         menuDisplayModeTIFF = new javax.swing.JRadioButtonMenuItem();
         menuDisplayModePDF = new javax.swing.JRadioButtonMenuItem();
+        refreshMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
@@ -353,9 +354,10 @@ public class DGSPreviewerView extends FrameView {
         loadVarsMenuItem.setAction(actionMap.get("loadVarsFile")); // NOI18N
         fileMenu.add(loadVarsMenuItem);
 
-        refreshMenuItem.setAction(actionMap.get("refreshImage")); // NOI18N
-        refreshMenuItem.setName("jMenuItemRefresh"); // NOI18N
-        fileMenu.add(refreshMenuItem);
+        menuPrint.setAction(actionMap.get("printDocument")); // NOI18N
+        menuPrint.setText(resourceMap.getString("menuPrint.text")); // NOI18N
+        menuPrint.setName("menuPrint"); // NOI18N
+        fileMenu.add(menuPrint);
 
         jSeparator1.setName("jSeparator1"); // NOI18N
         fileMenu.add(jSeparator1);
@@ -414,6 +416,10 @@ public class DGSPreviewerView extends FrameView {
         menuDisplayMode.add(menuDisplayModePDF);
 
         menuView.add(menuDisplayMode);
+
+        refreshMenuItem.setAction(actionMap.get("refreshImage")); // NOI18N
+        refreshMenuItem.setName("jMenuItemRefresh"); // NOI18N
+        menuView.add(refreshMenuItem);
 
         menuBar.add(menuView);
 
@@ -534,8 +540,8 @@ public class DGSPreviewerView extends FrameView {
 				this.logMessage(100, "Loading " + MRUTemplateImageFileName + "...");
 			}
 
-			if(notifcationMethods == null) {
-				notifcationMethods = new dgspreviewer.DGSPreviewCanvas.NotificationMethods() {
+			if(notificationMethods == null) {
+				notificationMethods = new dgspreviewer.DGSPreviewCanvas.NotificationMethods() {
 					@Override
 					public void logEvent(int LogLevel, String Message)
 					{
@@ -581,7 +587,7 @@ public class DGSPreviewerView extends FrameView {
 					}
 				};
 			}
-			previewCanvas.loadUri(MRUTemplateImageFileName, this.options.getMRUDGSPackageFileName(), notifcationMethods);
+			previewCanvas.loadUri(MRUTemplateImageFileName, this.options.getMRUDGSPackageFileName(), notificationMethods);
 		}
     }
 
@@ -633,35 +639,40 @@ public class DGSPreviewerView extends FrameView {
 		logMessage(LogLevel, Message);
     }
 
-	@Action
-	public void menuDisplayModeDraftAction() {
-		this.setDisplayMode(DisplayMode.Draft);
-	}
+    @Action
+    public void menuDisplayModeDraftAction() {
+	    this.setDisplayMode(DisplayMode.Draft);
+    }
 
-	@Action
-	public void menuDisplayModePNGAction() {
-		this.setDisplayMode(DisplayMode.PNG);
-	}
+    @Action
+    public void menuDisplayModePNGAction() {
+	    this.setDisplayMode(DisplayMode.PNG);
+    }
 
-	@Action
-	public void menuDisplayModeGIFAction() {
-		this.setDisplayMode(DisplayMode.GIF);
-	}
+    @Action
+    public void menuDisplayModeGIFAction() {
+	    this.setDisplayMode(DisplayMode.GIF);
+    }
 
-	@Action
-	public void menuDisplayModeJPEGAction() {
-		this.setDisplayMode(DisplayMode.JPEG);
-	}
+    @Action
+    public void menuDisplayModeJPEGAction() {
+	    this.setDisplayMode(DisplayMode.JPEG);
+    }
 
-	@Action
-	public void menuDisplayModeTIFFAction() {
-		this.setDisplayMode(DisplayMode.TIFF);
-	}
+    @Action
+    public void menuDisplayModeTIFFAction() {
+	    this.setDisplayMode(DisplayMode.TIFF);
+    }
 
-	@Action
-	public void menuDisplayModePDFAction() {
-		this.setDisplayMode(DisplayMode.PDF);
-	}
+    @Action
+    public void menuDisplayModePDFAction() {
+	    this.setDisplayMode(DisplayMode.PDF);
+    }
+
+    @Action
+    public void printDocument() {
+		DGSPreviewCanvas.printUri(this.options.getMRUTemplateImageFileName(), this.options.getMRUDGSPackageFileName(), this.pEngine, this.previewCanvas.notificationMethods);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
@@ -679,6 +690,7 @@ public class DGSPreviewerView extends FrameView {
     private javax.swing.JRadioButtonMenuItem menuDisplayModePDF;
     private javax.swing.JRadioButtonMenuItem menuDisplayModePNG;
     private javax.swing.JRadioButtonMenuItem menuDisplayModeTIFF;
+    private javax.swing.JMenuItem menuPrint;
     private javax.swing.JMenu menuView;
     private javax.swing.JMenuItem openMenuItem;
     private dgspreviewer.DGSPreviewCanvas previewCanvas;

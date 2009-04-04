@@ -132,12 +132,13 @@
                 </Property>
               </Properties>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="refreshMenuItem">
+            <MenuItem class="javax.swing.JMenuItem" name="menuPrint">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
-                  <action class="dgspreviewer.DGSPreviewerView" id="refreshImage" methodName="refreshImage"/>
+                  <action class="dgspreviewer.DGSPreviewerView" id="printDocument" methodName="printDocument"/>
                 </Property>
-                <Property name="name" type="java.lang.String" value="jMenuItemRefresh" noResource="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="menuPrint.text"/>
+                <Property name="name" type="java.lang.String" value="menuPrint" noResource="true"/>
               </Properties>
             </MenuItem>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator1">
@@ -238,6 +239,14 @@
                 </MenuItem>
               </SubComponents>
             </Menu>
+            <MenuItem class="javax.swing.JMenuItem" name="refreshMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="dgspreviewer.DGSPreviewerView" id="refreshImage" methodName="refreshImage"/>
+                </Property>
+                <Property name="name" type="java.lang.String" value="jMenuItemRefresh" noResource="true"/>
+              </Properties>
+            </MenuItem>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">

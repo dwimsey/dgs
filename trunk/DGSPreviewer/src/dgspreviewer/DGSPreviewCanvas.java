@@ -28,7 +28,8 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 		GIF,
 		JPEG,
 		TIFF,
-		PDF;
+		PDF,
+		Printer;
 	};
 	private static SVGUserAgent defaultUserAgent = null;
 	private SVGUserAgent userAgent = null;
@@ -71,6 +72,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 				this.layers.setLayer(renderedCanvas, 1);
 				break;
 			case PDF:
+			case Printer:
 				break;
 		}
 	}
@@ -114,7 +116,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 			draftCanvas.setURI(null);
 			return;
 		}
-		workerThread = new DGSPreviewCanvasLoaderWorker(this, pEngine, fileUri, dgsPackageFile);
+		workerThread = new DGSPreviewCanvasLoaderWorker(this, this.notificationMethods, pEngine, fileUri, dgsPackageFile, this.getDisplayMode());
 		if (pcListener == null) {
 			pcListener = new java.beans.PropertyChangeListener() {
 				@Override
@@ -127,11 +129,49 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 		workerThread.execute();
 	}
 
+	public static void printUri(String fileUri, String dgsPackageFile, ImageProcessor.ProcessingEngine.ProcessingEngine pEngine, NotificationMethods newMethods) {
+		//fileUri;
+		//dgsPackageFile;
+		if(newMethods == null) {
+			newMethods = new dgspreviewer.DGSPreviewCanvas.NotificationMethods() {
+				@Override
+				public void logEvent(int LogLevel, String Message)
+				{
+				}
+				@Override
+				public void statusMessage(int LogLevel, String Message)
+				{
+				}
+				@Override
+				public void propertyChangeNotification(PropertyChangeEvent evt)
+				{
+				}
+			};
+		}
+		final dgspreviewer.DGSPreviewCanvas.NotificationMethods notificationMethods = newMethods;
+		DGSPreviewCanvasLoaderWorker wThread = null;
+		wThread = new DGSPreviewCanvasLoaderWorker(null, notificationMethods, pEngine, fileUri, dgsPackageFile, DisplayMode.Printer);
+		java.beans.PropertyChangeListener printerPcListener = null;
+		if (printerPcListener == null) {
+			printerPcListener = new java.beans.PropertyChangeListener() {
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					notificationMethods.propertyChangeNotification(evt);
+				}
+			};
+		}
+		wThread.addPropertyChangeListener(printerPcListener);
+		wThread.execute();
+	}
+
 	public DisplayMode getDisplayMode() {
 		return (this.displayMode);
 	}
 
 	public void setDisplayMode(DisplayMode newMode) {
+		if(newMode == DisplayMode.Printer) {
+			throw new java.lang.IllegalArgumentException("DisplayMode.Printer is only used when printing a document.");
+		}
 		if (newMode != this.displayMode) {
 			this.cancelWorker(true);
 			this.displayMode = newMode;

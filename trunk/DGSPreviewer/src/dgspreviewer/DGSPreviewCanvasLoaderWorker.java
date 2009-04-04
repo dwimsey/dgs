@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.io.*;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-
+import java.beans.*;
 import dgspreviewer.DGSPreviewCanvas.*;
 /**
  *
@@ -25,13 +25,53 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 	ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
 	String imageFilename;
 	String previewPackageFilename;
-
-	public DGSPreviewCanvasLoaderWorker(DGSPreviewCanvas previewCanvas, ImageProcessor.ProcessingEngine.ProcessingEngine npEngine, String imageFileName, String packageFileName) {
+	private DisplayMode outputDisplayMode;
+	private dgspreviewer.DGSPreviewCanvas.NotificationMethods notificationMethods;
+	
+	public DGSPreviewCanvasLoaderWorker(DGSPreviewCanvas previewCanvas, NotificationMethods newMethods, ImageProcessor.ProcessingEngine.ProcessingEngine npEngine, String imageFileName, String packageFileName, DisplayMode displayMode) {
 		super();
 		canvas = previewCanvas;
-		pEngine = npEngine;
+		if(npEngine == null) {
+			if(canvas != null) {
+				if(canvas.pEngine == null) {
+					throw new IllegalArgumentException("newMethods and canvas.pEngine arguments can not both be null.");
+				}
+				pEngine = canvas.pEngine;
+			} else {
+				throw new IllegalArgumentException("canvas and pEngine arguments can not both be null.");
+			}
+		} else {
+			pEngine = npEngine;
+		}
 		imageFilename = imageFileName;
 		previewPackageFilename = packageFileName;
+		outputDisplayMode = displayMode;
+		if(newMethods == null) {
+			if(canvas!= null) {
+				notificationMethods = canvas.notificationMethods;
+			} else {
+				throw new IllegalArgumentException("canvas and newMethods arguments can not both be null.");
+			}
+		} else {
+			notificationMethods = newMethods;
+		}
+		if(notificationMethods == null) {
+			notificationMethods = new dgspreviewer.DGSPreviewCanvas.NotificationMethods() {
+				@Override
+				public void logEvent(int LogLevel, String Message)
+				{
+				}
+				@Override
+				public void statusMessage(int LogLevel, String Message)
+				{
+				}
+				@Override
+				public void propertyChangeNotification(PropertyChangeEvent evt)
+				{
+				}
+			};
+		}
+
 	}
 	
 	@Override
@@ -39,28 +79,29 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		setProgress(0);
         String outputMimeType = null;
 		String outputFileName = null;
-		switch (this.canvas.getDisplayMode()) {
-			case Draft:
+		switch (outputDisplayMode) {
+		    case Printer:
+		    case Draft:
 				outputMimeType = "image/svg+xml";
 				outputFileName = "output.svg";
 				break;
-			case PNG:
+		    case PNG:
 				outputMimeType = "image/png";
 				outputFileName = "output.png";
 				break;
-			case GIF:
+		    case GIF:
 				outputMimeType = "image/gif";
 				outputFileName = "output.gif";
 				break;
-			case JPEG:
+		    case JPEG:
 				outputMimeType = "image/jpeg";
 				outputFileName = "output.jpg";
 				break;
-			case TIFF:
+		    case TIFF:
 				outputMimeType = "image/tiff";
 				outputFileName = "output.tif";
 				break;
-			case PDF:
+		    case PDF:
 				outputMimeType = "application/pdf";
 				outputFileName = "output.pdf";
 				break;
@@ -69,18 +110,20 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
         DGSRequestInfo dgsRequestInfo = new DGSRequestInfo();
         dgsRequestInfo.continueOnError = true;
 
-		canvas.notificationMethods.statusMessage(200, "Reading image file: " + this.imageFilename);
+		this.notificationMethods.statusMessage(200, "Reading image file: " + this.imageFilename);
         DGSFileInfo templateFileInfo = loadImageFileData(this.imageFilename);
 		if(this.isCancelled()) { // this check is done after any possibly lengthy operation
 			return(null);
 		}
         if(templateFileInfo == null) {
-            canvas.notificationMethods.statusMessage(10, "Load aborted due to errors: " + this.imageFilename);
-            return(null);
+			if(outputDisplayMode==DisplayMode.Printer) {
+				this.notificationMethods.statusMessage(10, "Printing aborted due to errors: " + this.imageFilename);
+			} else {
+				this.notificationMethods.statusMessage(10, "Load aborted due to errors: " + this.imageFilename);
+			}
+			return(null);
         }
 		setProgress(5);
-
-		DGSFileInfo replacementImages[] = null;
 
 		DGSPackage dPkg = new DGSPackage();
 		if((this.previewPackageFilename == null) || (this.previewPackageFilename.length() == 0)) {
@@ -143,7 +186,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 			return(null);
 		}
         ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
-		canvas.notificationMethods.statusMessage(150, "Performing DGS Request ...");
+		this.notificationMethods.statusMessage(150, "Performing DGS Request ...");
         if(this.isCancelled()) { // this check is done after any possibly lengthy operation
 			return(null);
 		}
@@ -153,26 +196,26 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 			return(null);
 		}
         setProgress(95);
-        canvas.notificationMethods.statusMessage(150, " Request completed.");
+        this.notificationMethods.statusMessage(150, " Request completed.");
         
-        this.canvas.notificationMethods.logEvent(200, "DGS Request Log: ");
+        this.notificationMethods.logEvent(200, "DGS Request Log: ");
         for(int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
-            this.canvas.notificationMethods.logEvent(200, "     " + dgsResponseInfo.processingLog[i]);
+            this.notificationMethods.logEvent(200, "     " + dgsResponseInfo.processingLog[i]);
 			if(this.isCancelled()) { // this check is done after any possibly lengthy operation
 				return(null);
 			}
 		}
-        this.canvas.notificationMethods.logEvent(200, "-- END DGS Request Log --");
+        this.notificationMethods.logEvent(200, "-- END DGS Request Log --");
 		setProgress(97);
         if(dgsResponseInfo.resultFiles.length == 0) {
-            canvas.notificationMethods.statusMessage(10, "No image files were returned by the processing engine, this generally indicates an error in the input file: " + this.imageFilename);
+            this.notificationMethods.statusMessage(10, "No image files were returned by the processing engine, this generally indicates an error in the input file: " + this.imageFilename);
         }
 		setProgress(99);
         return(dgsResponseInfo);
 	}
 
 	@Override
-    protected void done() {
+	protected void done() {
 		if(this.isCancelled()) {
 			return;
 		}
@@ -182,7 +225,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		} catch (InterruptedException ex) {
 			return;
 		} catch (java.util.concurrent.ExecutionException ex) {
-			canvas.notificationMethods.statusMessage(5, "An exception occurred during processing: " + ex.getMessage());
+			this.notificationMethods.statusMessage(5, "An exception occurred during processing: " + ex.getMessage());
 			return;
 		}
 		if(dgsResponseInfo == null || dgsResponseInfo.resultFiles == null || dgsResponseInfo.resultFiles.length == 0) {
@@ -190,43 +233,49 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 			return;
 		}
 		
-		canvas.notificationMethods.statusMessage(200, "Updating display with new image ...");
+		if(outputDisplayMode==DisplayMode.Printer) {
+			this.notificationMethods.statusMessage(200, "Printing image ...");
+		} else {
+			this.notificationMethods.statusMessage(200, "Updating display with new image ...");
+		}
 		setProgress(99);
-		switch(canvas.getDisplayMode()) {
-			case Draft:
+		switch(outputDisplayMode) {
+		    case Printer:
 				String uri = "data://image/svg+xml;base64," + ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])dgsResponseInfo.resultFiles[0].data);
-//				try {
-//					uri = "data://image/svg+xml;base64," + new String((byte[])dgsResponseInfo.resultFiles[0].data, "UTF8");
-//				} catch (java.io.UnsupportedEncodingException ex) {
-					
-//				}
+				org.apache.batik.transcoder.print.PrintTranscoder pt = new org.apache.batik.transcoder.print.PrintTranscoder();
+				pt.transcode(new org.apache.batik.transcoder.TranscoderInput(uri), null);
+				try {
+					pt.addTranscodingHint(pt.KEY_SHOW_PRINTER_DIALOG, true);
+					pt.print();
+				} catch (Exception ex) {
+
+				}
+				break;
+		    case Draft:
 				canvas.draftCanvas.setDocumentState(org.apache.batik.swing.JSVGCanvas.ALWAYS_DYNAMIC);
-				canvas.draftCanvas.setURI(uri);
+				canvas.draftCanvas.setURI("data://image/svg+xml;base64," + ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])dgsResponseInfo.resultFiles[0].data));
 				canvas.draftCanvas.setVisible(true);
 				canvas.draftCanvas.repaint();
 				canvas.draftCanvas.setEnabled(true);
-				int i = canvas.draftCanvas.getHeight();
-				i = canvas.draftCanvas.getWidth();
-				i = canvas.draftCanvas.getHeight();
 				break;
-			case PNG:
-			case GIF:
-			case JPEG:
-			case TIFF:
-				BufferedImage image = null;
-				try {
-					image = ImageIO.read(new java.io.ByteArrayInputStream((byte[])dgsResponseInfo.resultFiles[0].data));
-				} catch (IOException ie) {
-					canvas.notificationMethods.statusMessage(5, "Error processing output image: " + ie.getMessage());
-				}
-				canvas.renderedCanvas.image = image;
-				break;
-			case PDF:
-				canvas.notificationMethods.statusMessage(0, "PDF Display output is not supported at this time.");
-				break;
+		    case PNG:
+		    case GIF:
+		    case JPEG:
+		    case TIFF:
+			    BufferedImage image = null;
+			    try {
+				    image = ImageIO.read(new java.io.ByteArrayInputStream((byte[])dgsResponseInfo.resultFiles[0].data));
+			    } catch (IOException ie) {
+				    this.notificationMethods.statusMessage(5, "Error processing output image: " + ie.getMessage());
+			    }
+			    canvas.renderedCanvas.image = image;
+			    break;
+		    case PDF:
+			    this.notificationMethods.statusMessage(0, "PDF Display output is not supported at this time.");
+			    break;
 		}
 		setProgress(100);
-		canvas.notificationMethods.statusMessage(0, "Ready.");
+		this.notificationMethods.statusMessage(0, "Ready.");
 	}
 	
 	private DGSFileInfo loadImageFileData(String fileName)
@@ -238,24 +287,24 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
         byte fDat[] = null;
         java.io.File f = new java.io.File(fileName);
         if(!f.exists()) {
-            canvas.notificationMethods.statusMessage(10, "File does not exist: " + fileName);
+            this.notificationMethods.statusMessage(10, "File does not exist: " + fileName);
             return(null);
         }
         try {
             fDat = fileToBytes(fileName);
         } catch (FileNotFoundException fex) {
-            canvas.notificationMethods.statusMessage(10, "Could not find the specified file: " + fileName);
+            this.notificationMethods.statusMessage(10, "Could not find the specified file: " + fileName);
             return(null);
         } catch (IOException iex) {
-            canvas.notificationMethods.statusMessage(10, "Could not read the specified file: " + fileName + " Error: " + iex.getMessage());
+            this.notificationMethods.statusMessage(10, "Could not read the specified file: " + fileName + " Error: " + iex.getMessage());
             return(null);
         }
         if(fDat == null) {
-            canvas.notificationMethods.statusMessage(5, "An unknown error occurred reading file: " + fileName);
+            this.notificationMethods.statusMessage(5, "An unknown error occurred reading file: " + fileName);
             return(null);
         }
         if(fDat.length == 0) {
-           canvas.notificationMethods.statusMessage(10, "The specified file is empty: " + fileName);
+           this.notificationMethods.statusMessage(10, "The specified file is empty: " + fileName);
             return(null);
         }
         DGSFileInfo fInfo = new DGSFileInfo();
