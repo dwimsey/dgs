@@ -253,7 +253,9 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 					this.notificationMethods.statusMessage(0, "An error occurred parsing the SVG data file data for printing: " + ex.getMessage());
 					return;
 				}
+				// TODO: this needs to be overridden with the DGSUserAgent somehow so it works as expected.
 				org.apache.batik.transcoder.print.PrintTranscoder pt = new org.apache.batik.transcoder.print.PrintTranscoder();
+				pt.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_EXECUTE_ONLOAD, true);
 				pt.transcode(new org.apache.batik.transcoder.TranscoderInput(svgDoc), null);
 				try {
 					pt.addTranscodingHint(org.apache.batik.transcoder.print.PrintTranscoder.KEY_SHOW_PRINTER_DIALOG, true);
