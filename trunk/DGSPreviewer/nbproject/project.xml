@@ -13,6 +13,14 @@
         </data>
         <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
             <reference>
+                <foreign-project>batik</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>build.xml</script>
+                <target>all-jar</target>
+                <clean-target>clean</clean-target>
+                <id>all-jar</id>
+            </reference>
+            <reference>
                 <foreign-project>gif4free</foreign-project>
                 <artifact-type>jar</artifact-type>
                 <script>build.xml</script>

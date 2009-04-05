@@ -82,7 +82,7 @@ public class DGSGIFTranscoder extends org.apache.batik.transcoder.SVGAbstractTra
 
 			// create the gif stream
 			java.io.ByteArrayOutputStream gifStream = new java.io.ByteArrayOutputStream();
-			gif4free.AnimatedGifEncoder e = new gif4free.AnimatedGifEncoder();
+			com.fmsware.gif4free.AnimatedGifEncoder e = new com.fmsware.gif4free.AnimatedGifEncoder();
 			e.start(gifStream);
 			if (animationFrameCount > 1) {
 				// if the frame count is 1 or 0 then we only display the initial frame
