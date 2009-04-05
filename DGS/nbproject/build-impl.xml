@@ -366,9 +366,13 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
                 COMPILATION SECTION
             -->
     <target depends="init" if="no.dist.ear.dir" name="deps-module-jar" unless="no.deps">
+        <ant antfile="${project.batik}/build.xml" inheritall="false" target="all-jar"/>
         <ant antfile="${project.gif4free}/build.xml" inheritall="false" target="jar"/>
     </target>
     <target depends="init" if="dist.ear.dir" name="deps-ear-jar" unless="no.deps">
+        <ant antfile="${project.batik}/build.xml" inheritall="false" target="dist-ear">
+            <property location="${build.dir}" name="dist.ear.dir"/>
+        </ant>
         <ant antfile="${project.gif4free}/build.xml" inheritall="false" target="jar"/>
     </target>
     <target depends="init, deps-module-jar, deps-ear-jar" name="deps-jar" unless="no.deps"/>
@@ -509,73 +513,37 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,-do-dist-with-manifest,-do-dist-without-manifest" name="do-dist"/>
     <target depends="init" if="dist.ear.dir" name="library-inclusion-in-manifest">
-        <basename file="${file.reference.xerces_2_5_0.jar}" property="included.lib.file.reference.xerces_2_5_0.jar"/>
-        <copy-ear-war file="${file.reference.xerces_2_5_0.jar}" propname="included.lib.file.reference.xerces_2_5_0.jar.X"/>
-        <basename file="${file.reference.batik-transcoder.jar}" property="included.lib.file.reference.batik-transcoder.jar"/>
-        <copy-ear-war file="${file.reference.batik-transcoder.jar}" propname="included.lib.file.reference.batik-transcoder.jar.X"/>
-        <basename file="${file.reference.pdf-transcoder.jar}" property="included.lib.file.reference.pdf-transcoder.jar"/>
-        <copy-ear-war file="${file.reference.pdf-transcoder.jar}" propname="included.lib.file.reference.pdf-transcoder.jar.X"/>
-        <basename file="${file.reference.batik-bridge.jar}" property="included.lib.file.reference.batik-bridge.jar"/>
-        <copy-ear-war file="${file.reference.batik-bridge.jar}" propname="included.lib.file.reference.batik-bridge.jar.X"/>
-        <basename file="${file.reference.batik-util.jar}" property="included.lib.file.reference.batik-util.jar"/>
-        <copy-ear-war file="${file.reference.batik-util.jar}" propname="included.lib.file.reference.batik-util.jar.X"/>
-        <basename file="${file.reference.batik-gvt.jar}" property="included.lib.file.reference.batik-gvt.jar"/>
-        <copy-ear-war file="${file.reference.batik-gvt.jar}" propname="included.lib.file.reference.batik-gvt.jar.X"/>
-        <basename file="${file.reference.xml-apis-ext.jar}" property="included.lib.file.reference.xml-apis-ext.jar"/>
-        <copy-ear-war file="${file.reference.xml-apis-ext.jar}" propname="included.lib.file.reference.xml-apis-ext.jar.X"/>
-        <basename file="${file.reference.batik-dom.jar}" property="included.lib.file.reference.batik-dom.jar"/>
-        <copy-ear-war file="${file.reference.batik-dom.jar}" propname="included.lib.file.reference.batik-dom.jar.X"/>
-        <basename file="${file.reference.batik-css.jar}" property="included.lib.file.reference.batik-css.jar"/>
-        <copy-ear-war file="${file.reference.batik-css.jar}" propname="included.lib.file.reference.batik-css.jar.X"/>
-        <basename file="${file.reference.batik-svg-dom.jar}" property="included.lib.file.reference.batik-svg-dom.jar"/>
-        <copy-ear-war file="${file.reference.batik-svg-dom.jar}" propname="included.lib.file.reference.batik-svg-dom.jar.X"/>
-        <basename file="${file.reference.batik-ext.jar}" property="included.lib.file.reference.batik-ext.jar"/>
-        <copy-ear-war file="${file.reference.batik-ext.jar}" propname="included.lib.file.reference.batik-ext.jar.X"/>
-        <basename file="${file.reference.batik-xml.jar}" property="included.lib.file.reference.batik-xml.jar"/>
-        <copy-ear-war file="${file.reference.batik-xml.jar}" propname="included.lib.file.reference.batik-xml.jar.X"/>
-        <basename file="${file.reference.batik-anim.jar}" property="included.lib.file.reference.batik-anim.jar"/>
-        <copy-ear-war file="${file.reference.batik-anim.jar}" propname="included.lib.file.reference.batik-anim.jar.X"/>
-        <basename file="${file.reference.batik-parser.jar}" property="included.lib.file.reference.batik-parser.jar"/>
-        <copy-ear-war file="${file.reference.batik-parser.jar}" propname="included.lib.file.reference.batik-parser.jar.X"/>
-        <basename file="${file.reference.batik-script.jar}" property="included.lib.file.reference.batik-script.jar"/>
-        <copy-ear-war file="${file.reference.batik-script.jar}" propname="included.lib.file.reference.batik-script.jar.X"/>
-        <basename file="${file.reference.batik-awt-util.jar}" property="included.lib.file.reference.batik-awt-util.jar"/>
-        <copy-ear-war file="${file.reference.batik-awt-util.jar}" propname="included.lib.file.reference.batik-awt-util.jar.X"/>
-        <basename file="${file.reference.batik-codec.jar}" property="included.lib.file.reference.batik-codec.jar"/>
-        <copy-ear-war file="${file.reference.batik-codec.jar}" propname="included.lib.file.reference.batik-codec.jar.X"/>
-        <basename file="${file.reference.js.jar}" property="included.lib.file.reference.js.jar"/>
-        <copy-ear-war file="${file.reference.js.jar}" propname="included.lib.file.reference.js.jar.X"/>
-        <basename file="${file.reference.batik-extension.jar}" property="included.lib.file.reference.batik-extension.jar"/>
-        <copy-ear-war file="${file.reference.batik-extension.jar}" propname="included.lib.file.reference.batik-extension.jar.X"/>
         <basename file="${reference.gif4free.jar}" property="included.lib.reference.gif4free.jar"/>
         <copy-ear-war file="${reference.gif4free.jar}" propname="included.lib.reference.gif4free.jar.X"/>
+        <basename file="${reference.batik.all-jar}" property="included.lib.reference.batik.all-jar"/>
+        <copy-ear-war file="${reference.batik.all-jar}" propname="included.lib.reference.batik.all-jar.X"/>
+        <basename file="${file.reference.js.jar}" property="included.lib.file.reference.js.jar"/>
+        <copy-ear-war file="${file.reference.js.jar}" propname="included.lib.file.reference.js.jar.X"/>
+        <basename file="${file.reference.pdf-transcoder.jar}" property="included.lib.file.reference.pdf-transcoder.jar"/>
+        <copy-ear-war file="${file.reference.pdf-transcoder.jar}" propname="included.lib.file.reference.pdf-transcoder.jar.X"/>
+        <basename file="${file.reference.xalan-2.6.0.jar}" property="included.lib.file.reference.xalan-2.6.0.jar"/>
+        <copy-ear-war file="${file.reference.xalan-2.6.0.jar}" propname="included.lib.file.reference.xalan-2.6.0.jar.X"/>
+        <basename file="${file.reference.xerces_2_5_0.jar}" property="included.lib.file.reference.xerces_2_5_0.jar"/>
+        <copy-ear-war file="${file.reference.xerces_2_5_0.jar}" propname="included.lib.file.reference.xerces_2_5_0.jar.X"/>
+        <basename file="${file.reference.xml-apis-ext.jar}" property="included.lib.file.reference.xml-apis-ext.jar"/>
+        <copy-ear-war file="${file.reference.xml-apis-ext.jar}" propname="included.lib.file.reference.xml-apis-ext.jar.X"/>
+        <basename file="${file.reference.xml-apis.jar}" property="included.lib.file.reference.xml-apis.jar"/>
+        <copy-ear-war file="${file.reference.xml-apis.jar}" propname="included.lib.file.reference.xml-apis.jar.X"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${included.lib.file.reference.xerces_2_5_0.jar} ${included.lib.file.reference.batik-transcoder.jar} ${included.lib.file.reference.pdf-transcoder.jar} ${included.lib.file.reference.batik-bridge.jar} ${included.lib.file.reference.batik-util.jar} ${included.lib.file.reference.batik-gvt.jar} ${included.lib.file.reference.xml-apis-ext.jar} ${included.lib.file.reference.batik-dom.jar} ${included.lib.file.reference.batik-css.jar} ${included.lib.file.reference.batik-svg-dom.jar} ${included.lib.file.reference.batik-ext.jar} ${included.lib.file.reference.batik-xml.jar} ${included.lib.file.reference.batik-anim.jar} ${included.lib.file.reference.batik-parser.jar} ${included.lib.file.reference.batik-script.jar} ${included.lib.file.reference.batik-awt-util.jar} ${included.lib.file.reference.batik-codec.jar} ${included.lib.file.reference.js.jar} ${included.lib.file.reference.batik-extension.jar} ${included.lib.reference.gif4free.jar} "/>
+            <attribute name="Class-Path" value="${included.lib.reference.gif4free.jar} ${included.lib.reference.batik.all-jar} ${included.lib.file.reference.js.jar} ${included.lib.file.reference.pdf-transcoder.jar} ${included.lib.file.reference.xalan-2.6.0.jar} ${included.lib.file.reference.xerces_2_5_0.jar} ${included.lib.file.reference.xml-apis-ext.jar} ${included.lib.file.reference.xml-apis.jar} "/>
         </manifest>
         <delete dir="${dist.ear.dir}/temp"/>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
-        <copy file="${file.reference.xerces_2_5_0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-transcoder.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.pdf-transcoder.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-bridge.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-util.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-gvt.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.xml-apis-ext.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-dom.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-css.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-svg-dom.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-ext.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-xml.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-anim.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-parser.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-script.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-awt-util.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-codec.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.js.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copy file="${file.reference.batik-extension.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${reference.gif4free.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${reference.batik.all-jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.js.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.pdf-transcoder.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.xalan-2.6.0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.xerces_2_5_0.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.xml-apis-ext.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copy file="${file.reference.xml-apis.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>
@@ -855,6 +823,7 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
                 CLEANUP SECTION
             -->
     <target depends="init" if="no.dist.ear.dir" name="deps-clean" unless="no.deps">
+        <ant antfile="${project.batik}/build.xml" inheritall="false" target="clean"/>
         <ant antfile="${project.gif4free}/build.xml" inheritall="false" target="clean"/>
     </target>
     <target depends="init" name="do-clean">

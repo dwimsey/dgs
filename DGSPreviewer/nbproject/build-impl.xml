@@ -306,6 +306,7 @@ is divided into following sections:
                 ===================
             -->
     <target depends="init" name="deps-jar" unless="no.deps">
+        <ant antfile="${project.batik}/build.xml" inheritall="false" target="all-jar"/>
         <ant antfile="${project.gif4free}/build.xml" inheritall="false" target="jar"/>
     </target>
     <target depends="init,deps-jar" name="-pre-pre-compile">
@@ -614,6 +615,7 @@ is divided into following sections:
                 ===============
             -->
     <target depends="init" name="deps-clean" unless="no.deps">
+        <ant antfile="${project.batik}/build.xml" inheritall="false" target="clean"/>
         <ant antfile="${project.gif4free}/build.xml" inheritall="false" target="clean"/>
     </target>
     <target depends="init" name="-do-clean">
