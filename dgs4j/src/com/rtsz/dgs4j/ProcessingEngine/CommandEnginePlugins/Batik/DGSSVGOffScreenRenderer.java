@@ -1,4 +1,4 @@
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik;
 
 import java.awt.geom.AffineTransform;
 import java.awt.Rectangle;

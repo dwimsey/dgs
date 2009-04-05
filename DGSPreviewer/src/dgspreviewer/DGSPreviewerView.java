@@ -4,6 +4,8 @@
 
 package dgspreviewer;
 
+import com.rtsz.dgs4j.ProcessingEngine.*;
+
 import java.beans.PropertyChangeEvent;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
@@ -19,7 +21,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import dgspreviewer.DGSPreviewCanvas.*;
 
@@ -30,7 +31,7 @@ public class DGSPreviewerView extends FrameView {
 
 	private dgspreviewer.DGSPreviewCanvas.NotificationMethods notificationMethods = null;
     private Options options;
-    private ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
+    private ProcessingEngine pEngine;
 	private String[] args;
 
 	String cmdLinePackageFile = null;
@@ -79,7 +80,7 @@ public class DGSPreviewerView extends FrameView {
 			wereOptionsLoaded = options.load();
 		}
 
-		pEngine = new ImageProcessor.ProcessingEngine.ProcessingEngine();
+		pEngine = new ProcessingEngine();
         initComponents();
 		previewCanvas.pEngine = this.pEngine;
 		previewCanvas.setBackgroundColor(options.getBackgroundColor());

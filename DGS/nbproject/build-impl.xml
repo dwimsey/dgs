@@ -367,12 +367,14 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
             -->
     <target depends="init" if="no.dist.ear.dir" name="deps-module-jar" unless="no.deps">
         <ant antfile="${project.batik}/build.xml" inheritall="false" target="all-jar"/>
+        <ant antfile="${project.dgs4j}/build.xml" inheritall="false" target="jar"/>
         <ant antfile="${project.gif4free}/build.xml" inheritall="false" target="jar"/>
     </target>
     <target depends="init" if="dist.ear.dir" name="deps-ear-jar" unless="no.deps">
         <ant antfile="${project.batik}/build.xml" inheritall="false" target="dist-ear">
             <property location="${build.dir}" name="dist.ear.dir"/>
         </ant>
+        <ant antfile="${project.dgs4j}/build.xml" inheritall="false" target="jar"/>
         <ant antfile="${project.gif4free}/build.xml" inheritall="false" target="jar"/>
     </target>
     <target depends="init, deps-module-jar, deps-ear-jar" name="deps-jar" unless="no.deps"/>
@@ -513,6 +515,8 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,-do-dist-with-manifest,-do-dist-without-manifest" name="do-dist"/>
     <target depends="init" if="dist.ear.dir" name="library-inclusion-in-manifest">
+        <basename file="${reference.dgs4j.jar}" property="included.lib.reference.dgs4j.jar"/>
+        <copy-ear-war file="${reference.dgs4j.jar}" propname="included.lib.reference.dgs4j.jar.X"/>
         <basename file="${reference.gif4free.jar}" property="included.lib.reference.gif4free.jar"/>
         <copy-ear-war file="${reference.gif4free.jar}" propname="included.lib.reference.gif4free.jar.X"/>
         <basename file="${reference.batik.all-jar}" property="included.lib.reference.batik.all-jar"/>
@@ -531,11 +535,12 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
         <copy-ear-war file="${file.reference.xml-apis.jar}" propname="included.lib.file.reference.xml-apis.jar.X"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${included.lib.reference.gif4free.jar} ${included.lib.reference.batik.all-jar} ${included.lib.file.reference.js.jar} ${included.lib.file.reference.pdf-transcoder.jar} ${included.lib.file.reference.xalan-2.6.0.jar} ${included.lib.file.reference.xerces_2_5_0.jar} ${included.lib.file.reference.xml-apis-ext.jar} ${included.lib.file.reference.xml-apis.jar} "/>
+            <attribute name="Class-Path" value="${included.lib.reference.dgs4j.jar} ${included.lib.reference.gif4free.jar} ${included.lib.reference.batik.all-jar} ${included.lib.file.reference.js.jar} ${included.lib.file.reference.pdf-transcoder.jar} ${included.lib.file.reference.xalan-2.6.0.jar} ${included.lib.file.reference.xerces_2_5_0.jar} ${included.lib.file.reference.xml-apis-ext.jar} ${included.lib.file.reference.xml-apis.jar} "/>
         </manifest>
         <delete dir="${dist.ear.dir}/temp"/>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
+        <copy file="${reference.dgs4j.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${reference.gif4free.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${reference.batik.all-jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copy file="${file.reference.js.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
@@ -824,6 +829,7 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
             -->
     <target depends="init" if="no.dist.ear.dir" name="deps-clean" unless="no.deps">
         <ant antfile="${project.batik}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.dgs4j}/build.xml" inheritall="false" target="clean"/>
         <ant antfile="${project.gif4free}/build.xml" inheritall="false" target="clean"/>
     </target>
     <target depends="init" name="do-clean">

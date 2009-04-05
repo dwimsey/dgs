@@ -3,9 +3,11 @@
  * and open the template in the editor.
  */
 
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik;
 
-import ImageProcessor.ProcessingEngine.*;
+import com.rtsz.dgs4j.*;
+import com.rtsz.dgs4j.ProcessingEngine.*;
+
 import org.apache.batik.util.*;
 import java.util.*;
 import java.io.*;
@@ -76,7 +78,7 @@ protected  boolean	sameFile(ParsedURLData other)
 		if(workspace == null) {
 			return(inStream);
 		}
-		ImageProcessor.ProcessingEngine.ProcessingEngineImageBuffer ib = workspace.getImageBuffer(this.path);
+		ProcessingEngineImageBuffer ib = workspace.getImageBuffer(this.path);
 		if(ib==null) {
 			return(inStream);
 		}
@@ -97,7 +99,7 @@ protected  boolean	sameFile(ParsedURLData other)
 		if(count==0) {
 			return(null);
 		}
-		ImageProcessor.DGSFileInfo fInfo;
+		DGSFileInfo fInfo;
 		for(int i = 0; i<count; i++) {
 			fInfo = workspace.files.get(i);
 			if(fInfo != null) {

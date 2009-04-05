@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ImageProcessor.ProcessingEngine;
+package com.rtsz.dgs4j.ProcessingEngine;
 
-import ImageProcessor.*;
-import ImageProcessor.ProcessingEngine.Instructions.IInstruction;
+import com.rtsz.dgs4j.*;
+import com.rtsz.dgs4j.ProcessingEngine.Instructions.*;
 
 import java.io.*;
 import java.util.*;
@@ -295,7 +295,7 @@ public class ProcessingEngine {
 		    ICommandEngine pluginEngine;
 
 		    switchToPluginSecurity();
-		    pluginEngine = new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine();
+		    pluginEngine = new com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine();
 		    switchToStandardSecurity();
 
 		    loadPlugin(pluginEngine);

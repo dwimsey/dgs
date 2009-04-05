@@ -1,4 +1,4 @@
-package ImageProcessor.ProcessingEngine;
+package com.rtsz.dgs4j.ProcessingEngine;
 
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>

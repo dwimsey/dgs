@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ImageProcessor.ProcessingEngine;
+package com.rtsz.dgs4j.ProcessingEngine;
 
-import ImageProcessor.ProcessingEngine.Instructions.*;
+import com.rtsz.dgs4j.ProcessingEngine.Instructions.*;
 
 import java.util.*;
 

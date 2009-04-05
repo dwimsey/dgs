@@ -4,7 +4,8 @@
  */
 package ImageProcessor;
 
-import ImageProcessor.ProcessingEngine.*;
+import com.rtsz.dgs4j.*;
+import com.rtsz.dgs4j.ProcessingEngine.*;
 
 import java.util.*;
 
@@ -19,7 +20,7 @@ import javax.jws.WebService;
 @WebService()
 public class ImageProcesser {
 
-	private static ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
+	private static ProcessingEngine pEngine;
 
 	/**
 	 * Web service operation

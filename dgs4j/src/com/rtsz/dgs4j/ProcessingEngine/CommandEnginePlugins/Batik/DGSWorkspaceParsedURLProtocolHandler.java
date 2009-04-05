@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik;
 
 import org.apache.batik.util.*;
 /**
