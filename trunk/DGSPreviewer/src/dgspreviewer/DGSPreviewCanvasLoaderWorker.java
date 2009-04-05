@@ -239,21 +239,45 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 			this.notificationMethods.statusMessage(200, "Updating display with new image ...");
 		}
 		setProgress(99);
+		org.w3c.dom.Document svgDoc;
 		switch(outputDisplayMode) {
 		    case Printer:
-				String uri = "data://image/svg+xml;base64," + Base64.encodeBytes((byte[])dgsResponseInfo.resultFiles[0].data);
-				org.apache.batik.transcoder.print.PrintTranscoder pt = new org.apache.batik.transcoder.print.PrintTranscoder();
-				pt.transcode(new org.apache.batik.transcoder.TranscoderInput(uri), null);
 				try {
-					pt.addTranscodingHint(pt.KEY_SHOW_PRINTER_DIALOG, true);
+					String parser = org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName();
+					org.apache.batik.dom.svg.SAXSVGDocumentFactory f = new org.apache.batik.dom.svg.SAXSVGDocumentFactory(parser);
+					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String)new String(((byte[])dgsResponseInfo.resultFiles[0].data), "UTF8")));
+					// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
+					// a real cause and fix needs to be found
+					svgDoc.setDocumentURI("http://localhost/workspace.svg");
+				} catch (Exception ex) {
+					this.notificationMethods.statusMessage(0, "An error occurred parsing the SVG data file data for printing: " + ex.getMessage());
+					return;
+				}
+				org.apache.batik.transcoder.print.PrintTranscoder pt = new org.apache.batik.transcoder.print.PrintTranscoder();
+				pt.transcode(new org.apache.batik.transcoder.TranscoderInput(svgDoc), null);
+				try {
+					pt.addTranscodingHint(org.apache.batik.transcoder.print.PrintTranscoder.KEY_SHOW_PRINTER_DIALOG, true);
 					pt.print();
 				} catch (Exception ex) {
+					this.notificationMethods.statusMessage(0, "An error occurred parsing the SVG data file data for printing: " + ex.getMessage());
+					return;
 
 				}
 				break;
 		    case Draft:
+				try {
+					String parser = org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName();
+					org.apache.batik.dom.svg.SAXSVGDocumentFactory f = new org.apache.batik.dom.svg.SAXSVGDocumentFactory(parser);
+					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String)new String(((byte[])dgsResponseInfo.resultFiles[0].data), "UTF8")));
+					// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
+					// a real cause and fix needs to be found
+					svgDoc.setDocumentURI("http://localhost/workspace.svg");
+				} catch (Exception ex) {
+					this.notificationMethods.statusMessage(0, "An error occurred parsing the SVG data file data for display: " + ex.getMessage());
+					return;
+				}
 				canvas.draftCanvas.setDocumentState(org.apache.batik.swing.JSVGCanvas.ALWAYS_DYNAMIC);
-				canvas.draftCanvas.setURI("data://image/svg+xml;base64," + Base64.encodeBytes((byte[])dgsResponseInfo.resultFiles[0].data));
+				canvas.draftCanvas.setDocument(svgDoc);
 				canvas.draftCanvas.setVisible(true);
 				canvas.draftCanvas.repaint();
 				canvas.draftCanvas.setEnabled(true);
