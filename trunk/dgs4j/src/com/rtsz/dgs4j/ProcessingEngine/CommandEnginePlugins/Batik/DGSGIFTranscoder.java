@@ -2,7 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik;
+
+import com.rtsz.dgs4j.ProcessingEngine.*;
 
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
@@ -32,9 +34,9 @@ import org.w3c.dom.Document;
  */
 public class DGSGIFTranscoder extends org.apache.batik.transcoder.SVGAbstractTranscoder {
 
-	private ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace;
+	private ProcessingWorkspace workspace;
 
-	public DGSGIFTranscoder(ImageProcessor.ProcessingEngine.ProcessingWorkspace wrkspc) {
+	public DGSGIFTranscoder(ProcessingWorkspace wrkspc) {
 		super();
 		// gifs need a white transparent background to render in IE
 		hints.put(ImageTranscoder.KEY_FORCE_TRANSPARENT_WHITE, Boolean.TRUE);

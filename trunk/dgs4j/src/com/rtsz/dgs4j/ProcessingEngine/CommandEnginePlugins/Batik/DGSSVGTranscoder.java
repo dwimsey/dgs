@@ -2,7 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik;
+
+import com.rtsz.dgs4j.ProcessingEngine.*;
 
 import org.apache.batik.transcoder.*;
 
@@ -23,7 +25,7 @@ import javax.xml.transform.stream.*;
  */
 public class DGSSVGTranscoder extends AbstractTranscoder {
 
-	public DGSSVGTranscoder(ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace) {
+	public DGSSVGTranscoder(ProcessingWorkspace workspace) {
 		super();
 		//this.userAgent = new DGSUserAgent(this.getUserAgent(), workspace);
 	}

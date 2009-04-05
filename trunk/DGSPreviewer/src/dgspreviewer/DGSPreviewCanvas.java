@@ -7,7 +7,8 @@ package dgspreviewer;
 
 import java.awt.*;
 import java.beans.*;
-import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.*;
+import com.rtsz.dgs4j.ProcessingEngine.*;
+
 import org.apache.batik.swing.svg.*;
 
 /**
@@ -40,7 +41,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 	protected NotificationMethods notificationMethods = null;
 	private java.beans.PropertyChangeListener pcListener = null;
 	private DGSPreviewCanvasLoaderWorker workerThread = null;
-	public ImageProcessor.ProcessingEngine.ProcessingEngine pEngine = null;
+	public ProcessingEngine pEngine = null;
 
 	/** Creates new form DGSPreviewCanvas */
 	public DGSPreviewCanvas() {
@@ -129,7 +130,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 		workerThread.execute();
 	}
 
-	public static void printUri(String fileUri, String dgsPackageFile, ImageProcessor.ProcessingEngine.ProcessingEngine pEngine, NotificationMethods newMethods) {
+	public static void printUri(String fileUri, String dgsPackageFile, ProcessingEngine pEngine, NotificationMethods newMethods) {
 		//fileUri;
 		//dgsPackageFile;
 		if(newMethods == null) {

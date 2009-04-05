@@ -2,11 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.Instructions;
 
-import ImageProcessor.ProcessingEngine.*;
-import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.*;
-import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine.*;
+import com.rtsz.dgs4j.ProcessingEngine.*;
+import com.rtsz.dgs4j.ProcessingEngine.Instructions.*;
+import com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.*;
+import com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine.*;
 
 import org.w3c.dom.*;
 
@@ -21,11 +22,11 @@ import javax.xml.transform.stream.*;
 /**
  * @author dwimsey
  */
-public class addWatermark implements ImageProcessor.ProcessingEngine.Instructions.IInstruction {
+public class addWatermark implements IInstruction {
 	String instructionName = "addWatermark";
 	String xlinkNS = "http://www.w3.org/1999/xlink";
 
-	public boolean process(ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace, Node instructionNode) {
+	public boolean process(ProcessingWorkspace workspace, Node instructionNode) {
 		NamedNodeMap nm = instructionNode.getAttributes();
 		Node bufferNode = nm.getNamedItem("buffer");
 		Node srcImageNode = nm.getNamedItem("srcImage");
@@ -73,7 +74,7 @@ public class addWatermark implements ImageProcessor.ProcessingEngine.Instruction
 		org.apache.batik.dom.svg.SVGOMDocument doc = null;
 
 		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
-			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])iBuffer.data);
+			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + Base64.encodeBytes((byte[])iBuffer.data);
 			try {
 				String parser = XMLResourceDescriptor.getXMLParserClassName();
 				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
@@ -109,10 +110,10 @@ public class addWatermark implements ImageProcessor.ProcessingEngine.Instruction
 				workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
 				return (false);
 			}
-			dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes(outStream.toByteArray());
+			dataUri += Base64.encodeBytes(outStream.toByteArray());
 		} else {
 			dataUri = "data://" + imgBuffer.mimeType.trim() + ";base64,";
-			dataUri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) imgBuffer.data);
+			dataUri += Base64.encodeBytes((byte[]) imgBuffer.data);
 		}
 
 		org.w3c.dom.svg.SVGSVGElement rootNode = doc.getRootElement();
@@ -139,7 +140,7 @@ public class addWatermark implements ImageProcessor.ProcessingEngine.Instruction
 		}
 		iBuffer.data = outStream.toByteArray();
 		if(iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
-			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])iBuffer.data);
+			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + Base64.encodeBytes((byte[])iBuffer.data);
 			try {
 				String parser = XMLResourceDescriptor.getXMLParserClassName();
 				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);

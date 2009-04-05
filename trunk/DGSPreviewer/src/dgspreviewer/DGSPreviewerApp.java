@@ -9,7 +9,7 @@ import org.jdesktop.application.SingleFrameApplication;
 
 import org.apache.batik.util.ApplicationSecurityEnforcer;
 
-import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.*;
+import com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.*;
 
 /**
  * The main class of the application.

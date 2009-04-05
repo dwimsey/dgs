@@ -2,11 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.Instructions;
 
-import ImageProcessor.ProcessingEngine.*;
-import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.*;
-import ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine.*;
+import com.rtsz.dgs4j.ProcessingEngine.*;
+import com.rtsz.dgs4j.ProcessingEngine.Instructions.*;
+import com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.*;
+import com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine.*;
 import org.w3c.dom.*;
 
 import java.io.*;
@@ -21,9 +22,9 @@ import javax.xml.transform.stream.*;
  *
  * @author dwimsey
  */
-public class substituteVariables implements ImageProcessor.ProcessingEngine.Instructions.IInstruction {
+public class substituteVariables implements IInstruction {
 
-	public boolean process(ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace, Node instructionNode) {
+	public boolean process(ProcessingWorkspace workspace, Node instructionNode) {
 		try {
 		    NamedNodeMap attributes = instructionNode.getAttributes();
 		    Node bufferNode = attributes.getNamedItem("buffer");
@@ -69,7 +70,7 @@ public class substituteVariables implements ImageProcessor.ProcessingEngine.Inst
 		    Document doc = null;
 		    if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
 			    String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
-			    uri += ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[]) iBuffer.data);
+			    uri += Base64.encodeBytes((byte[]) iBuffer.data);
 
 			    try {
 				    String parser = XMLResourceDescriptor.getXMLParserClassName();

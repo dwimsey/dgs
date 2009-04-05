@@ -2,7 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik;
+
+import com.rtsz.dgs4j.ProcessingEngine.*;
 
 import org.w3c.dom.*;
 import org.apache.batik.bridge.*;
@@ -20,9 +22,9 @@ import java.awt.geom.*;
 public class DGSUserAgent implements UserAgent {
 
 	private UserAgent ua;
-	private ImageProcessor.ProcessingEngine.ProcessingWorkspace workspace;
+	private ProcessingWorkspace workspace;
 
-	public DGSUserAgent(UserAgent oldAgent, ImageProcessor.ProcessingEngine.ProcessingWorkspace cWorkspace) {
+	public DGSUserAgent(UserAgent oldAgent, ProcessingWorkspace cWorkspace) {
 		if (oldAgent == null) {
 			throw new java.lang.NullPointerException("oldAgent can not be null when creating a new DGSUserAgent");
 		}

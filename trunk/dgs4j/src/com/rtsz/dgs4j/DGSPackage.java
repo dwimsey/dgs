@@ -5,7 +5,7 @@
 
 package dgspreviewer;
 
-import ImageProcessor.*;
+import com.rtsz.dgs4j.*;
 
 import java.io.*;
 
@@ -155,7 +155,7 @@ public class DGSPackage {
 					NamedNodeMap aMap = fstNode.getAttributes();
 					vars[s] = new DGSFileInfo();
 					vars[s].name = aMap.getNamedItem("name").getNodeValue();
-					vars[s].data = ImageProcessor.ProcessingEngine.Base64.decode(aMap.getNamedItem("data").getNodeValue());
+					vars[s].data = com.rtsz.dgs4j.ProcessingEngine.Base64.decode(aMap.getNamedItem("data").getNodeValue());
 					vars[s].mimeType = "" + aMap.getNamedItem("mimeType").getNodeValue();
 					vars[s].width = Integer.valueOf(aMap.getNamedItem("width").getNodeValue());
 					vars[s].height = Integer.valueOf(aMap.getNamedItem("height").getNodeValue());

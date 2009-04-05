@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik;
 
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;

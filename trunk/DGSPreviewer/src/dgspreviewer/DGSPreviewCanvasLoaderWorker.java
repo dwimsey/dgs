@@ -5,8 +5,8 @@
 
 package dgspreviewer;
 
-import ImageProcessor.*;
-import ImageProcessor.ProcessingEngine.*;
+import com.rtsz.dgs4j.*;
+import com.rtsz.dgs4j.ProcessingEngine.*;
 
 import javax.swing.*;
 
@@ -22,13 +22,13 @@ import dgspreviewer.DGSPreviewCanvas.*;
 public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, Void>{
 
 	DGSPreviewCanvas canvas;
-	ImageProcessor.ProcessingEngine.ProcessingEngine pEngine;
+	ProcessingEngine pEngine;
 	String imageFilename;
 	String previewPackageFilename;
 	private DisplayMode outputDisplayMode;
 	private dgspreviewer.DGSPreviewCanvas.NotificationMethods notificationMethods;
 	
-	public DGSPreviewCanvasLoaderWorker(DGSPreviewCanvas previewCanvas, NotificationMethods newMethods, ImageProcessor.ProcessingEngine.ProcessingEngine npEngine, String imageFileName, String packageFileName, DisplayMode displayMode) {
+	public DGSPreviewCanvasLoaderWorker(DGSPreviewCanvas previewCanvas, NotificationMethods newMethods, ProcessingEngine npEngine, String imageFileName, String packageFileName, DisplayMode displayMode) {
 		super();
 		canvas = previewCanvas;
 		if(npEngine == null) {
@@ -241,7 +241,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		setProgress(99);
 		switch(outputDisplayMode) {
 		    case Printer:
-				String uri = "data://image/svg+xml;base64," + ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])dgsResponseInfo.resultFiles[0].data);
+				String uri = "data://image/svg+xml;base64," + Base64.encodeBytes((byte[])dgsResponseInfo.resultFiles[0].data);
 				org.apache.batik.transcoder.print.PrintTranscoder pt = new org.apache.batik.transcoder.print.PrintTranscoder();
 				pt.transcode(new org.apache.batik.transcoder.TranscoderInput(uri), null);
 				try {
@@ -253,7 +253,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 				break;
 		    case Draft:
 				canvas.draftCanvas.setDocumentState(org.apache.batik.swing.JSVGCanvas.ALWAYS_DYNAMIC);
-				canvas.draftCanvas.setURI("data://image/svg+xml;base64," + ImageProcessor.ProcessingEngine.Base64.encodeBytes((byte[])dgsResponseInfo.resultFiles[0].data));
+				canvas.draftCanvas.setURI("data://image/svg+xml;base64," + Base64.encodeBytes((byte[])dgsResponseInfo.resultFiles[0].data));
 				canvas.draftCanvas.setVisible(true);
 				canvas.draftCanvas.repaint();
 				canvas.draftCanvas.setEnabled(true);

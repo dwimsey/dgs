@@ -10,6 +10,10 @@
             <minimum-ant-version>1.6</minimum-ant-version>
             <web-module-libraries>
                 <library files="1">
+                    <file>${reference.dgs4j.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library files="1">
                     <file>${reference.gif4free.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
@@ -56,6 +60,14 @@
                 <target>all-jar</target>
                 <clean-target>clean</clean-target>
                 <id>all-jar</id>
+            </reference>
+            <reference>
+                <foreign-project>dgs4j</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>build.xml</script>
+                <target>jar</target>
+                <clean-target>clean</clean-target>
+                <id>jar</id>
             </reference>
             <reference>
                 <foreign-project>gif4free</foreign-project>

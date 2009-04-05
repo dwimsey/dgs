@@ -2,12 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik;
+package com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik;
 
 import org.w3c.dom.svg.*;
 import org.w3c.dom.*;
-import ImageProcessor.ProcessingEngine.*;
-import ImageProcessor.DGSFileInfo;
+import com.rtsz.dgs4j.*;
+import com.rtsz.dgs4j.ProcessingEngine.*;
+import com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.*;
 
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
@@ -57,10 +58,10 @@ public class CommandEngine implements ICommandEngine {
 	}
 
 	public void addCommands(ProcessingEngine pEngine) {
-		pEngine.addCommandInstruction("replaceImage", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.replaceImage());
-		pEngine.addCommandInstruction("setVisibility", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.setVisibility());
-		pEngine.addCommandInstruction("substituteVariables", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.substituteVariables());
-		pEngine.addCommandInstruction("addWatermark", new ImageProcessor.ProcessingEngine.CommandEnginePlugins.Batik.Instructions.addWatermark());
+		pEngine.addCommandInstruction("replaceImage", new replaceImage());
+		pEngine.addCommandInstruction("setVisibility", new setVisibility());
+		pEngine.addCommandInstruction("substituteVariables", new substituteVariables());
+		pEngine.addCommandInstruction("addWatermark", new addWatermark());
 	}
 
 
