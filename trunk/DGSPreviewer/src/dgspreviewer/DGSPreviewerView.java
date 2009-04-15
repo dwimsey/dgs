@@ -81,10 +81,10 @@ public class DGSPreviewerView extends FrameView {
 		}
 
 		pEngine = new ProcessingEngine();
-        initComponents();
+		initComponents();
 		previewCanvas.pEngine = this.pEngine;
 		previewCanvas.setBackgroundColor(options.getBackgroundColor());
-		
+		previewCanvas.setDisplayMode(options.getDisplayMode());
 		// at startup, draft mode is disabled
 		this.menuDisplayModeTIFF.setVisible(false);
 		this.menuDisplayModePDF.setVisible(false);
@@ -242,6 +242,7 @@ public class DGSPreviewerView extends FrameView {
 				menuDisplayModePDF.setSelected(false);
 				break;
 		}
+		options.setDisplayMode(newDisplayMode);
 		previewCanvas.setDisplayMode(newDisplayMode);
 	}
     @Action

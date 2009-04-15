@@ -15,6 +15,8 @@ import org.xml.sax.helpers.*;
 import org.w3c.dom.*;
 
 import java.awt.Color;
+
+import dgspreviewer.DGSPreviewCanvas.*;
 /**
  *
  * @author dwimsey
@@ -26,6 +28,7 @@ public class Options {
 	private String MRUDGSPackageFileName;
 	private int LogLevel;
 	private String LogTimeFormatString;
+	private DisplayMode displayMode;
 
 	public Options() {
 		super();
@@ -38,6 +41,7 @@ public class Options {
 		this.MRUDGSPackageFileName = "";
 		this.LogLevel = 255;
 		this.LogTimeFormatString = "[dd/mm/yyyy HH:MM:ss]: ";
+		this.displayMode = DisplayMode.GIF;
 	}
 
 	public boolean load() {
@@ -113,6 +117,15 @@ public class Options {
 						} else if (name.equals("MRUDGSPackageFileName")) {
 							if (value != null) {
 								this.MRUDGSPackageFileName = value;
+							}
+						} else if (name.equals("DisplayMode")) {
+							if (value != null) {
+								this.displayMode = DisplayMode.valueOf(value);
+								if(this.displayMode == DisplayMode.Printer || this.displayMode == DisplayMode.PDF
+									|| this.displayMode == DisplayMode.TIFF) {
+								    // these modes aren't supported, fall back to Draft mode instead
+								    this.displayMode = DisplayMode.Draft;
+								}
 							}
 						}
 					}
@@ -190,6 +203,13 @@ public class Options {
 			hd.startElement("", "", "DGSPreviewerOption", atts);
 			hd.endElement("", "", "DGSPreviewerOption");
 		
+			// DisplayMode
+			atts.clear();
+			atts.addAttribute("", "", "key", "CDATA", "DisplayMode");
+			atts.addAttribute("", "", "value", "CDATA", this.displayMode.name());
+			hd.startElement("", "", "DGSPreviewerOption", atts);
+			hd.endElement("", "", "DGSPreviewerOption");
+
 			hd.endElement("", "", "DGSPreviewerOptions");
 			hd.endDocument();
 			fos.close();
@@ -283,5 +303,19 @@ public class Options {
 		this.MRUDGSPackageFileName = newFileName;
 		this.save();
 		return (oldName);
+	}
+	
+	public DisplayMode getDisplayMode() {
+		return(this.displayMode);
+	}
+
+	public DisplayMode setDisplayMode(DisplayMode newMode) {
+		if (newMode.equals(this.displayMode)) {
+			return(this.displayMode);
+		}
+		DisplayMode oldMode = this.displayMode;
+		this.displayMode = newMode;
+		this.save();
+		return(oldMode);
 	}
 }
