@@ -308,8 +308,9 @@ public class CommandEngine implements ICommandEngine {
 		byte[] originalDocument = null;
 		Document inputDoc;
 		byte[] oDat = null;
+
 		if(buffer.mimeType.equals(INTERNAL_BUFFERTYPE)) {
-			// BEGIN HACK
+/*			// BEGIN HACK
 			// this is a hack to deal with the fact
 			// that the renderer doesn't seem to work properly
 			// if rendering directly off the Document after nodes
@@ -333,11 +334,11 @@ public class CommandEngine implements ICommandEngine {
 			}
 			originalDocument = outStream.toByteArray();
 			// END HACK
+*/
 		} else {
 			originalDocument = new byte[((byte[])buffer.data).length];
 			System.arraycopy((byte[])buffer.data, 0, originalDocument, 0, ((byte[])buffer.data).length);
 		}
-		
 		if (mimeType.equals("image/png")) {
 			extension = ".png";
 		} else if (mimeType.equals("image/gif")) {
@@ -356,7 +357,7 @@ public class CommandEngine implements ICommandEngine {
 		}
 
 		java.awt.Dimension size = new java.awt.Dimension();
-		oDat = this.getImageData(workspace, originalDocument, mimeType, 100.0f, 0.0f, MIME_BUFFERTYPE, size);
+		oDat = this.getImageData(workspace, originalDocument, mimeType, 100.0f, 0.0f, buffer.mimeType, size);
 		if(oDat == null) {
 			workspace.log("Image creation failed.  Input type: " + MIME_BUFFERTYPE + " Output type: " + mimeType);
 			return(false);
