@@ -132,6 +132,59 @@
                 </Property>
               </Properties>
             </MenuItem>
+            <Menu class="javax.swing.JMenu" name="exportMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="exportMenu.text"/>
+                <Property name="name" type="java.lang.String" value="exportMenu" noResource="true"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="exportAsGIFMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuExportAsGIF" methodName="menuExportAsGIF"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="exportAsGIFMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="exportAsGIFMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="exportAsPNGMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuExportAsPNG" methodName="menuExportAsPNG"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="exportAsPNGMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="exportAsPNGMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="exportAsJPEGMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuExportAsJPEG" methodName="menuExportAsJPEG"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="exportAsJPEGMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="exportAsJPEGMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="exportAsTIFFMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuExportAsTIFF" methodName="menuExportAsTIFF"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="exportAsTIFFMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="exportAsTIFFMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="exportAsPDFMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="dgspreviewer.DGSPreviewerView" id="menuExportAsPDF" methodName="menuExportAsPDF"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="exportAsPDFMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="exportAsPDFMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="menuPrint">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">

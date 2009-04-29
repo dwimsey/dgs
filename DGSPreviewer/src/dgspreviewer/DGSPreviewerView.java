@@ -274,6 +274,12 @@ public class DGSPreviewerView extends FrameView {
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         openMenuItem = new javax.swing.JMenuItem();
         loadVarsMenuItem = new javax.swing.JMenuItem();
+        exportMenu = new javax.swing.JMenu();
+        exportAsGIFMenuItem = new javax.swing.JMenuItem();
+        exportAsPNGMenuItem = new javax.swing.JMenuItem();
+        exportAsJPEGMenuItem = new javax.swing.JMenuItem();
+        exportAsTIFFMenuItem = new javax.swing.JMenuItem();
+        exportAsPDFMenuItem = new javax.swing.JMenuItem();
         menuPrint = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
@@ -355,6 +361,36 @@ public class DGSPreviewerView extends FrameView {
 
         loadVarsMenuItem.setAction(actionMap.get("loadVarsFile")); // NOI18N
         fileMenu.add(loadVarsMenuItem);
+
+        exportMenu.setText(resourceMap.getString("exportMenu.text")); // NOI18N
+        exportMenu.setName("exportMenu"); // NOI18N
+
+        exportAsGIFMenuItem.setAction(actionMap.get("menuExportAsGIF")); // NOI18N
+        exportAsGIFMenuItem.setText(resourceMap.getString("exportAsGIFMenuItem.text")); // NOI18N
+        exportAsGIFMenuItem.setName("exportAsGIFMenuItem"); // NOI18N
+        exportMenu.add(exportAsGIFMenuItem);
+
+        exportAsPNGMenuItem.setAction(actionMap.get("menuExportAsPNG")); // NOI18N
+        exportAsPNGMenuItem.setText(resourceMap.getString("exportAsPNGMenuItem.text")); // NOI18N
+        exportAsPNGMenuItem.setName("exportAsPNGMenuItem"); // NOI18N
+        exportMenu.add(exportAsPNGMenuItem);
+
+        exportAsJPEGMenuItem.setAction(actionMap.get("menuExportAsJPEG")); // NOI18N
+        exportAsJPEGMenuItem.setText(resourceMap.getString("exportAsJPEGMenuItem.text")); // NOI18N
+        exportAsJPEGMenuItem.setName("exportAsJPEGMenuItem"); // NOI18N
+        exportMenu.add(exportAsJPEGMenuItem);
+
+        exportAsTIFFMenuItem.setAction(actionMap.get("menuExportAsTIFF")); // NOI18N
+        exportAsTIFFMenuItem.setText(resourceMap.getString("exportAsTIFFMenuItem.text")); // NOI18N
+        exportAsTIFFMenuItem.setName("exportAsTIFFMenuItem"); // NOI18N
+        exportMenu.add(exportAsTIFFMenuItem);
+
+        exportAsPDFMenuItem.setAction(actionMap.get("menuExportAsPDF")); // NOI18N
+        exportAsPDFMenuItem.setText(resourceMap.getString("exportAsPDFMenuItem.text")); // NOI18N
+        exportAsPDFMenuItem.setName("exportAsPDFMenuItem"); // NOI18N
+        exportMenu.add(exportAsPDFMenuItem);
+
+        fileMenu.add(exportMenu);
 
         menuPrint.setAction(actionMap.get("printDocument")); // NOI18N
         menuPrint.setText(resourceMap.getString("menuPrint.text")); // NOI18N
@@ -676,7 +712,87 @@ public class DGSPreviewerView extends FrameView {
 		DGSPreviewCanvas.printUri(this.options.getMRUTemplateImageFileName(), this.options.getMRUDGSPackageFileName(), this.pEngine, this.previewCanvas.notificationMethods);
     }
 
+	public void exportAs(DisplayMode displayMode)
+	{
+		JFileChooser fc;
+		String MRUTemplateImageFileName = this.options.getMRUTemplateImageFileName();
+        if(MRUTemplateImageFileName.length() > 0) {
+            fc = new JFileChooser(MRUTemplateImageFileName);
+        } else {
+            fc = new JFileChooser();
+        }
+
+		FileNameExtensionFilter filter = null;
+		if(displayMode == DisplayMode.JPEG) {
+			filter = new FileNameExtensionFilter("JPEG Image (*.jpg,*.jpeg)", "jpg", "jpeg");
+		} else if(displayMode == DisplayMode.TIFF) {
+			filter = new FileNameExtensionFilter("TIFF Image (*.tif,*.tiff)", "tiff", "tiff");
+		} else {
+			filter = new FileNameExtensionFilter(displayMode.name() + " Image (*." + displayMode.name() + ")", displayMode.name());
+		}
+		fc.setFileFilter(filter);
+		int choice = fc.showSaveDialog(mainPanel);
+        if (choice == JFileChooser.APPROVE_OPTION) {
+			String fName = fc.getSelectedFile().getPath();
+			boolean needsExt = true;
+			if(fName.toLowerCase().endsWith("." + displayMode.name().toLowerCase())) {
+				needsExt = false;
+			} else {
+				if(displayMode == DisplayMode.JPEG) {
+					if(fName.toLowerCase().endsWith(".jpg")) {
+						needsExt = false;
+					}
+				} else if(displayMode == DisplayMode.TIFF) {
+					if(fName.toLowerCase().endsWith(".tif")) {
+						needsExt = false;
+					}
+				}
+			}
+			if(needsExt) {
+				if(displayMode == DisplayMode.JPEG) {
+					fName += ".jpg";
+				} else if(displayMode == DisplayMode.TIFF) {
+					fName += ".tif";
+				} else {
+					fName += "." + displayMode.name().toLowerCase();
+				}
+			}
+    		DGSPreviewCanvas.exportUriAs(this.options.getMRUTemplateImageFileName(), this.options.getMRUDGSPackageFileName(), this.pEngine, this.previewCanvas.notificationMethods, displayMode, fName);
+		}
+	}
+
+	@Action
+	public void menuExportAsGIF() {
+		exportAs(DisplayMode.GIF);
+	}
+
+	@Action
+	public void menuExportAsPNG() {
+		exportAs(DisplayMode.PNG);
+	}
+
+	@Action
+	public void menuExportAsJPEG() {
+		exportAs(DisplayMode.JPEG);
+    }
+
+	@Action
+	public void menuExportAsTIFF() {
+		exportAs(DisplayMode.TIFF);
+	}
+
+	@Action
+	public void menuExportAsPDF() {
+		exportAs(DisplayMode.PDF);
+	}
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem exportAsGIFMenuItem;
+    private javax.swing.JMenuItem exportAsJPEGMenuItem;
+    private javax.swing.JMenuItem exportAsPDFMenuItem;
+    private javax.swing.JMenuItem exportAsPNGMenuItem;
+    private javax.swing.JMenuItem exportAsTIFFMenuItem;
+    private javax.swing.JMenu exportMenu;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
