@@ -23,6 +23,9 @@ import org.apache.batik.transcoder.*;
 // all these are required for GIF stuffs
 import java.awt.image.BufferedImage;
 import org.apache.batik.transcoder.keys.*;
+import org.apache.batik.dom.svg.*;
+import org.apache.batik.dom.svg12.*;
+import org.apache.batik.dom.util.*;
 
 /**
  *
@@ -308,7 +311,7 @@ public class CommandEngine implements ICommandEngine {
 		byte[] originalDocument = null;
 		Document inputDoc;
 		byte[] oDat = null;
-
+		Object workBuf = null;
 		if(buffer.mimeType.equals(INTERNAL_BUFFERTYPE)) {
 /*			// BEGIN HACK
 			// this is a hack to deal with the fact
@@ -335,9 +338,22 @@ public class CommandEngine implements ICommandEngine {
 			originalDocument = outStream.toByteArray();
 			// END HACK
 */
+			DOMImplementation impl;
+			Document document;
+			document = (Document)buffer.data;
+			if (document instanceof SVG12OMDocument) {
+				impl = SVG12DOMImplementation.getDOMImplementation();
+			} else if ((document instanceof SVGOMDocument)) {
+				impl = SVGDOMImplementation.getDOMImplementation();
+			} else {
+				// try the standard implementation and hope for the best
+				impl = SVGDOMImplementation.getDOMImplementation();
+			}
+			workBuf = (Object)DOMUtilities.deepCloneDocument(document, impl);
 		} else {
 			originalDocument = new byte[((byte[])buffer.data).length];
 			System.arraycopy((byte[])buffer.data, 0, originalDocument, 0, ((byte[])buffer.data).length);
+			workBuf = originalDocument;
 		}
 		if (mimeType.equals("image/png")) {
 			extension = ".png";
@@ -357,7 +373,7 @@ public class CommandEngine implements ICommandEngine {
 		}
 
 		java.awt.Dimension size = new java.awt.Dimension();
-		oDat = this.getImageData(workspace, originalDocument, mimeType, 100.0f, 0.0f, buffer.mimeType, size);
+		oDat = this.getImageData(workspace, workBuf, mimeType, 100.0f, 0.0f, buffer.mimeType, size);
 		if(oDat == null) {
 			workspace.log("Image creation failed.  Input type: " + MIME_BUFFERTYPE + " Output type: " + mimeType);
 			return(false);
