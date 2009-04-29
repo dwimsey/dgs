@@ -273,6 +273,9 @@ public class CommandEngine implements ICommandEngine {
 ////				return gvtRoot.getSensitiveBounds();
 ////			} catch (Exception ex) {
 ////			}
+			} else if (mimeType.equals("image/tiff")) {
+				// TIFF sizes must be handled differently, might be able to use the
+				// same as above
 			} else if (mimeType.equals("application/pdf")) {
 				// PDF sizes must be handled differently, might be able to use the
 				// same as above if the pdf is set to fit the image.
