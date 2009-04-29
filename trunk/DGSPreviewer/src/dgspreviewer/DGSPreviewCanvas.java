@@ -8,7 +8,7 @@ package dgspreviewer;
 import java.awt.*;
 import java.beans.*;
 import com.rtsz.dgs4j.ProcessingEngine.*;
-
+import dgspreviewer.DGSPreviewCanvasLoaderWorker;
 import org.apache.batik.swing.svg.*;
 
 /**
@@ -117,7 +117,7 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 			draftCanvas.setURI(null);
 			return;
 		}
-		workerThread = new DGSPreviewCanvasLoaderWorker(this, this.notificationMethods, pEngine, fileUri, dgsPackageFile, this.getDisplayMode());
+		workerThread = new DGSPreviewCanvasLoaderWorker(this, this.notificationMethods, pEngine, fileUri, dgsPackageFile, this.getDisplayMode(), null);
 		if (pcListener == null) {
 			pcListener = new java.beans.PropertyChangeListener() {
 				@Override
@@ -151,7 +151,52 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 		}
 		final dgspreviewer.DGSPreviewCanvas.NotificationMethods notificationMethods = newMethods;
 		DGSPreviewCanvasLoaderWorker wThread = null;
-		wThread = new DGSPreviewCanvasLoaderWorker(null, notificationMethods, pEngine, fileUri, dgsPackageFile, DisplayMode.Printer);
+		wThread = new DGSPreviewCanvasLoaderWorker(null, notificationMethods, pEngine, fileUri, dgsPackageFile, DisplayMode.Printer, null);
+		java.beans.PropertyChangeListener printerPcListener = null;
+		if (printerPcListener == null) {
+			printerPcListener = new java.beans.PropertyChangeListener() {
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					notificationMethods.propertyChangeNotification(evt);
+				}
+			};
+		}
+		wThread.addPropertyChangeListener(printerPcListener);
+		wThread.execute();
+	}
+
+	public static void exportUriAs(String fileUri, String dgsPackageFile, ProcessingEngine pEngine, NotificationMethods newMethods, DisplayMode exportType, String outputFile) {
+		if(exportType == DisplayMode.Draft) {			
+			throw new java.lang.IllegalArgumentException("OutputFormat can not be draft when exporting to a file.");
+		}
+		if(exportType == DisplayMode.Printer) {			
+			throw new java.lang.IllegalArgumentException("OutputFormat can not be draft when exporting to a file.");
+		}
+		if(outputFile == null) {
+			throw new java.lang.IllegalArgumentException("outputFilename is null.  You must specify a filename to export the file to.");
+		}
+		if(outputFile.length() == 0) {
+			throw new java.lang.IllegalArgumentException("outputFilename is blank.  You must specify a filename to export the file to.");
+		}
+		if(newMethods == null) {
+			newMethods = new dgspreviewer.DGSPreviewCanvas.NotificationMethods() {
+				@Override
+				public void logEvent(int LogLevel, String Message)
+				{
+				}
+				@Override
+				public void statusMessage(int LogLevel, String Message)
+				{
+				}
+				@Override
+				public void propertyChangeNotification(PropertyChangeEvent evt)
+				{
+				}
+			};
+		}
+		final dgspreviewer.DGSPreviewCanvas.NotificationMethods notificationMethods = newMethods;
+		DGSPreviewCanvasLoaderWorker wThread = null;
+		wThread = new DGSPreviewCanvasLoaderWorker(null, notificationMethods, pEngine, fileUri, dgsPackageFile, exportType, outputFile);
 		java.beans.PropertyChangeListener printerPcListener = null;
 		if (printerPcListener == null) {
 			printerPcListener = new java.beans.PropertyChangeListener() {

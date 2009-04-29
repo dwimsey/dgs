@@ -25,11 +25,22 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 	ProcessingEngine pEngine;
 	String imageFilename;
 	String previewPackageFilename;
+	String exportFilename;
 	private DisplayMode outputDisplayMode;
 	private dgspreviewer.DGSPreviewCanvas.NotificationMethods notificationMethods;
 	
-	public DGSPreviewCanvasLoaderWorker(DGSPreviewCanvas previewCanvas, NotificationMethods newMethods, ProcessingEngine npEngine, String imageFileName, String packageFileName, DisplayMode displayMode) {
+	public DGSPreviewCanvasLoaderWorker(DGSPreviewCanvas previewCanvas, NotificationMethods newMethods, ProcessingEngine npEngine, String imageFileName, String packageFileName, DisplayMode displayMode, String exportFile) {
 		super();
+		exportFilename = exportFile;
+		if(exportFilename != null) {
+			if (displayMode == DisplayMode.Draft) {
+				throw new java.lang.IllegalArgumentException("DisplayMode can not be Draft when providing an export filename,");
+			}
+			if(displayMode == DisplayMode.Printer) {
+				throw new java.lang.IllegalArgumentException("DisplayMode can not be Printer when providing an export filename,");
+			}
+		}
+
 		canvas = previewCanvas;
 		if(npEngine == null) {
 			if(canvas != null) {
@@ -71,7 +82,6 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 				}
 			};
 		}
-
 	}
 	
 	@Override
@@ -288,16 +298,38 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		    case GIF:
 		    case JPEG:
 		    case TIFF:
-			    BufferedImage image = null;
-			    try {
-				    image = ImageIO.read(new java.io.ByteArrayInputStream((byte[])dgsResponseInfo.resultFiles[0].data));
-			    } catch (IOException ie) {
-				    this.notificationMethods.statusMessage(5, "Error processing output image: " + ie.getMessage());
-			    }
-			    canvas.renderedCanvas.image = image;
-			    break;
 		    case PDF:
-			    this.notificationMethods.statusMessage(0, "PDF Display output is not supported at this time.");
+				if(this.exportFilename == null) {
+					// display new image
+					if(outputDisplayMode == DisplayMode.PDF) {
+						this.notificationMethods.statusMessage(0, "PDF Display output is not supported at this time.");
+						setProgress(100);
+						return;
+					}
+					BufferedImage image = null;
+					try {
+						image = ImageIO.read(new java.io.ByteArrayInputStream((byte[])dgsResponseInfo.resultFiles[0].data));
+					} catch (IOException ie) {
+						this.notificationMethods.statusMessage(5, "Error processing output image: " + ie.getMessage());
+					}
+					canvas.renderedCanvas.image = image;
+				} else {
+					// save image data to filename provided
+					java.io.FileOutputStream fs = null;
+					try {
+						fs = new java.io.FileOutputStream(this.exportFilename);
+						try {
+							fs.write(((byte[])dgsResponseInfo.resultFiles[0].data));
+						} catch (Throwable t) {
+							this.notificationMethods.statusMessage(0, "Could not save file: " + t.getMessage());
+						} finally {
+							fs.close();	
+						}
+					} catch (Throwable t) {
+						this.notificationMethods.statusMessage(0, "Could not open file: " + t.getMessage());
+					}
+					
+				}
 			    break;
 		}
 		setProgress(100);
