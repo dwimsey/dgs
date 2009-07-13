@@ -70,6 +70,15 @@ public class DGSPreviewerView extends FrameView {
 
 	public DGSPreviewerView(SingleFrameApplication app) {
         super(app);
+		java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
+
+		//Get the font names from the graphics environment
+		String[] fontNames = ge.getAvailableFontFamilyNames();
+
+		for (int index = 0; index < fontNames.length; index++)
+		{
+			System.out.println(fontNames[index]);
+		}
 		String cmdArgs[] = null;
 		this.args = DGSPreviewerApp.args;
 	    options = new Options();
