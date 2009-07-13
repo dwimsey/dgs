@@ -15,9 +15,8 @@
         </taskdef>
     </target>
     <target name="wsgen-ImageProcesserService" depends="wsgen-init">
-        <wsgen fork="true" xendorsed="true" sourcedestdir="${build.generated.dir}/wsgen/service" resourcedestdir="${build.generated.dir}/wsgen/service/resources/" destdir="${build.generated.dir}/wsgen/binaries" keep="true" genwsdl="true" sei="ImageProcessor.ImageProcesser">
+        <wsgen sourcedestdir="${build.generated.dir}/wsgen/service" resourcedestdir="${build.generated.dir}/wsgen/service/resources/" destdir="${build.generated.dir}/wsgen/binaries" xendorsed="true" keep="true" genwsdl="true" sei="ImageProcessor.ImageProcesser">
             <classpath path="${java.home}/../lib/tools.jar:${build.classes.dir}:${j2ee.platform.wsgen.classpath}:${javac.classpath}"/>
-            <jvmarg value="-Djava.endorsed.dirs=${jaxws.endorsed.dir}"/>
         </wsgen>
     </target>
     <target name="wsgen-service-compile" depends="wsgen-ImageProcesserService">

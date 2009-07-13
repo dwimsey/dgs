@@ -36,5 +36,8 @@
                 <id>jar</id>
             </reference>
         </references>
+        <swingapp xmlns="http://www.netbeans.org/ns/form-swingapp/1">
+            <application-class name="dgspreviewer.DGSPreviewerApp"/>
+        </swingapp>
     </configuration>
 </project>

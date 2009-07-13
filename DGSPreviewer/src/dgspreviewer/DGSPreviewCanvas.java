@@ -285,9 +285,23 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        renderedCanvas = new dgspreviewer.DGSPreviewerPanel();
         layers = new javax.swing.JLayeredPane();
         draftCanvas = new org.apache.batik.swing.JSVGCanvas(userAgent, true, true);
-        renderedCanvas = new dgspreviewer.DGSPreviewerPanel();
+
+        renderedCanvas.setName("renderedCanvas"); // NOI18N
+        renderedCanvas.setPreferredSize(new java.awt.Dimension(32676, 32676));
+
+        javax.swing.GroupLayout renderedCanvasLayout = new javax.swing.GroupLayout(renderedCanvas);
+        renderedCanvas.setLayout(renderedCanvasLayout);
+        renderedCanvasLayout.setHorizontalGroup(
+            renderedCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 32676, Short.MAX_VALUE)
+        );
+        renderedCanvasLayout.setVerticalGroup(
+            renderedCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 32676, Short.MAX_VALUE)
+        );
 
         setName("DGSPreviewCanvas"); // NOI18N
         setPreferredSize(new java.awt.Dimension(32676, 32676));
@@ -310,23 +324,6 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 
         draftCanvas.setBounds(0, 0, -1, -1);
         layers.add(draftCanvas, javax.swing.JLayeredPane.DEFAULT_LAYER);
-
-        renderedCanvas.setName("renderedCanvas"); // NOI18N
-        renderedCanvas.setPreferredSize(new java.awt.Dimension(32676, 32676));
-
-        javax.swing.GroupLayout renderedCanvasLayout = new javax.swing.GroupLayout(renderedCanvas);
-        renderedCanvas.setLayout(renderedCanvasLayout);
-        renderedCanvasLayout.setHorizontalGroup(
-            renderedCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 32676, Short.MAX_VALUE)
-        );
-        renderedCanvasLayout.setVerticalGroup(
-            renderedCanvasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 32676, Short.MAX_VALUE)
-        );
-
-        renderedCanvas.setBounds(0, 0, -1, -1);
-        layers.add(renderedCanvas, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
