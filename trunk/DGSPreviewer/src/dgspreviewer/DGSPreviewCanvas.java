@@ -322,6 +322,8 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
             .addGap(0, 200, Short.MAX_VALUE)
         );
 
+        renderedCanvas.setBounds(0, 0, -1, -1);
+        layers.add(renderedCanvas, javax.swing.JLayeredPane.DEFAULT_LAYER);
         draftCanvas.setBounds(0, 0, -1, -1);
         layers.add(draftCanvas, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
