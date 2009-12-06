@@ -29,6 +29,7 @@ public class Options {
 	private int LogLevel;
 	private String LogTimeFormatString;
 	private DisplayMode displayMode;
+	private DisplayMode startupDisplayMode;
 
 	public Options() {
 		super();
@@ -42,6 +43,7 @@ public class Options {
 		this.LogLevel = 255;
 		this.LogTimeFormatString = "[dd/mm/yyyy HH:MM:ss]: ";
 		this.displayMode = DisplayMode.GIF;
+		this.startupDisplayMode = DisplayMode.Printer;	// Printer to this version means user the last user selected mode (this.displayMode)
 	}
 
 	@Override
@@ -54,6 +56,7 @@ public class Options {
 		retVal.LogLevel = this.LogLevel;
 		retVal.LogTimeFormatString = this.LogTimeFormatString;
 		retVal.displayMode = this.displayMode;
+		retVal.startupDisplayMode = this.startupDisplayMode;
 		return(retVal);
 	}
 
@@ -162,6 +165,14 @@ public class Options {
 								    this.displayMode = DisplayMode.Draft;
 								}
 							}
+						} else if (name.equals("StartupDisplayMode")) {
+							if (value != null) {
+								this.startupDisplayMode = DisplayMode.valueOf(value);
+								if(this.startupDisplayMode == DisplayMode.PDF || this.startupDisplayMode == DisplayMode.TIFF) {
+								    // these modes aren't supported, fall back to Printer mode instead, which means use this.displayMode
+								    this.startupDisplayMode = DisplayMode.Printer;
+								}
+							}
 						}
 					}
 				}
@@ -242,6 +253,13 @@ public class Options {
 			atts.clear();
 			atts.addAttribute("", "", "key", "CDATA", "DisplayMode");
 			atts.addAttribute("", "", "value", "CDATA", this.displayMode.name());
+			hd.startElement("", "", "DGSPreviewerOption", atts);
+			hd.endElement("", "", "DGSPreviewerOption");
+
+			// StartupDisplayMode
+			atts.clear();
+			atts.addAttribute("", "", "key", "CDATA", "StartupDisplayMode");
+			atts.addAttribute("", "", "value", "CDATA", this.startupDisplayMode.name());
 			hd.startElement("", "", "DGSPreviewerOption", atts);
 			hd.endElement("", "", "DGSPreviewerOption");
 
@@ -350,6 +368,20 @@ public class Options {
 		}
 		DisplayMode oldMode = this.displayMode;
 		this.displayMode = newMode;
+		this.save();
+		return(oldMode);
+	}
+
+	public DisplayMode getStartupMode() {
+		return(this.startupDisplayMode);
+	}
+
+	public DisplayMode setStartupMode(DisplayMode newMode) {
+		if (newMode.equals(this.startupDisplayMode)) {
+			return(this.startupDisplayMode);
+		}
+		DisplayMode oldMode = this.startupDisplayMode;
+		this.startupDisplayMode = newMode;
 		this.save();
 		return(oldMode);
 	}

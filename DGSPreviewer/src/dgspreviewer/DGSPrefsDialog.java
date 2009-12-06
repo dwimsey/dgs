@@ -13,7 +13,7 @@ package dgspreviewer;
 
 import org.jdesktop.application.Action;
 import dgspreviewer.Options;
-
+import dgspreviewer.DGSPreviewCanvas.DisplayMode;
 /**
  *
  * @author dwimsey
@@ -28,12 +28,43 @@ public class DGSPrefsDialog extends javax.swing.JDialog {
 		}
 		this.options = newOpts;
         initComponents();
+
+		cbStartupDisplayMode.removeAllItems();
+		cbStartupDisplayMode.insertItemAt("Last Used", 0);
+		cbStartupDisplayMode.insertItemAt(DisplayMode.Draft, 1);
+		cbStartupDisplayMode.insertItemAt(DisplayMode.GIF, 2);
+		cbStartupDisplayMode.insertItemAt(DisplayMode.JPEG, 3);
+//		cbStartupDisplayMode.insertItemAt(DisplayMode.PDF, 4);
+		cbStartupDisplayMode.insertItemAt(DisplayMode.PNG, 4);
+//		cbStartupDisplayMode.insertItemAt(DisplayMode.Printer, 6);
+//		cbStartupDisplayMode.insertItemAt(DisplayMode.TIFF, 7);
+
 		optionsToDisplay(newOpts);
-    }
+	}
 
 	private void optionsToDisplay(Options newOpts)
 	{
 		this.textBGColor.setText("#" + (String.format("%1$X", newOpts.getBackgroundColor().getRGB())).substring(2, 8));
+		if(DisplayMode.Printer == newOpts.getStartupMode()) {
+			cbStartupDisplayMode.setSelectedIndex(0);
+		} else if(DisplayMode.Draft == newOpts.getStartupMode()) {
+			cbStartupDisplayMode.setSelectedIndex(1);
+		} else if(DisplayMode.GIF == newOpts.getStartupMode()) {
+			cbStartupDisplayMode.setSelectedIndex(2);
+		} else if(DisplayMode.JPEG == newOpts.getStartupMode()) {
+			cbStartupDisplayMode.setSelectedIndex(3);
+//		} else if(DisplayMode.PDF == newOpts.getStartupMode()) {
+//			cbStartupDisplayMode.setSelectedIndex(4);
+		} else if(DisplayMode.PNG == newOpts.getStartupMode()) {
+			cbStartupDisplayMode.setSelectedIndex(4);
+//		} else if(DisplayMode.Printer == newOpts.getStartupMode()) {
+//			cbStartupDisplayMode.setSelectedIndex(6);
+//		} else if(DisplayMode.TIFF == newOpts.getStartupMode()) {
+//			cbStartupDisplayMode.setSelectedIndex(7);
+		} else {
+			throw new java.lang.IllegalArgumentException("Unexpected value for startupDisplayMode");
+//			throw new java.lang.IllegalArgumentException("Unexpected value for startupDisplayMode: " + cbStartupDisplayMode.getSelectedItem().toString() + cbStartupDisplayMode. + " (" + cbStartupDisplayMode.getSelectedIndex().toString() + ")");
+		}
 	}
 
 
@@ -54,6 +85,26 @@ public class DGSPrefsDialog extends javax.swing.JDialog {
 		} catch (NumberFormatException ex) {
 			ex.printStackTrace();
 			return(-1);
+		}
+
+		if(cbStartupDisplayMode.getSelectedIndex()==0) {
+			newOpts.setStartupMode(DisplayMode.Printer);
+		} else if(cbStartupDisplayMode.getSelectedIndex()==1) {
+			newOpts.setStartupMode(DisplayMode.Draft);
+		} else if(cbStartupDisplayMode.getSelectedIndex()==2) {
+			newOpts.setStartupMode(DisplayMode.GIF);
+		} else if(cbStartupDisplayMode.getSelectedIndex()==3) {
+			newOpts.setStartupMode(DisplayMode.JPEG);
+//		} else if(cbStartupDisplayMode.getSelectedIndex()==4) {
+//			newOpts.setStartupMode(DisplayMode.PDF);
+		} else if(cbStartupDisplayMode.getSelectedIndex()==4) {
+			newOpts.setStartupMode(DisplayMode.PNG);
+//		} else if(cbStartupDisplayMode.getSelectedIndex()==6) {
+//			newOpts.setStartupMode(DisplayMode.Printer);
+//		} else if(cbStartupDisplayMode.getSelectedIndex()==7) {
+//			newOpts.setStartupMode(DisplayMode.TIFF);
+		} else {
+			throw new java.lang.IllegalArgumentException("Unexpected value for startupDisplayMode: " + cbStartupDisplayMode.getSelectedItem().toString() + " (" + cbStartupDisplayMode.getSelectedIndex() + ")");
 		}
 		return(changes);
 	}
@@ -76,9 +127,12 @@ public class DGSPrefsDialog extends javax.swing.JDialog {
         labelBGColor = new javax.swing.JLabel();
         textBGColor = new javax.swing.JTextField();
         buttonColorPicker = new javax.swing.JButton();
+        labelStartupDisplayMode = new javax.swing.JLabel();
+        cbStartupDisplayMode = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setName("Form"); // NOI18N
+        setName("DGS Previewer Preferences"); // NOI18N
+        setResizable(false);
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(dgspreviewer.DGSPreviewerApp.class).getContext().getActionMap(DGSPrefsDialog.class, this);
         buttonOk.setAction(actionMap.get("onOkClicked")); // NOI18N
@@ -100,24 +154,33 @@ public class DGSPrefsDialog extends javax.swing.JDialog {
         buttonColorPicker.setText(resourceMap.getString("buttonColorPicker.text")); // NOI18N
         buttonColorPicker.setName("buttonColorPicker"); // NOI18N
 
+        labelStartupDisplayMode.setText(resourceMap.getString("labelStartupDisplayMode.text")); // NOI18N
+        labelStartupDisplayMode.setName("labelStartupDisplayMode"); // NOI18N
+
+        cbStartupDisplayMode.setName("cbStartupDisplayMode"); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(266, Short.MAX_VALUE)
+                .addContainerGap(317, Short.MAX_VALUE)
                 .addComponent(buttonOk)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(buttonCancel)
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addComponent(labelBGColor)
+                .addGap(6, 6, 6)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(labelBGColor)
+                    .addComponent(labelStartupDisplayMode))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(textBGColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(cbStartupDisplayMode, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(textBGColor, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(buttonColorPicker)
-                .addContainerGap(106, Short.MAX_VALUE))
+                .addContainerGap(118, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -127,7 +190,11 @@ public class DGSPrefsDialog extends javax.swing.JDialog {
                     .addComponent(labelBGColor)
                     .addComponent(textBGColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(buttonColorPicker))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 215, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelStartupDisplayMode)
+                    .addComponent(cbStartupDisplayMode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 181, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(buttonCancel)
                     .addComponent(buttonOk))
@@ -173,7 +240,9 @@ public class DGSPrefsDialog extends javax.swing.JDialog {
     private javax.swing.JButton buttonCancel;
     private javax.swing.JButton buttonColorPicker;
     private javax.swing.JButton buttonOk;
+    private javax.swing.JComboBox cbStartupDisplayMode;
     private javax.swing.JLabel labelBGColor;
+    private javax.swing.JLabel labelStartupDisplayMode;
     private javax.swing.JTextField textBGColor;
     // End of variables declaration//GEN-END:variables
 
