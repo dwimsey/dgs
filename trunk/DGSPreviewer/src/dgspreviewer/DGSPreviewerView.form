@@ -292,6 +292,15 @@
                 </MenuItem>
               </SubComponents>
             </Menu>
+            <MenuItem class="javax.swing.JMenuItem" name="prefsMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="dgspreviewer.DGSPreviewerView" id="menuShowPrefsDialog" methodName="menuShowPrefsDialog"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="prefsMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="prefsMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="refreshMenuItem">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
