@@ -14,6 +14,7 @@ package dgspreviewer;
 import org.jdesktop.application.Action;
 import dgspreviewer.Options;
 import dgspreviewer.DGSPreviewCanvas.DisplayMode;
+import java.awt.Color;
 /**
  *
  * @author dwimsey
@@ -223,6 +224,12 @@ public class DGSPrefsDialog extends javax.swing.JDialog {
 
 	@Action
 	public void onBGColorClicked() {
+		javax.swing.JColorChooser cc;
+		cc = new javax.swing.JColorChooser(this.options.getBackgroundColor());
+		Color bgColor = cc.showDialog(this.getParent(), "Select the background color", this.options.getBackgroundColor());
+		if(bgColor != null) {
+			this.textBGColor.setText("#" + (String.format("%1$X", bgColor.getRGB())).substring(2, 8));
+		}
 	}
 
 	@Action
