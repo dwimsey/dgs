@@ -23,6 +23,8 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.*;
 import dgspreviewer.DGSPreviewCanvas.*;
+import dgspreviewer.DGSPrefsDialog;
+import java.awt.Color;
 
 /**
  * The application's main frame.
@@ -300,6 +302,7 @@ public class DGSPreviewerView extends FrameView {
         menuDisplayModeJPEG = new javax.swing.JRadioButtonMenuItem();
         menuDisplayModeTIFF = new javax.swing.JRadioButtonMenuItem();
         menuDisplayModePDF = new javax.swing.JRadioButtonMenuItem();
+        prefsMenuItem = new javax.swing.JMenuItem();
         refreshMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
@@ -333,9 +336,9 @@ public class DGSPreviewerView extends FrameView {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 420, Short.MAX_VALUE)
+            .addGap(0, 418, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(previewCanvas, javax.swing.GroupLayout.DEFAULT_SIZE, 420, Short.MAX_VALUE))
+                .addComponent(previewCanvas, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -350,11 +353,11 @@ public class DGSPreviewerView extends FrameView {
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 312, Short.MAX_VALUE)
+            .addComponent(jSplitPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -464,6 +467,11 @@ public class DGSPreviewerView extends FrameView {
 
         menuView.add(menuDisplayMode);
 
+        prefsMenuItem.setAction(actionMap.get("menuShowPrefsDialog")); // NOI18N
+        prefsMenuItem.setText(resourceMap.getString("prefsMenuItem.text")); // NOI18N
+        prefsMenuItem.setName("prefsMenuItem"); // NOI18N
+        menuView.add(prefsMenuItem);
+
         refreshMenuItem.setAction(actionMap.get("refreshImage")); // NOI18N
         refreshMenuItem.setName("jMenuItemRefresh"); // NOI18N
         menuView.add(refreshMenuItem);
@@ -498,7 +506,7 @@ public class DGSPreviewerView extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 252, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 258, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -795,6 +803,34 @@ public class DGSPreviewerView extends FrameView {
 		exportAs(DisplayMode.PDF);
 	}
 
+	@Action
+	public void menuShowPrefsDialog() {
+		Options tOpts = this.options.clone();
+        if (prefsDialog == null) {
+            JFrame mainFrame = DGSPreviewerApp.getApplication().getMainFrame();
+            prefsDialog = new DGSPrefsDialog(mainFrame, true, tOpts);
+            prefsDialog.setLocationRelativeTo(mainFrame);
+        }
+        DGSPreviewerApp.getApplication().show(prefsDialog);
+		UpdateCurrentOptions(tOpts);
+		prefsDialog = null;
+	}
+
+	private boolean UpdateCurrentOptions(Options newOpts)
+	{
+		int changes = 0;
+		if(!this.options.getBackgroundColor().equals(newOpts.getBackgroundColor())) {
+			changes++;
+			this.options.setBackgroundColor(newOpts.getBackgroundColor());
+			this.previewCanvas.setBackgroundColor(newOpts.getBackgroundColor());
+		}
+		if(changes>0) {
+			return(true);
+		} else {
+			return(false);
+		}
+	}
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem exportAsGIFMenuItem;
     private javax.swing.JMenuItem exportAsJPEGMenuItem;
@@ -820,6 +856,7 @@ public class DGSPreviewerView extends FrameView {
     private javax.swing.JMenuItem menuPrint;
     private javax.swing.JMenu menuView;
     private javax.swing.JMenuItem openMenuItem;
+    private javax.swing.JMenuItem prefsMenuItem;
     private dgspreviewer.DGSPreviewCanvas previewCanvas;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JMenuItem refreshMenuItem;
@@ -835,4 +872,5 @@ public class DGSPreviewerView extends FrameView {
     private int busyIconIndex = 0;
 
     private JDialog aboutBox;
+	private DGSPrefsDialog prefsDialog;
 }

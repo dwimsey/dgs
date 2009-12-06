@@ -44,6 +44,18 @@ public class Options {
 		this.displayMode = DisplayMode.GIF;
 	}
 
+	@Override
+	public Options clone()
+	{
+		Options retVal = new Options();
+		retVal.BackgroundColor = this.BackgroundColor;
+		retVal.MRUTemplateImageFileName = this.MRUTemplateImageFileName;
+		retVal.MRUDGSPackageFileName = this.MRUDGSPackageFileName;
+		retVal.LogLevel = this.LogLevel;
+		retVal.LogTimeFormatString = this.LogTimeFormatString;
+		retVal.displayMode = this.displayMode;
+		return(retVal);
+	}
 
 	private String getPrefsDirectory()
 	{
