@@ -242,6 +242,11 @@ public class DGSPreviewCanvas extends javax.swing.JPanel implements java.awt.eve
 		}
 		this.renderedCanvas.setBackgroundColor(this.backgroundColor);
 		this.draftCanvas.setBackground(this.backgroundColor);
+		if(this.displayMode == DisplayMode.Draft) {
+			// we hide and redisplay the canvas to force the color update
+			this.draftCanvas.setVisible(false);
+			this.draftCanvas.setVisible(true);
+		}
 	}
 
 	public void setUserAgent(SVGUserAgent newUa)
