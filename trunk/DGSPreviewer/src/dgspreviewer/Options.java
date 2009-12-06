@@ -44,8 +44,31 @@ public class Options {
 		this.displayMode = DisplayMode.GIF;
 	}
 
+
+	private String getPrefsDirectory()
+	{
+		String os = System.getProperty("os.name").toLowerCase();
+		String prefsFileName;
+		prefsFileName = System.getenv("DGSPREVIEWER_USERDIR");
+		if(prefsFileName == null) {
+			prefsFileName = "";
+		}
+
+		if(prefsFileName.length() == 0) {
+			if(os.indexOf("win")>=0) {
+				prefsFileName = System.getenv("APPDATA") + File.separator + "DGSPreviewer";
+			} else if(os.indexOf( "nix") >=0 || os.indexOf( "nux") >=0) {
+				// Assume unix otherwise as thats the most likely to be cloned
+				prefsFileName = System.getenv("HOME") + File.separator + ".DGSPreviewer";
+			} else if(os.indexOf("mac") >= 0) {
+				prefsFileName = System.getenv("HOME") + File.separator + "Library" + File.separator + "DGSPreviewer";
+			}
+		}
+		return(prefsFileName);
+	}
+
 	public boolean load() {
-		String prefsFileName = System.getenv("APPDATA") + File.separator + "DGSPreviewer" + File.separator + "Prefs.xml";
+		String prefsFileName = getPrefsDirectory() + File.separator + "Prefs.xml";
 		File file = null;
 		DocumentBuilderFactory dbf = null;
 		DocumentBuilder db = null;
@@ -141,7 +164,7 @@ public class Options {
 	}
 
 	private boolean save() {
-		String prefsFileName = System.getenv("APPDATA") + File.separator + "DGSPreviewer";
+		String prefsFileName = getPrefsDirectory();
 		File pDir = new File(prefsFileName);
 		pDir.mkdirs();
 		prefsFileName += File.separator + "Prefs.xml";
