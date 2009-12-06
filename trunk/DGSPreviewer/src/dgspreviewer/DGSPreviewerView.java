@@ -95,11 +95,14 @@ public class DGSPreviewerView extends FrameView {
 		initComponents();
 		previewCanvas.pEngine = this.pEngine;
 		previewCanvas.setBackgroundColor(options.getBackgroundColor());
-		previewCanvas.setDisplayMode(options.getDisplayMode());
 		// at startup, draft mode is disabled
 		this.menuDisplayModeTIFF.setVisible(false);
 		this.menuDisplayModePDF.setVisible(false);
-		this.setDisplayMode(previewCanvas.getDisplayMode());
+		DisplayMode tMode = options.getStartupMode();
+		if(tMode == DisplayMode.Printer) {
+			tMode = options.getDisplayMode(); // if the startup default is set to 'Printer' that means use this.displayMode instead
+		}
+		this.setDisplayMode(tMode);
 
 		// status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
@@ -823,6 +826,11 @@ public class DGSPreviewerView extends FrameView {
 			changes++;
 			this.options.setBackgroundColor(newOpts.getBackgroundColor());
 			this.previewCanvas.setBackgroundColor(newOpts.getBackgroundColor());
+		}
+
+		if(!this.options.getStartupMode().equals(newOpts.getStartupMode())) {
+			changes++;
+			this.options.setStartupMode(newOpts.getStartupMode());
 		}
 		if(changes>0) {
 			return(true);
