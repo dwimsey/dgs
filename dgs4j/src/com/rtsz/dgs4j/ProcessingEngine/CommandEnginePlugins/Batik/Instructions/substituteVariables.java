@@ -106,8 +106,7 @@ public class substituteVariables implements IInstruction {
 		    boolean hasChanged = false;
 
 		    elements = doc.getElementsByTagName("*");
-		    int eSize = elements.getLength();
-		    for (i = 0; i < eSize; i++) {
+			for (i = 0; i < elements.getLength(); i++) {
 			    textNode = elements.item(i);
 			    if (textNode != null) {
 				    if((textNode.getNodeType()==textNode.ELEMENT_NODE)) {
