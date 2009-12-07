@@ -1,8 +1,8 @@
 #!/bin/sh
 
-mkdir dist
-rm -rf dist/Bundle.app
-rm -rf dist/DGS\ Previewer.app
+mkdir dist 2>/dev/null
+rm -rf dist/Bundle.app 2>/dev/null
+rm -rf dist/DGS\ Previewer.app 2>/dev/null
 cp -Rp Bundle.app dist
 cp dist/DGSPreviewer.jar dist/Bundle.app/Contents/Resources/Java
 cp dist/lib/*.jar dist/Bundle.app/Contents/Resources/Java
