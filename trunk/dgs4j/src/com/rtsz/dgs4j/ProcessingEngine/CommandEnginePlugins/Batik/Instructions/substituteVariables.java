@@ -169,8 +169,8 @@ public class substituteVariables implements IInstruction {
 										    ltn = null;
 										    fl = null;
 
-										    if(textNode.getNodeName().equals("flowPara")) {
-
+										    if(textNode.getNodeName().equals("flowPara") || textNode.getNodeName().equals("flowDiv") || textNode.getNodeName().equals("flowSpan") || textNode.getNodeName().equals("flowLine") || textNode.getNodeName().equals("flowTref")) {
+												// Deal with new lines in flowRoots
 												nStr = oStr.substring(0, varStart);
 											    lines = varValueStr.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
 											    nStr += lines[0];
@@ -191,6 +191,7 @@ public class substituteVariables implements IInstruction {
 											    oStr = nStr;
 											    hasChanged = false;
 											} else {
+												// default rules, leave it alone
 											    nStr = oStr.substring(0, varStart) + varValueStr + oStr.substring(varEnd+1);
 											    varStart = varStart + varValueStr.length();
 											    oStr = nStr;
