@@ -126,16 +126,44 @@ public class DGSPackage {
 		}
 
 	// this try wraps the variables reading
+		Node nameAttr;
+		Node valueAttr;
+		String vStr;
+		NamedNodeMap aMap;
+		NodeList nodeLst;
+		Node fstNode;
+
 		try {
-			NodeList nodeLst = doc.getElementsByTagName("DGSVariable");
+			nodeLst = doc.getElementsByTagName("DGSVariable");
 
 			int nLen = nodeLst.getLength();
 			DGSVariable vars[] = new DGSVariable[nLen];
 			for (int s = 0; s < nLen; s++) {
-				Node fstNode = nodeLst.item(s);
+				fstNode = nodeLst.item(s);
 				if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
-					NamedNodeMap aMap = fstNode.getAttributes();
-					vars[s] = new DGSVariable(aMap.getNamedItem("name").getNodeValue(), aMap.getNamedItem("value").getNodeValue());
+					aMap = fstNode.getAttributes();
+					nameAttr = aMap.getNamedItem("name");
+					if(nameAttr == null) {
+						// this is an invalid variable, skip it
+						continue;
+					}
+					vStr = fstNode.getTextContent();
+					if (vStr == null) {
+						vStr = "";
+					}
+					if (vStr.isEmpty()) {
+						valueAttr = aMap.getNamedItem("value");
+						if(valueAttr != null) {
+							vStr = valueAttr.getTextContent();
+							if(vStr == null) {
+								vStr = "";
+							}
+						} else {
+							vStr = "";
+						}
+					}
+					vars[s] = new DGSVariable(nameAttr.getNodeValue(), vStr);
+					vars[s] = vars[s];
 				}
 			}
 			this.variables = vars;
@@ -145,14 +173,14 @@ public class DGSPackage {
 		}
 
 		try {
-			NodeList nodeLst = doc.getElementsByTagName("DGSFile");
+			nodeLst = doc.getElementsByTagName("DGSFile");
 
 			int nLen = nodeLst.getLength();
 			DGSFileInfo vars[] = new DGSFileInfo[nLen];
 			for (int s = 0; s < nLen; s++) {
-				Node fstNode = nodeLst.item(s);
+				fstNode = nodeLst.item(s);
 				if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
-					NamedNodeMap aMap = fstNode.getAttributes();
+					aMap = fstNode.getAttributes();
 					vars[s] = new DGSFileInfo();
 					vars[s].name = aMap.getNamedItem("name").getNodeValue();
 					vars[s].data = com.rtsz.dgs4j.ProcessingEngine.Base64.decode(aMap.getNamedItem("data").getNodeValue());
