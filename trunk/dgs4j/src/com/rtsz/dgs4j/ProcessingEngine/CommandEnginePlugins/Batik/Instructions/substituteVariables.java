@@ -84,7 +84,8 @@ public class substituteVariables implements IInstruction {
 		    } else {
 			    doc = (Document)iBuffer.data;
 		    }
-		    int i = 0;
+		
+			int i = 0;
 		    int ii = 0;
 		    int iii = 0;
 		    int varStart;
@@ -92,10 +93,14 @@ public class substituteVariables implements IInstruction {
 		    NodeList elements = null;
 		    Node textNode = null;
 		    Node textStringNode = null;
+			Node oNode = null;
 		    String val = null;
 		    String lines[] = null;
 		    String oStr = null;
 		    String varName = null;
+			String nStr = null;
+			Node ltn = null;
+			Node fl = null;
 		    int varNextStart = 0;
 		    String varValueStr = null;
 		    boolean hasChanged = false;
@@ -146,11 +151,11 @@ public class substituteVariables implements IInstruction {
 
 									    varValueStr = null;
 									    for (ii = 0; ii < workspace.requestInfo.variables.length; ii++) {
-										String nvName = workspace.requestInfo.variables[ii].name;
-										if(nvName.equals(varName)) {
-											varValueStr = workspace.requestInfo.variables[ii].data.toString();
-											break;
-										}
+											String nvName = workspace.requestInfo.variables[ii].name;
+											if(nvName.equals(varName)) {
+												varValueStr = workspace.requestInfo.variables[ii].data.toString();
+												break;
+											}
 									    }
 
 									    if(varValueStr == null) {
@@ -162,15 +167,16 @@ public class substituteVariables implements IInstruction {
 									    // we have a variable that has a replacement, do we have to deal with muliline?
 									    if(varValueStr.indexOf("\n") > -1) {
 										    // this is multiline, deal with it
-										    String nStr;
-										    Node ltn = null;
-										    Node fl = null;
+										    ltn = null;
+										    fl = null;
 
 										    if(textNode.getNodeName().equals("flowPara")) {
-											    nStr = oStr.substring(0, varStart);
+
+												nStr = oStr.substring(0, varStart);
 											    lines = varValueStr.split(java.util.regex.Pattern.quote("\n") + "|" + java.util.regex.Pattern.quote("\r") + "|" + java.util.regex.Pattern.quote("\r\n"));
 											    nStr += lines[0];
 											    textStringNode.setNodeValue(nStr);
+												oNode = textStringNode;
 											    ltn = textStringNode;
 											    for(iii = 1; iii<lines.length; iii++) {
 												    fl = doc.createElement("flowLine");
@@ -185,14 +191,14 @@ public class substituteVariables implements IInstruction {
 											    varStart = 0;
 											    oStr = nStr;
 											    hasChanged = false;
-										    } else {
+											} else {
 											    nStr = oStr.substring(0, varStart) + varValueStr + oStr.substring(varEnd+1);
 											    varStart = varStart + varValueStr.length();
 											    oStr = nStr;
 											    hasChanged = true;
 										    }
 									    } else {
-										    String nStr = oStr.substring(0, varStart) + varValueStr + oStr.substring(varEnd+1);
+										    nStr = oStr.substring(0, varStart) + varValueStr + oStr.substring(varEnd+1);
 										    varStart = varStart + varValueStr.length();
 										    oStr = nStr;
 										    hasChanged = true;
@@ -203,8 +209,8 @@ public class substituteVariables implements IInstruction {
 						    if(hasChanged == true) {
 							    textStringNode.setNodeValue(oStr);
 							    hasChanged = false;
-						    }
-						    textStringNode = textStringNode.getNextSibling();
+							}
+							textStringNode = textStringNode.getNextSibling();
 					    }
 				    }
 			    }
