@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="DGSPackage" default="dist" basedir=".">
+    <description>Builds, tests, and runs the project DGS.</description>
+
+
+    <target name="dist">
+        <ant antfile="libs/gif4free/build.xml" inheritall="false" target="jar"/>
+        <ant antfile="libs/batik/build.xml" inheritall="false" target="all-jar"/>
+        <ant antfile="dgs4j/build.xml" inheritall="false" target="jar"/>
+        <ant antfile="DGSPreviewer/build.xml" inheritall="false" target="jar"/>
+ <!--
+        <ant antfile="DGS/build.xml" inheritall="false" target="dist"/>
+ -->
+   </target>
+
+</project>
