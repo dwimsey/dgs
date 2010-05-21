@@ -3,7 +3,7 @@
 del DGSUtils_Setup.exe
 cd ..
 
-buildver.rb
+buildver.py
 
 cd Installer
 
