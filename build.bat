@@ -44,7 +44,7 @@ cd ..
 
 echo      GIF4Free ...
 cd gif4free
-call ant
+call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat"
 cd ..
 
 echo "dependants done."
@@ -52,19 +52,18 @@ cd ..
 
 echo "dgs4j"
 cd dgs4j
-call ant
+call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat"
 cd ..
 
 echo "DGS Web Service"
 cd DGS
-REM call ant
+REM call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat"
 cd ..
 
 :dgsverinfo_win_previewer
 echo DGS Previewer ...
 cd DGSPreviewer
-call ant jar
-call ant jar
+call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat" jar
 cd ..
 
 echo DGS Previewer Windows Installer ...
