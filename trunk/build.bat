@@ -25,15 +25,47 @@ REM if NOT "%ERRORLEVEL%" == "0" EXIT /B %ERRORLEVEL%
 :nb6_env_setup_done
 
 echo Updating version information ...
-buildver.py
+echo buildver.py
 IF NOT %ERRORLEVEL% == 0 EXIT /B %ERRORLEVEL%
-cd Installer
-IF NOT %ERRORLEVEL% == 0 EXIT /B %ER`RORLEVEL%
-buildver.py
+REM cd Installer
+REM IF NOT %ERRORLEVEL% == 0 EXIT /B %ER`RORLEVEL%
+REM buildver.py
+REM cd ..
+
+:dgslibs
+echo Building DGS dependant libraries ...
+cd libs
+
+echo      Apache Batik ...
+cd batik
+call build.bat clean
+call build.bat all-jar
 cd ..
 
-cd lib
+echo      GIF4Free ...
+cd gif4free
+call ant
+cd ..
+
+echo "dependants done."
+cd ..
+
+echo "dgs4j"
+cd dgs4j
+call ant
+cd ..
+
+echo "DGS Web Service"
+cd DGS
+REM call ant
+cd ..
+
 :dgsverinfo_win_previewer
+echo DGS Previewer ...
+cd DGSPreviewer
+call ant
+cd ..
+
 echo DGS Previewer Windows Installer ...
 versplice installer\DGSPreviewer_Setup.exe versioninfo.xml
 IF %ERRORLEVEL% <> 0 GOTO versplice_error
