@@ -67,7 +67,10 @@ call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat" jar
 cd ..
 
 echo DGS Previewer Windows Installer ...
-versplice installer\DGSPreviewer_Setup.exe versioninfo.xml
+cd installer
+call build.bat
+cd..
+versplice installer\DGSPreviewer_Setup.exe .\versioninfo.xml
 IF %ERRORLEVEL% <> 0 GOTO versplice_error
 
 :versplice_error
