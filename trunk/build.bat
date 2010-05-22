@@ -14,12 +14,12 @@ SHIFT
 
 :debug_setup_done
 
-if "%VB6EXE%" == "" goto need_nb6_env_setup
-goto nb6_env_setup_done
+REM if "%VB6EXE%" == "" goto need_nb6_env_setup
+REM goto nb6_env_setup_done
 
-:need_nb6_env_setup
-call nb6env.bat
-if NOT "%ERRORLEVEL%" == "0" EXIT /B %ERRORLEVEL%
+REM :need_nb6_env_setup
+REM call nb6env.bat
+REM if NOT "%ERRORLEVEL%" == "0" EXIT /B %ERRORLEVEL%
 @if "%DEBUGGING%" == "1" @echo on
 
 :nb6_env_setup_done
@@ -28,14 +28,14 @@ echo Updating version information ...
 buildver.py
 IF NOT %ERRORLEVEL% == 0 EXIT /B %ERRORLEVEL%
 cd Installer
-IF NOT %ERRORLEVEL% == 0 EXIT /B %ERRORLEVEL%
+IF NOT %ERRORLEVEL% == 0 EXIT /B %ER`RORLEVEL%
 buildver.py
 cd ..
 
 cd lib
 :dgsverinfo_win_previewer
 echo DGS Previewer Windows Installer ...
-versplice installer\DGSPreviewer_Setup.exe build\lmversioninfo.xml
+versplice installer\DGSPreviewer_Setup.exe versioninfo.xml
 IF %ERRORLEVEL% <> 0 GOTO versplice_error
 
 :versplice_error
