@@ -64,6 +64,7 @@ cd ..
 echo DGS Previewer ...
 cd DGSPreviewer
 call ant jar
+call ant jar
 cd ..
 
 echo DGS Previewer Windows Installer ...
