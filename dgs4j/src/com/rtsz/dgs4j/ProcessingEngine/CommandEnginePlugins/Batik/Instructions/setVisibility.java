@@ -24,8 +24,7 @@ import javax.xml.transform.stream.*;
  * @author dwimsey
  */
 public class setVisibility implements IInstruction {
-
-	public boolean process(ProcessingWorkspace workspace, Node instructionNode) {
+        public boolean process(ProcessingWorkspace workspace, Node instructionNode) {
 		NamedNodeMap attributes = instructionNode.getAttributes();
 		String bufferName = null;
 		String idValueStr = null;
@@ -176,7 +175,20 @@ public class setVisibility implements IInstruction {
 									// this is a node we want to set, do it
 									nodeMatchs = true;
 								}
-							}
+							} else {
+                                                            // look for inkscape labels and use them as well
+                                                            nodeIdNode = attribs.getNamedItemNS(workspace.DGSNSREF_INKSCAPE, "label");
+                                                            if (nodeIdNode != null) {
+                                                                    nodeId = nodeIdNode.getNodeValue();
+                                                                    if(nodeId==null) {
+                                                                            nodeId = "";
+                                                                    }
+                                                                    if(nodeId.equals(nameValueStr)) {
+                                                                            // this is a node we want to set, do it
+                                                                            nodeMatchs = true;
+                                                                    }
+                                                            }
+                                                        }
 						}
 					}
 
