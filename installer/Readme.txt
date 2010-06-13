@@ -9,6 +9,9 @@ On the world wide web: http://support.rtsz.com/products/dgs/
 
 Using email: support@rtsz.com
 
+Chanages:
+Added support for the Inkscape object property to control visibility
+
 By Mail:
 RTS Technical Support
 1140 Kildaire Farm Rd
