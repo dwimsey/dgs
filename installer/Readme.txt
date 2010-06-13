@@ -1,7 +1,7 @@
-The DGS Utilities Pack software has been installed on your system.
+The DGS Previewer software has been installed on your system.
 
-To start using the DGS Utilities Pack, look for the applications installed on your start menu, in the DGS
-Utilities Pack program group.
+To start using the DGS Previewer, look for the applications installed
+on your start menu, in the DGS Previewer program group.
 
 For Technical Support please use one of the options below:
 
