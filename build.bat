@@ -25,12 +25,12 @@ REM if NOT "%ERRORLEVEL%" == "0" EXIT /B %ERRORLEVEL%
 :nb6_env_setup_done
 
 echo Updating version information ...
-echo buildver.py
-IF NOT %ERRORLEVEL% == 0 EXIT /B %ERRORLEVEL%
-REM cd Installer
+buildver.py
+REM IF NOT %ERRORLEVEL% == 0 EXIT /B %ERRORLEVEL%
+cd Installer
 REM IF NOT %ERRORLEVEL% == 0 EXIT /B %ER`RORLEVEL%
-REM buildver.py
-REM cd ..
+buildver.py
+cd ..
 
 :dgslibs
 echo Building DGS dependant libraries ...
