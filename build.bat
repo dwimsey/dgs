@@ -63,7 +63,7 @@ cd ..
 :dgsverinfo_win_previewer
 echo DGS Previewer ...
 cd DGSPreviewer
-call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat" jar
+call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat" ant "-Dlibs.swing-app-framework.classpath=/Program Files/NetBeans 6.8/java3/modules/ext/appframework-1.0.3.jar:/Program Files/NetBeans 6.8/java3/modules/ext/swing-worker-1.1.jar" jar
 cd ..
 
 echo DGS Previewer Windows Installer ...
