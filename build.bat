@@ -69,9 +69,9 @@ cd ..
 echo DGS Previewer Windows Installer ...
 cd installer
 call build.bat
-cd..
+cd ..
 echo Updating version resource in installer ...
-versplice installer\DGSPreviewer_Setup.exe .\versioninfo.xml
+versplice installer\DGSUtils_Setup.exe .\versioninfo.xml
 echo Done
 IF %ERRORLEVEL% NEQ 0 GOTO versplice_error
 
@@ -87,7 +87,7 @@ if "%1" == "NOSIGN" goto no_signing_components
 echo Signing components......
 cd build
 IF NOT %ERRORLEVEL% == 0 EXIT /B %ERRORLEVEL%
-signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /d "DGS Previewer Setup" /f c:\keys\rts.pfx /v /p %1 Installer/DGSPreviewer_Setup.exe
+signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /d "DGS Utilities Setup" /f c:\keys\rts.pfx /v /p %1 Installer/DGSUtils_Setup.exe
 IF NOT %ERRORLEVEL% == 0 GOTO signing_error
 
 
