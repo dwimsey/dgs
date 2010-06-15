@@ -114,7 +114,9 @@ Section "Required Files" SecRequired
 	; DGS Previewer
 	File ..\dgspreviewer\dist\*.jar
 	SetOutPath "$INSTDIR\lib"
-	File /r ..\dgspreviewer\dist\lib\*.*
+	File ..\libs\batik\lib\*.jar
+	File ..\libs\batik\batik-1.8pre\lib\batik-all.jar
+	File ..\libs\gif4free\dist\*.jar
 
 	SetOutPath "$INSTDIR\examples"
 	File "..\examples\rts_card.svg"
