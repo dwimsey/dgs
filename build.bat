@@ -86,9 +86,8 @@ EXIT /B 255
 if "%1" == "NOSIGN" goto no_signing_components
 
 echo Signing components......
-cd build
-IF NOT %ERRORLEVEL% == 0 EXIT /B %ERRORLEVEL%
 signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /d "DGS Utilities Setup" /f c:\keys\rts.pfx /v /p %1 Installer/DGSUtils_Setup.exe
+
 IF NOT %ERRORLEVEL% == 0 GOTO signing_error
 
 
