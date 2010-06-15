@@ -74,6 +74,7 @@ echo Updating version resource in installer ...
 versplice installer\DGSUtils_Setup.exe .\versioninfo.xml
 echo Done
 IF %ERRORLEVEL% NEQ 0 GOTO versplice_error
+GOTO versplice_noerr
 
 :versplice_error
 echo Verspice returned non-zero ...
