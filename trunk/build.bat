@@ -73,7 +73,7 @@ cd..
 echo Updating version resource in installer ...
 versplice installer\DGSPreviewer_Setup.exe .\versioninfo.xml
 echo Done
-IF %ERRORLEVEL% <> 0 GOTO versplice_error
+IF %ERRORLEVEL% NEQ 0 GOTO versplice_error
 
 :versplice_error
 echo Verspice returned non-zero ...
