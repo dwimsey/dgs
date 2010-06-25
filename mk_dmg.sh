@@ -7,6 +7,17 @@ disk_image_name=DGSPreviewer
 source_directory="mac/DGSPreviewer"
 backgroundPictureName="background.png"
 
+mkdir tt
+cd tt
+unzip "../${source_directory}/DGSPreviewer.app/Contents/Resources/Java/DGSPreviewer.jar"
+echo "Class-Path: lib/appframework-1.0.3.jar lib/swing-worker-1.1.jar lib/dg" >> META-INF/MANIFEST.MF
+echo " s4j.jar lib/gif4free.jar lib/batik-all.jar lib/js.jar lib/pdf-transco" >> META-INF/MANIFEST.MF
+echo " der.jar lib/xalan-2.6.0.jar lib/xerces_2_5_0.jar lib/xml-apis-ext.jar" >> META-INF/MANIFEST.MF
+echo "  lib/xml-apis.jar" >> META-INF/MANIFEST.MF
+zip -r "../${source_directory}/DGSPreviewer.app/Contents/Resources/Java/DGSPreviewer2.jar" .
+cd ..
+#rm -rf tt
+
 find "$source_directory" -type f -exec chmod 644 {} \;
 find "$source_directory" -type d -exec chmod 755 {} \;
 chmod 755 "${source_directory}/DGSPreviewer.app/Contents/MacOS/JavaApplicationStub"
