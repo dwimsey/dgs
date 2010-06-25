@@ -7,6 +7,10 @@ disk_image_name=DGSPreviewer
 source_directory="mac/DGSPreviewer"
 backgroundPictureName="background.png"
 
+find "$source_directory" -type f -exec chmod 644 {} \;
+find "$source_directory" -type d -exec chmod 755 {} \;
+chmod 755 "${source_directory}/DGSPreviewer.app/Contents/MacOS/JavaApplicationStub"
+
 rm "$disk_image_name.dmg"
 # 2>/dev/null
 hdiutil create -fs HFS+ -srcfolder "$source_directory" -volname "$volume_name" -format UDRW -imagekey zlig-level=9 -o "$disk_image_name.tmp"
