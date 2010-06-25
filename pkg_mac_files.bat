@@ -24,6 +24,8 @@ REM del js.jar
 
 copy ..\..\..\..\..\..\..\libs\gif4free\dist\*.jar .
 
+copy "C:\Program Files\NetBeans 6.8\java3\modules\ext\appframework-1.0.3.jar" .
+copy "C:\Program Files\NetBeans 6.8\java3\modules\ext\swing-worker-1.1.jar" .
 
 cd ..\..\..\..\..
 mkdir .background
