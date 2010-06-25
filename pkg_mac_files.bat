@@ -9,30 +9,29 @@ xcopy /E /F DGSPreviewer\Bundle.app\*.* mac\DGSPreviewer\DGSPreviewer.app\
 
 cd mac\DGSPreviewer\DGSPreviewer.app\Contents\Resources\Java
 
-copy ..\..\..\..\..\..\DGSPreviewer\dist\DGSPreviewer.jar .
+xcopy ..\..\..\..\..\..\DGSPreviewer\dist\DGSPreviewer.jar .
 
 echo Copying DGS dependancies ...
 mkdir lib
 cd lib
 
-copy ..\..\..\..\..\..\..\dgs4j\dist\dgs4j.jar .
+xcopy ..\..\..\..\..\..\..\dgs4j\dist\dgs4j.jar .
 
-copy ..\..\..\..\..\..\..\libs\batik\batik-1.8pre\lib\batik-all.jar .
-copy ..\..\..\..\..\..\..\libs\batik\lib\*.jar .
+xcopy ..\..\..\..\..\..\..\libs\batik\batik-1.8pre\lib\batik-all.jar .
+xcopy ..\..\..\..\..\..\..\libs\batik\lib\*.jar .
 REM Delete the javascript jar file to ensure it doesn't run in the previewer at this time
 REM del js.jar
 
-copy ..\..\..\..\..\..\..\libs\gif4free\dist\*.jar .
+xcopy ..\..\..\..\..\..\..\libs\gif4free\dist\*.jar .
 
-copy "C:\Program Files\NetBeans 6.8\java3\modules\ext\appframework-1.0.3.jar" .
-copy "C:\Program Files\NetBeans 6.8\java3\modules\ext\swing-worker-1.1.jar" .
+xcopy "C:\Program Files\NetBeans 6.8\java3\modules\ext\appframework-1.0.3.jar" .
+xcopy "C:\Program Files\NetBeans 6.8\java3\modules\ext\swing-worker-1.1.jar" .
 
 cd ..\..\..\..\..
 mkdir .background
 cd .background
-copy ..\..\..\branding\dmgbackground.png" .\background.png
+xcopy ..\..\..\branding\dmgbackground.png" .\background.png
 cd ..\..\..
 
 del DGSPreviewerMacOSX.zip
 zip -r DGSPreviewerMacOSX.zip mac
-
