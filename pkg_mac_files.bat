@@ -28,7 +28,7 @@ copy ..\..\..\..\..\..\..\libs\gif4free\dist\*.jar .
 cd ..\..\..\..\..
 mkdir .background
 cd .background
-copy ..\..\..\branding\dmgbackground.png" .
+copy ..\..\..\branding\dmgbackground.png" .\background.png
 cd ..\..\..
 
 del DGSPreviewerMacOSX.zip
