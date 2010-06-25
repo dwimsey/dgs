@@ -3,11 +3,11 @@
 <plist version="0.9">
 <dict>
 	<key>CFBundleName</key>
-	<string>DGS Previewer</string>
+	<string>DGSPreviewer</string>
 	<key>CFBundleIdentifier</key>
-	<string>DGSP</string>
+	<string>com.rtsz.dgs.DGSPreviewer</string>
 	<key>CFBundleVersion</key>
-	<string>0.6.0.0</string>
+	<string>0.1.0</string>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<string>true</string>
 	<key>CFBundleExecutable</key>
@@ -17,32 +17,21 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
-	<string>????</string>
+	<string>DGSP</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleIconFile</key>
 	<string>DGSPreviewer.icns</string>
 	<key>Java</key>
 	<dict>
+		<key>WorkingDirectory</key>
+		<string>$APP_PACKAGE/Contents/Resources/Java</string>
 		<key>MainClass</key>
 		<string>dgspreviewer.DGSPreviewerApp</string>
 		<key>JVMVersion</key>
 		<string>1.5+</string>
 		<key>ClassPath</key>
-			<array>
 			<string>$JAVAROOT/DGSPreviewer.jar</string>
-			<string>$JAVAROOT/appframework-1.0.3.jar</string>
-			<string>$JAVAROOT/batik-all.jar</string>
-			<string>$JAVAROOT/dgs4j.jar</string>
-			<string>$JAVAROOT/gif4free.jar</string>
-			<string>$JAVAROOT/js.jar</string>
-			<string>$JAVAROOT/pdf-transcoder.jar</string>
-			<string>$JAVAROOT/swing-worker-1.1.jar</string>
-			<string>$JAVAROOT/xalan-2.6.0.jar</string>
-			<string>$JAVAROOT/xerces_2_5_0.jar</string>
-			<string>$JAVAROOT/xml-apis-ext.jar</string>
-			<string>$JAVAROOT/xml-apis.jar</string>
-			</array>
 		<key>Properties</key>
 		<dict>
 			<key>apple.laf.useScreenMenuBar</key>
