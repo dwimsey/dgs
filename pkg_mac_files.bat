@@ -26,3 +26,7 @@ copy ..\..\..\..\..\..\..\libs\gif4free\dist\*.jar .
 
 
 cd ..\..\..\..\..\..\..
+
+del DGSPreviewerMacOSX.zip
+zip -r DGSPreviewerMacOSX.zip mac
+
