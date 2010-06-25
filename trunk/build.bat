@@ -92,7 +92,7 @@ IF NOT %ERRORLEVEL% == 0 GOTO signing_error
 
 
 :signing_component_complete
-cd ..
+REM cd ..
 goto no_signing_components
 
 
