@@ -30,7 +30,7 @@ xcopy "C:\Program Files\NetBeans 6.8\java3\modules\ext\swing-worker-1.1.jar" .
 cd ..\..\..\..\..
 mkdir .background
 cd .background
-xcopy /F ..\..\..\branding\dmgbackground.png background.png
+xcopy ..\..\..\branding\dmgbackground.png .\
 cd ..\..\..
 
 del DGSPreviewerMacOSX.zip
