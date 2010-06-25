@@ -108,11 +108,9 @@ goto pkg_mac_files
 :error_no_signpass
 @echo ERROR: you need to specify a signing password on the command line or NOSIGN for an unsigned build
 @echo usage: %0 password
-goto pkg_mac_files
 EXIT /B 255
 
 :pkg_mac_files
 call pkg_mac_files.bat
-
 :end
 EXIT /B 0
