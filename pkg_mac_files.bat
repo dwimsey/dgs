@@ -1,4 +1,4 @@
-@echo off
+@echo on
 
 rmdir /s/q mac
 mkdir mac
