@@ -31,6 +31,7 @@ cd ..\..\..\..\..
 mkdir .background
 cd .background
 xcopy ..\..\..\branding\dmgbackground.png .\
+move dmgbackground.png background.png
 cd ..\..\..
 
 del DGSPreviewerMacOSX.zip
