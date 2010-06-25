@@ -112,7 +112,7 @@ goto pkg_mac_files
 EXIT /B 255
 
 :pkg_mac_files
-pkg_mac_files.bat
+call pkg_mac_files.bat
 
 :end
 EXIT /B 0
