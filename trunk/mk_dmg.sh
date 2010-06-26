@@ -11,13 +11,17 @@ find "$source_directory" -type f -exec chmod 644 {} \;
 find "$source_directory" -type d -exec chmod 755 {} \;
 chmod 755 "${source_directory}/DGSPreviewer.app/Contents/MacOS/JavaApplicationStub"
 
-rm "$disk_image_name.dmg"
-# 2>/dev/null
+rm "$disk_image_name.dmg" 2>/dev/null
+echo "Creating DMG ..."
 hdiutil create -fs HFS+ -srcfolder "$source_directory" -volname "$volume_name" -format UDRW -imagekey zlig-level=9 -o "$disk_image_name.tmp"
+sleep 5
 
+echo "Mounting DMG ..."
 device=$(hdiutil attach -readwrite -noverify -noautoopen "$disk_image_name.tmp.dmg" | egrep '^/dev/' | sed 1q | awk '{print $1}')
 echo Device: "$device"
+sleep 5
 
+echo "Setting folder view options and icon positions ..."
 echo '
    tell application "Finder"
      tell disk "'${volume_name}'"
@@ -41,7 +45,12 @@ echo '
      end tell
    end tell
 ' | osascript
+echo "Detaching DMG ..."
 hdiutil detach ${device}
-
+sleep 5
+echo "Converting DMG to compressed readonly archive."
 hdiutil convert "$disk_image_name.tmp.dmg" -format UDZO -imagekey zlib-level=9 -o "$disk_image_name.dmg"
+sleep 5
+echo "Done"
+
 rm "$disk_image_name.tmp.dmg"
