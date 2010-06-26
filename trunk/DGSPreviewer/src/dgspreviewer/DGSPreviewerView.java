@@ -5,6 +5,7 @@
 package dgspreviewer;
 
 import com.rtsz.dgs4j.ProcessingEngine.*;
+import com.rtsz.dgs4j.DGSPackage;
 
 import java.beans.PropertyChangeEvent;
 import org.jdesktop.application.Action;
