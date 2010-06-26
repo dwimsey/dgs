@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<DGSPackage>
+	<DGSCommands templateBuffer="main">&lt;substituteVariables buffer=&quot;main&quot;/&gt;</DGSCommands>
+	<DGSVariables>
+		<DGSVariable name="Version">1.2.3.4</DGSVariable>
+	</DGSVariables>
+	<DGSFiles>
+	</DGSFiles>
+</DGSPackage>
