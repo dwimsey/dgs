@@ -32,39 +32,7 @@ REM IF NOT %ERRORLEVEL% == 0 EXIT /B %ER`RORLEVEL%
 buildver.py
 cd ..
 
-:dgslibs
-echo Building DGS dependant libraries ...
-cd libs
-
-echo      Apache Batik ...
-cd batik
-call build.bat clean
-call build.bat all-jar
-cd ..
-
-echo      GIF4Free ...
-cd gif4free
-call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat"
-cd ..
-
-echo "dependants done."
-cd ..
-
-echo "dgs4j"
-cd dgs4j
-call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat"
-cd ..
-
-echo "DGS Web Service"
-cd DGS
-REM call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat"
-cd ..
-
-:dgsverinfo_win_previewer
-echo DGS Previewer ...
-cd DGSPreviewer
-call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat" "-Dlibs.swing-app-framework.classpath=/Program Files/NetBeans 6.8/java3/modules/ext/appframework-1.0.3.jar:/Program Files/NetBeans 6.8/java3/modules/ext/swing-worker-1.1.jar" jar
-cd ..
+call "C:\Program Files\NetBeans 6.8\java3\ant\bin\ant.bat" "-Dlibs.swing-app-framework.classpath=/Program Files/NetBeans 6.8/java3/modules/ext/appframework-1.0.3.jar:/Program Files/NetBeans 6.8/java3/modules/ext/swing-worker-1.1.jar"
 
 echo DGS Previewer Windows Installer ...
 cd installer
