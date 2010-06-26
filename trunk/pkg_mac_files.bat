@@ -30,7 +30,12 @@ mkdir mac\DGSPreviewer\DGSPreviewer.app
 
 xcopy /E /F DGSPreviewer\Bundle.app\*.* mac\DGSPreviewer\DGSPreviewer.app\
 
-cd mac\DGSPreviewer\DGSPreviewer.app\Contents\Resources\Java
+cd mac
+cd DGSPreviewer
+cd DGSPreviewer.app
+cd Contents
+cd Resources
+cd Java
 
 xcopy ..\..\..\..\..\..\DGSPreviewer\dist\DGSPreviewer.jar .
 
