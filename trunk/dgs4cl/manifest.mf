@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Class-Path: lib/appframework-1.0.3.jar lib/swing-worker-1.1.jar lib/dg
+ s4j.jar lib/gif4free.jar lib/batik-all.jar lib/js.jar lib/pdf-transco
+ der.jar lib/xalan-2.6.0.jar lib/xerces_2_5_0.jar lib/xml-apis-ext.jar
+  lib/xml-apis.jar
+X-COMMENT: Main-Class will be added automatically by build
+
