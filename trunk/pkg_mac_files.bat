@@ -35,6 +35,7 @@ cd DGSPreviewer
 cd DGSPreviewer.app
 cd Contents
 cd Resources
+mkdir Java
 cd Java
 
 xcopy ..\..\..\..\..\..\DGSPreviewer\dist\DGSPreviewer.jar .
