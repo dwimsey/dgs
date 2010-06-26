@@ -41,12 +41,10 @@ public class Main {
 
         com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine = new com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine();
 
-        String imageFilename = "";
         String dgsTemplateFilename = "";
         String previewPackageFilename = "";
-        String defaultOutputMimeType = "image/png";
-        String outputMimeType = "";
-        String outputFileName = "";
+        String outputMimeType = "image/png";
+        String outputFilename = "";
         boolean continueOnError = false;
         String current_arg;
 
@@ -68,68 +66,70 @@ public class Main {
             } else if(current_arg.equals("-d")) {
                 i++;
                 if(args.length>i) {
-
+                    previewPackageFilename = args[i];
                 } else {
                     System.out.println("-d option missing argument");
                     return;
                 }
             } else {
                 if(current_arg.equals("-")) {
-                    imageFilename = "=".intern();
+                    dgsTemplateFilename = "=".intern();
                 } else if(current_arg.startsWith("-")) {
                     System.out.println("Unexpected option: " + current_arg);
                     usage();
                     return;
                 } else {
                     // we assume this is an input file name
-                    imageFilename = current_arg.intern();
+                    dgsTemplateFilename = current_arg.intern();
                 }
 
                 i++;
                 if(args.length>i) {
-
+                    outputFilename = args[i];
                 } else {
                     // no output file name, just make one up based on the input file name and type
-                    if(imageFilename.equals("-")) {
-                        outputFileName = "-".intern();
+                    if(dgsTemplateFilename.equals("-")) {
+                        outputFilename = "-".intern();
                     } else {
-                        if(imageFilename.endsWith(".svg")) {
-                            outputFileName = imageFilename.substring(0,imageFilename.length()-4) + ".png";
+                        if(dgsTemplateFilename.endsWith(".svg")) {
+                            outputFilename = dgsTemplateFilename.substring(0,dgsTemplateFilename.length()-4) + ".png";
                         }
                     }
                 }
 
-                processDGSPackage(pEngine, imageFilename, dgsTemplateFilename, previewPackageFilename, defaultOutputMimeType, outputMimeType, outputFileName, continueOnError);
+                processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, outputMimeType, outputFilename, continueOnError);
             }
         }
 
     }
 
 
-    private static void processDGSPackage(String imageFilename, String dgsTemplateFilename,
-            String previewPackageFilename, String defaultOutputMimeType, String outputMimeType,
-            String outputFileName, boolean continueOnError)
+    private static void processDGSPackage(String dgsTemplateFilename,
+            String previewPackageFilename, String outputMimeType,
+            String outputFilename, boolean continueOnError)
     {
         com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine = new com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine();
-        processDGSPackage(pEngine, imageFilename, dgsTemplateFilename, previewPackageFilename, defaultOutputMimeType, outputMimeType, outputFileName, continueOnError);
+        processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, outputMimeType, outputFilename, continueOnError);
     }
 
-    private static void processDGSPackage(com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine, String imageFilename, String dgsTemplateFilename,
-            String previewPackageFilename, String defaultOutputMimeType, String outputMimeType,
-            String outputFileName, boolean continueOnError)
+    private static void processDGSPackage(com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine, 
+            String dgsTemplateFilename, String previewPackageFilename, String outputMimeType,
+            String outputFilename, boolean continueOnError)
     {
         DGSRequestInfo dgsRequestInfo = new DGSRequestInfo();
         dgsRequestInfo.continueOnError = continueOnError;
 
         DGSFileInfo templateFileInfo;
         try {
-            templateFileInfo = loadImageFileData(imageFilename);
+            templateFileInfo = loadImageFileData(dgsTemplateFilename);
         } catch(Exception e) {
-            templateFileInfo = null;
+            System.out.println("Could not open input file: " + dgsTemplateFilename + ": " + e.getMessage());
+            return;
         }
 
         if(templateFileInfo == null) {
-            //return(null);
+            System.out.println("Could not open input file: " + dgsTemplateFilename);
+            return;
         }
 
         DGSPackage dPkg = new DGSPackage();
@@ -166,7 +166,7 @@ public class Main {
 
         dgsRequestInfo.files[0] = templateFileInfo;
         if((dgsRequestInfo.files[0].name == null) || (dgsRequestInfo.files[0].name.length() == 0)) {
-        dgsRequestInfo.files[0].name = "input.svg"; // we need this set to Something, so set it ourselves
+            dgsRequestInfo.files[0].name = "input.svg"; // we need this set to Something, so set it ourselves
         }
         //if((dgsRequestInfo.files[0].mimeType == null) || (dgsRequestInfo.files[0].mimeType.length() == 0)) {
             dgsRequestInfo.files[0].mimeType = "image/svg+xml"; // we only process svg for now
@@ -185,7 +185,7 @@ public class Main {
             //dgsRequestInfo.instructionsXML += "animationDuration=\"" + dPkg.animationDuration + "\" animationFramerate=\"" + dPkg.animationFramerate + "\" ";
         }
 
-        dgsRequestInfo.instructionsXML += "filename=\"" + outputFileName + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"" + outputMimeType + "\" /></commands>";
+        dgsRequestInfo.instructionsXML += "filename=\"" + outputFilename + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"" + outputMimeType + "\" /></commands>";
 
 
 
@@ -207,37 +207,35 @@ public class Main {
 
         if(dgsResponseInfo.resultFiles.length == 0) {
             //this.notificationMethods.statusMessage(10, "No image files were returned by the processing engine, this generally indicates an error in the input file: " + this.imageFilename);
+            System.out.println("No image files were returned by the processing engine, this generally indicates an error in the input file: " + dgsTemplateFilename);
+            return;
         }
 
 
         // save image data to filename provided
         java.io.FileOutputStream fs = null;
         try {
-            fs = new java.io.FileOutputStream(outputFileName);
+            fs = new java.io.FileOutputStream(outputFilename);
             try {
                 fs.write(((byte[])dgsResponseInfo.resultFiles[0].data));
             } catch (Throwable t) {
                 //this.notificationMethods.statusMessage(0, "Could not save file: " + t.getMessage());
+                System.out.println("Could not save output file: " + outputFilename + ": " + t.getMessage());
+                return;
             } finally {
                 fs.close();
             }
         } catch (Throwable t) {
             //this.notificationMethods.statusMessage(0, "Could not open file: " + t.getMessage());
+            System.out.println("Could not open output file: " + outputFilename + ": " + t.getMessage());
+            return;
         }
     }
 
     private static DGSFileInfo loadImageFileData(String fileName) throws FileNotFoundException, IOException, Exception
     {
         byte fDat[] = null;
-        try {
         fDat = fileToBytes(fileName);
-        } catch (FileNotFoundException fex) {
-            //this.notificationMethods.statusMessage(10, "Could not find the specified file: " + fileName);
-            return(null);
-        } catch (IOException iex) {
-            //this.notificationMethods.statusMessage(10, "Could not read the specified file: " + fileName + " Error: " + iex.getMessage());
-            return(null);
-        }
         if(fDat == null) {
             //this.notificationMethods.statusMessage(5, "An unknown error occurred reading file: " + fileName);
             return(null);
