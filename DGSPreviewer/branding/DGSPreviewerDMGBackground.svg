@@ -111,7 +111,7 @@
 		<use id="use4098" xlink:href="#use4096" transform="matrix(0.99992227,0.01246826,-0.01246826,0.99992227,0.1423808,-0.97275656)" height="360" width="600" y="0" x="0"/>
 		<use xlink:href="#use4098" transform="matrix(0.99969912,-0.02452888,0.02452888,0.99969912,-0.24467087,1.9186708)" height="360" width="600" y="0" x="0"/>
 	</g>
-	<rect opacity="0.9" style="color:#000000;enable-background:accumulate;" fill-rule="evenodd" height="364.00" width="504.00" y="-1.0" x="-1.0" fill="url(#radialGradient5510)"/>
+	<rect opacity="0.9" style="color:#000000;enable-background:accumulate;" fill-rule="evenodd" height="364.00" width="604.00" y="-1.0" x="-1.0" fill="url(#radialGradient5510)"/>
 	<text style="writing-mode:lr-tb;letter-spacing:0;text-anchor:start;word-spacing:0;text-align:start;" font-family="Arial" xml:space="preserve" font-size="10px" font-style="normal" font-stretch="normal" font-variant="normal" y="320.55142" x="274.86743" font-weight="normal" line-height="125%" fill="#000000"><tspan x="274.86743" y="320.55142"/></text>
 	<text style="writing-mode:lr-tb;letter-spacing:0;text-anchor:start;word-spacing:0;text-align:start;" font-family="Santa Fe LET" xml:space="preserve" font-size="32px" font-style="normal" filter="url(#filter5837)" font-stretch="normal" font-variant="normal" y="39.957581" x="26.723225" font-weight="normal" line-height="125%" fill="#ffffff"><tspan x="26.723225" y="39.957581">DGS Previewer {Version}</tspan></text>
 	<rect stroke-linejoin="round" style="enable-background:accumulate;color:#000000;" stroke-dasharray="none" fill-rule="evenodd" transform="matrix(1,0,0,1.4900183,0,-96.27845)" height="70.626" filter="url(#filter5578)" width="273.59" stroke="#FFF" stroke-miterlimit="4" y="196.48" x="163.52" stroke-width="25" fill="#FFF"/>
