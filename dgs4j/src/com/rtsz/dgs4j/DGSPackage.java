@@ -3,7 +3,8 @@
  * and open the template in the editor.
  */
 
-package dgspreviewer;
+package com.rtsz.dgs4j;
+
 
 import com.rtsz.dgs4j.*;
 
@@ -22,15 +23,15 @@ import org.w3c.dom.*;
  * @author dwimsey
  */
 public class DGSPackage {
-	String fileName = "";
-	String templateBuffer = "main";
-	float animationDuration = 0.0f;
-	float animationFramerate = 0.0f;
+	public String fileName = "";
+	public String templateBuffer = "main";
+	public float animationDuration = 0.0f;
+	public float animationFramerate = 0.0f;
 
-	String commandString = "";
+	public String commandString = "";
 
-	DGSFileInfo[] files = null;
-	DGSVariable[] variables = null;
+	public DGSFileInfo[] files = null;
+	public DGSVariable[] variables = null;
 
 	public DGSPackage() {
 		super();
