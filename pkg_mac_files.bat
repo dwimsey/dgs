@@ -1,6 +1,6 @@
 @echo on
 
-rmdir /s/q mac
+rmdir /s/q mac 2> NUL
 mkdir mac
 
 mkdir mac\dgs4cl
@@ -35,7 +35,7 @@ cd DGSPreviewer
 cd DGSPreviewer.app
 cd Contents
 cd Resources
-mkdir Java
+mkdir Java 2> NUL
 cd Java
 
 xcopy ..\..\..\..\..\..\DGSPreviewer\dist\DGSPreviewer.jar .
@@ -66,5 +66,5 @@ xcopy ..\..\..\versioninfo.xml .
 move versioninfo.xml VersionInfo.dgs
 cd ..\..\..
 
-del DGSPreviewerMacOSX.zip
+del DGSPreviewerMacOSX.zip 2> NUL
 zip -r DGSPreviewerMacOSX.zip mac
