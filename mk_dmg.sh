@@ -12,6 +12,14 @@ find "$source_directory" -type d -exec chmod 755 {} \;
 chmod 755 "${source_directory}/DGSPreviewer.app/Contents/MacOS/JavaApplicationStub"
 
 rm "$disk_image_name.dmg" 2>/dev/null
+
+start_dir=`pwd`
+echo "Starting directory: ${start_dir}"
+cd "$source_directory"
+echo "Creating DMG background image from template ..."
+java -jar dgs4cl/dgs4cl.jar -d Examples/VersionInfo.dgs Examples/DGSPreviewerDMGBackground.svg ./background.png
+cd "$start_dir"
+
 echo "Creating DMG ..."
 hdiutil create -fs HFS+ -srcfolder "$source_directory" -volname "$volume_name" -format UDRW -imagekey zlig-level=9 -o "$disk_image_name.tmp"
 sleep 5

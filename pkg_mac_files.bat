@@ -56,10 +56,14 @@ xcopy ..\..\..\..\..\..\..\libs\gif4free\dist\*.jar .
 xcopy "C:\Program Files\NetBeans 6.8\java3\modules\ext\appframework-1.0.3.jar" .
 xcopy "C:\Program Files\NetBeans 6.8\java3\modules\ext\swing-worker-1.1.jar" .
 
-cd ..\..\..\..\..
-mkdir .background
-cd .background
-java -jar ..\..\..\mac\dgs4cl\dgs4cl.jar -d ..\..\..\versioninfo.dgs ..\..\..\DGSPreviewer\branding\DGSPreviewerDMGBackground.svg background.png
+cd ..\..\..\..\..\..\..
+
+cd mac\DGSPreviewer
+mkdir Examples
+cd Examples
+xcopy ..\branding\DGSPreviewerDMGBackground.svg .
+xcopy ..\..\..\versioninfo.xml .
+move versioninfo.xml VersionInfo.dgs
 cd ..\..\..
 
 del DGSPreviewerMacOSX.zip
