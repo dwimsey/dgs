@@ -2,7 +2,7 @@ HEAD
 1
 0
 0
-nsis,nsis_productversion,xml
-installer\installer_version.nsi,installer\utils_product_version.nsi,versioninfo.xml
+nsis,nsis_productversion,xml,dgs
+installer/installer_version.nsi,installer/utils_product_version.nsi,versioninfo.xml,versioninfo.dgs
 _
-buildver.rb;
+buildver.rb;external/;
