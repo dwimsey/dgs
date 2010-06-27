@@ -59,7 +59,7 @@ xcopy "C:\Program Files\NetBeans 6.8\java3\modules\ext\swing-worker-1.1.jar" .
 cd ..\..\..\..\..
 mkdir .background
 cd .background
-java -jar ..\..\..\mac\dgs4cl\dgs4cl.jar -d ..\..\..\DGSPreviewer\branding\DGSPreviewerDMGBackground.xml ..\..\..\DGSPreviewer\branding\DGSPreviewerDMGBackground.svg background.png
+java -jar ..\..\..\mac\dgs4cl\dgs4cl.jar -d ..\..\..\versioninfo.dgs ..\..\..\DGSPreviewer\branding\DGSPreviewerDMGBackground.svg background.png
 cd ..\..\..
 
 del DGSPreviewerMacOSX.zip
