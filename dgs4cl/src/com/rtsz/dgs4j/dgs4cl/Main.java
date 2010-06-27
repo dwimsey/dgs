@@ -11,6 +11,8 @@ import java.io.*;
 import com.rtsz.dgs4j.*;
 import com.rtsz.dgs4j.ProcessingEngine.*;
 import com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -20,8 +22,10 @@ public class Main {
 
     public static void usage()
     {
-        System.out.println("dgs4cl v");
-        System.out.println("\t dgs4cl.jar -d DGSPackage.xml input.svg output.png");
+        System.out.println("dgs4cl v- DGS command line utility");
+        System.out.println("\tUsage: dgs4cl.jar [-d DGSPackage.xml] [-V key=value] input.svg output.png");
+        System.out.println("\t-d <DGS Package XML Filename>: Uses the file specified as the DGS package.");
+        System.out.println("\t-V <Key=value>: Sets the variable named 'Key' to 'value'.  Variables specified with the -V option override variables obtained using the -d option.");
     }
 
     /**
@@ -41,13 +45,14 @@ public class Main {
 
         com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine = new com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine();
 
+        int offset;
         String dgsTemplateFilename = "";
         String previewPackageFilename = "";
         String outputMimeType = "image/png";
         String outputFilename = "";
         boolean continueOnError = false;
         String current_arg;
-
+        java.util.ArrayList<DGSVariable> vars = new java.util.ArrayList<DGSVariable>();
 
         for(int i = 0; i < args.length; i++) {
             current_arg = args[i];
@@ -67,6 +72,26 @@ public class Main {
                 i++;
                 if(args.length>i) {
                     previewPackageFilename = args[i];
+                } else {
+                    System.out.println("-d option missing argument");
+                    return;
+                }
+            } else if(current_arg.equals("-V")) {
+                i++;
+                if(args.length>i) {
+                    current_arg = args[i];
+                    offset = current_arg.indexOf("=");
+                    if(offset > -1) {
+                        if(offset==(current_arg.length()-1)) {
+                            // no value, use null
+                            vars.add(new DGSVariable(current_arg.substring(0, offset), null));
+                        } else {
+                            vars.add(new DGSVariable(current_arg.substring(0, offset), current_arg.substring(offset+1)));
+                        }
+                    } else {
+                        System.out.println("-V requires a key=value pair.");
+                        return;
+                    }
                 } else {
                     System.out.println("-d option missing argument");
                     return;
@@ -97,7 +122,7 @@ public class Main {
                     }
                 }
 
-                processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, outputMimeType, outputFilename, continueOnError);
+                processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, outputMimeType, outputFilename, vars, continueOnError);
             }
         }
 
@@ -109,12 +134,12 @@ public class Main {
             String outputFilename, boolean continueOnError)
     {
         com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine = new com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine();
-        processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, outputMimeType, outputFilename, continueOnError);
+        processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, outputMimeType, outputFilename, new java.util.ArrayList<DGSVariable>(), continueOnError);
     }
 
     private static void processDGSPackage(com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine, 
             String dgsTemplateFilename, String previewPackageFilename, String outputMimeType,
-            String outputFilename, boolean continueOnError)
+            String outputFilename, java.util.ArrayList<DGSVariable> vars, boolean continueOnError)
     {
         DGSRequestInfo dgsRequestInfo = new DGSRequestInfo();
         dgsRequestInfo.continueOnError = continueOnError;
@@ -154,8 +179,29 @@ public class Main {
             }
         }
 
+        if(!vars.isEmpty()) {
+            int voffset = 0;
+            // add the vars specified on the command line
+            if(dPkg.variables != null && dPkg.variables.length > 0) {
+                // we have existing variables from the DGSPackage, allocate a new variable block
+                // big enough for both and copy this into it
+                com.rtsz.dgs4j.DGSVariable nVars[] = new com.rtsz.dgs4j.DGSVariable[vars.size() + dPkg.variables.length];
+
+                int i;
+                for(i = 0; i<vars.size(); i++) {
+                    nVars[voffset] = vars.get(i);
+                }
+
+                for(voffset = 0; voffset<dPkg.variables.length; voffset++) {
+                    nVars[i] = dPkg.variables[voffset];
+                }
 
 
+                dgsRequestInfo.variables = nVars;
+            } else {
+                dgsRequestInfo.variables = vars.toArray(new DGSVariable[0]);
+            }
+        }
 
 
 
