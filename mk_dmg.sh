@@ -17,7 +17,8 @@ start_dir=`pwd`
 echo "Starting directory: ${start_dir}"
 cd "$source_directory"
 echo "Creating DMG background image from template ..."
-java -jar dgs4cl/dgs4cl.jar -d Examples/VersionInfo.dgs Examples/DGSPreviewerDMGBackground.svg ./background.png
+mkdir .background 2>/dev/null
+java -jar ../dgs4cl/dgs4cl.jar -d Examples/VersionInfo.dgs Examples/DGSPreviewerDMGBackground.svg ./.background/background.png
 cd "$start_dir"
 
 echo "Creating DMG ..."
