@@ -16,6 +16,8 @@ rm "$disk_image_name.dmg" 2>/dev/null
 start_dir=`pwd`
 echo "Starting directory: ${start_dir}"
 cd "$source_directory"
+# Fix the case of the version info file if needed
+mv Examples/versioninfo.dgs Examples/VersionInfo.dgs	2>/dev/null
 echo "Creating DMG background image from template ..."
 mkdir .background 2>/dev/null
 java -jar ../dgs4cl/dgs4cl.jar -d Examples/VersionInfo.dgs Examples/DGSPreviewerDMGBackground.svg ./.background/background.png
