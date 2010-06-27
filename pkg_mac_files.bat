@@ -62,7 +62,7 @@ cd mac\DGSPreviewer
 mkdir Examples
 cd Examples
 xcopy ..\..\..\DGSPreviewer\branding\DGSPreviewerDMGBackground.svg .
-xcopy ..\..\..\versioninfo.xml .
+xcopy ..\..\..\versioninfo.dgs .
 move versioninfo.xml VersionInfo.dgs
 cd ..\..\..
 
