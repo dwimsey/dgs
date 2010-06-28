@@ -67,16 +67,9 @@ public class CommandEngine implements ICommandEngine {
 		pEngine.addCommandInstruction("addWatermark", new addWatermark());
 	}
 
-
-	private String getAttributeValue(NamedNodeMap attributes, String aName) {
-		Node cNode = attributes.getNamedItem(aName);
-		if (cNode == null) {
-			return (null);
-		}
-		return (cNode.getNodeValue());
-	}
-
-	public boolean load(ProcessingWorkspace workspace, String fileName, String bufferName, String mimeType, NamedNodeMap attributes) {
+        public boolean load(ProcessingWorkspace workspace, String fileName, String bufferName, String mimeType, NamedNodeMap attributes) {
+                boolean quirkVersion12UpConvert = false;
+                boolean quirkInkscapeFile = false;
 		DGSFileInfo dgsFile = null;
 		for (int i = 0; i < workspace.requestInfo.files.length; i++) {
 			if (workspace.requestInfo.files[i].name.equals(fileName)) {
@@ -92,11 +85,18 @@ public class CommandEngine implements ICommandEngine {
 		ProcessingEngineImageBuffer buffer = null;
 		if (dgsFile.mimeType.equals(MIME_BUFFERTYPE)) {
 			SVGDocument doc = null;
+			String parser = XMLResourceDescriptor.getXMLParserClassName();
+			SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
 			try {
-				String parser = XMLResourceDescriptor.getXMLParserClassName();
-				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-				doc = f.createSVGDocument(null, new java.io.StringReader((String)new String(dgsFile.data, "UTF8")));
-			} catch (IOException ex) {
+				//TODO: // this always forces the 1.1 version to 1.2 but its a nasty hack, we need to do this properly
+                                try {
+                                    doc = f.createSVGDocument(null, new java.io.StringReader((String)new String(dgsFile.data, "UTF8")));
+                                } catch(Throwable eex) {
+                                    doc = f.createSVGDocument(null, new java.io.StringReader((String)new String(dgsFile.data, "UTF8").replaceFirst("version=\"1.1\"", "version=\"1.2\"")));
+                                    // we had to upconvert to 1.2 to get something to work, lame, flag it
+                                    quirkVersion12UpConvert = true;
+                                }
+			} catch (Throwable ex) {
 				workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
 				return (false);
 			}
@@ -104,16 +104,95 @@ public class CommandEngine implements ICommandEngine {
 			buffer = workspace.createImageBuffer(bufferName);
 			SVGElement rootNode = doc.getRootElement();
 			if(rootNode != null) {
-				String valStr = rootNode.getAttribute("height");
+                                // TODO: Figure out a better way to handle inkscape HACKS
+                                // HACK: If this is an inkscape file, we have to do a couple special things
+                                String valStr = "";
+                                String oStr = "";
+                                SVGElement wNode = null;// = (SVGElement)ns.item(0);
+                                SVGElement wwNode = null;
+                                SVGElement wwwNode = null;
+                                int i = 0;
+                                int ii = 0;
+                                int iii = 0;
+
+                                NodeList ns;
+                                NodeList ns2;
+                                NodeList ns3;
+
+                                String nodeName;
+
+                                oStr = rootNode.getAttributeNS("http://www.inkscape.org/namespaces/inkscape", "version");
+                                
+                                if(oStr != null) {
+                                    quirkInkscapeFile = true;
+                                } else {
+                                    ns = doc.getElementsByTagNameNS("http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd", "namedview");
+                                    if(ns!=null) {
+                                        quirkInkscapeFile = true;
+                                    }
+                                }
+                                oStr = "";
+
+                                if(quirkInkscapeFile) {
+                                    // Find any flow roots and fix the flow region backgrounds and wrap the
+                                    // text in a flowDiv
+                                    SVGOMRectElement rNode;
+                                    ns = doc.getElementsByTagName("flowRoot");
+                                    if(ns != null) {
+                                        wNode = null;// = (SVGElement)ns.item(0);
+                                        i = 0;
+                                        wNode = (SVGElement)ns.item(i++);
+                                        while(wNode != null) {
+                                            // fix the rectangles for this flow root
+                                            ns2 = wNode.getElementsByTagName("rect");
+                                            if(ns2 != null && ns2.getLength()>0) {
+                                                ii = 0;
+                                                rNode = (SVGOMRectElement)ns2.item(ii++);
+                                                while(rNode != null) {
+                                                    // change the style for the rectangle to from fill-opacity:1 to fill-opacity:0
+                                                    rNode.setAttribute(rNode.CSS_FILL_OPACITY_PROPERTY, "0");
+                                                    rNode = (SVGOMRectElement)ns2.item(ii++);
+                                                }
+                                            }
+
+                                            ns2 = wNode.getElementsByTagName("flowDiv");
+                                            if(ns2 == null || ns2.getLength()==0) {
+                                                // we don't have any flowDivs, do we have any flowPara's
+                                                // that need to be moved?
+                                                ns2 = wNode.getElementsByTagName("flowPara");
+                                                if(ns2 != null && ns2.getLength()>0) {
+                                                    // we need to move the flowPara's into the flowDiv
+                                                    ii = 0;
+                                                    Element fdNode = doc.createElement("flowDiv");
+                                                    wwNode = (SVGElement)ns2.item(ii++);
+                                                    while(wwNode != null) {
+                                                        wNode.removeChild(wwNode);
+                                                        fdNode.appendChild(wwNode);
+                                                        wwNode = (SVGElement)ns2.item(ii++);
+                                                    }
+                                                    if(ii>0) {
+                                                        wNode.appendChild(fdNode);
+                                                    }
+                                                }
+                                            
+                                            
+                                            }
+
+                                            wNode = (SVGElement)ns.item(i++);
+                                        }
+                                    }
+                                }
+                                   
+                                valStr = rootNode.getAttribute("height");
 				if(valStr != null && valStr.length() > 0) {
-					valStr = valStr.trim();
-					if(valStr.endsWith(("px"))) {
-						valStr = valStr.substring(0, (valStr.length()-2));
-					}
-					Float ff = Float.parseFloat(valStr);
-					buffer.height = (int)ff.intValue();
-				} else {
-					buffer.height = 0;
+                                    valStr = valStr.trim();
+                                    if(valStr.endsWith(("px"))) {
+                                        valStr = valStr.substring(0, (valStr.length()-2));
+                                    }
+                                    Float ff = Float.parseFloat(valStr);
+                                    buffer.height = (int)ff.intValue();
+                                } else {
+                                    buffer.height = 0;
 				}
 				if(valStr != null && valStr.length() > 0) {
 					valStr = valStr.trim();
