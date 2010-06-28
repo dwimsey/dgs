@@ -48,6 +48,7 @@ echo '
            make new alias file at container window to POSIX file "/Applications" with properties {name:"Applications"}
            set position of item "'DGSPreviewer.app'" of container window to {210, 250}
            set position of item "Applications" of container window to {400, 250}
+           set position of item "Examples" of container window to {528, 50}
            close
            open
            update without registering applications
