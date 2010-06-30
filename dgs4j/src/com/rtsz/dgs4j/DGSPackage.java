@@ -32,6 +32,7 @@ public class DGSPackage {
 
 	public DGSFileInfo[] files = null;
 	public DGSVariable[] variables = null;
+	public String stylesheet = null;
 
 	public DGSPackage() {
 		super();
@@ -46,6 +47,7 @@ public class DGSPackage {
 		commandString = "";
 		files = null;
 		variables = null;
+		stylesheet = null;
 	}
 
 	public boolean loadFile(String filename)
@@ -196,6 +198,25 @@ public class DGSPackage {
 			ex.printStackTrace();
 			return(false);
 		}
+
+		try {
+			nodeLst = doc.getElementsByTagName("DGSStyleSheet");
+
+			if(nodeLst != null) {
+				int nLen = nodeLst.getLength();
+				if(nLen>0) {
+					this.stylesheet = nodeLst.item(0).getTextContent();
+					if(nLen > 1) {
+						throw new Exception("DGSStyleSheet");
+					}
+				}
+			}
+		} catch (Exception ex) {
+//			setStatusMessage(10, "loadImageFiles: An error occurred parsing the variable data in" + varFileName + "\": " + ex.getLocalizedMessage());
+			ex.printStackTrace();
+			return(false);
+		}
+
 		this.fileName = filename;
 		return(true);
 	}
