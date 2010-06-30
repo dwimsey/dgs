@@ -67,9 +67,23 @@ public class CommandEngine implements ICommandEngine {
 		pEngine.addCommandInstruction("addWatermark", new addWatermark());
 	}
 
+	//0.47+devel r9492
+	private int getInkscapeQuirksVersion(String inkscapeIdStr)
+	{
+		int o = inkscapeIdStr.indexOf(" r");
+		if(o > -1) {
+			try {
+				return(java.lang.Integer.parseInt(inkscapeIdStr.substring(o+2)));
+			} catch(Throwable t) {
+
+			}
+		}
+		return(1);
+	}
+
         public boolean load(ProcessingWorkspace workspace, String fileName, String bufferName, String mimeType, NamedNodeMap attributes) {
                 boolean quirkVersion12UpConvert = false;
-                boolean quirkInkscapeFile = false;
+		int quirkInkscapeRev = 0;
 		DGSFileInfo dgsFile = null;
 		for (int i = 0; i < workspace.requestInfo.files.length; i++) {
 			if (workspace.requestInfo.files[i].name.equals(fileName)) {
@@ -121,24 +135,30 @@ public class CommandEngine implements ICommandEngine {
 
                                 String nodeName;
 
+				// Check for inkscape identifier so we can handle its quirks
                                 oStr = rootNode.getAttributeNS("http://www.inkscape.org/namespaces/inkscape", "version");
-                                
                                 if(oStr != null) {
-                                    quirkInkscapeFile = true;
+					quirkInkscapeRev = getInkscapeQuirksVersion(oStr);
                                 } else {
                                     ns = doc.getElementsByTagNameNS("http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd", "namedview");
                                     if(ns!=null) {
-                                        quirkInkscapeFile = true;
+						quirkInkscapeRev = 1;
                                     }
                                 }
                                 oStr = "";
 
-                                if(quirkInkscapeFile) {
+				if(quirkInkscapeRev > 0) {
                                     // Find any flow roots and fix the flow region backgrounds and wrap the
                                     // text in a flowDiv
                                     SVGOMRectElement rNode;
                                     ns = doc.getElementsByTagName("flowRoot");
                                     if(ns != null) {
+						String s = "";
+						String ss = "";
+						String p1 = "";
+						String p2 = "";
+						int offset1 = 0;
+						int offset2 = 0;
                                         wNode = null;// = (SVGElement)ns.item(0);
                                         i = 0;
                                         wNode = (SVGElement)ns.item(i++);
@@ -150,7 +170,66 @@ public class CommandEngine implements ICommandEngine {
                                                 rNode = (SVGOMRectElement)ns2.item(ii++);
                                                 while(rNode != null) {
                                                     // change the style for the rectangle to from fill-opacity:1 to fill-opacity:0
-                                                    rNode.setAttribute(rNode.CSS_FILL_OPACITY_PROPERTY, "0");
+									s = rNode.getAttribute(rNode.SVG_STYLE_ATTRIBUTE);
+									ss = s;
+
+									offset1 = ss.indexOf("fill:");
+									if(offset1 > -1) {
+										p1 = ss.substring(0, offset1);
+										offset2 = ss.indexOf(";", offset1);
+										// check for end with no semi-colon
+										if(offset2==-1) {
+											offset2 = ss.length();
+										}
+										if(offset2 > (offset1 + 1)) {
+											p2 = ss.substring(offset2);
+
+											ss = ss.substring(offset1, offset2);
+											// we have a value to deal with changing possibly
+											String b = wNode.getAttribute("style");
+											if(b.contains(ss)) {
+												// the flowRoot and the rectangle have the same color
+												// this is how inkscape stores the coloring so we have
+												// to ignore the background color until its fixed
+												ss = p1 + "fill:none";
+											} else {
+												ss = p1 + ss;
+											}
+											ss += p2;
+										}
+									}
+
+
+									offset1 = ss.indexOf("fill-opacity:");
+									if(offset1 > -1) {
+										p1 = ss.substring(0, offset1);
+										offset2 = ss.indexOf(";", offset1);
+										// check for end with no semi-colon
+										if(offset2==-1) {
+											offset2 = ss.length();
+										}
+										if(offset2 > (offset1 + 1)) {
+											p2 = ss.substring(offset2);
+
+											ss = ss.substring(offset1, offset2);
+											// we have a value to deal with changing possibly
+											String b = wNode.getAttribute("style");
+											if(b.contains(ss)) {
+												// the flowRoot and the rectangle have the same color
+												// this is how inkscape stores the coloring so we have
+												// to ignore the background color until its fixed
+												ss = p1;
+											} else {
+												ss = p1 + ss;
+											}
+											ss += p2;
+										}
+									}
+
+
+									if(!s.equals(ss)) {
+										rNode.setAttribute(rNode.SVG_STYLE_ATTRIBUTE, ss);
+									}
                                                     rNode = (SVGOMRectElement)ns2.item(ii++);
                                                 }
                                             }
