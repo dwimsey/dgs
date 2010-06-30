@@ -330,6 +330,13 @@ public class CommandEngine implements ICommandEngine {
 				} catch (IOException ie) {
 					workspace.log("An error occurred in the load command: Image could not be loaded because it is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
 				}
+			} else if (dgsFile.mimeType.equals("text/css")) {
+				buffer = workspace.createImageBuffer(bufferName);
+				buffer.height = 0;
+				buffer.width = 0;
+				buffer.mimeType = dgsFile.mimeType.intern();
+				buffer.data = dgsFile.data.clone();
+				return (true);
 			}
 		}
 		return (false);
