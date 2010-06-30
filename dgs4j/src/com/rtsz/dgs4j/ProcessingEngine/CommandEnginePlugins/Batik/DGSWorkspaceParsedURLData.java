@@ -78,12 +78,27 @@ protected  boolean	sameFile(ParsedURLData other)
 		if(workspace == null) {
 			return(inStream);
 		}
-		ProcessingEngineImageBuffer ib = workspace.getImageBuffer(this.path);
-		if(ib==null) {
-			return(inStream);
-		}
 
-		inStream = new java.io.ByteArrayInputStream((byte[])ib.data);
+
+		if(this.path.equals("workspace.css")) {
+				if(workspace.activeStylesheet == null) {
+					inStream = new java.io.ByteArrayInputStream(new byte[0]);
+				} else {
+					try {
+						inStream = new java.io.ByteArrayInputStream((byte[])workspace.activeStylesheet.getBytes("utf-8"));
+					} catch(Throwable t) {
+						workspace.log(("ERROR: could not create input stream for default stylesheet: " + t.getMessage()));
+						inStream = new java.io.ByteArrayInputStream(new byte[0]);
+					}
+				}
+		} else {
+				ProcessingEngineImageBuffer ib = workspace.getImageBuffer(this.path);
+				if(ib==null) {
+					return(inStream);
+				}
+
+				inStream = new java.io.ByteArrayInputStream((byte[])ib.data);
+		}
 		return(inStream);
 	}
 	protected InputStream openStreamInternal2(String userAgent, Iterator mimeTypes, Iterator encodingTypes)
