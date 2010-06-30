@@ -194,6 +194,7 @@ public class CommandEngine implements ICommandEngine {
                                 } else {
                                     buffer.height = 0;
 				}
+                                valStr = rootNode.getAttribute("width");
 				if(valStr != null && valStr.length() > 0) {
 					valStr = valStr.trim();
 					if(valStr.endsWith(("px"))) {
