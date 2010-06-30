@@ -568,7 +568,7 @@ public class DGSPreviewerView extends FrameView {
             fc = new JFileChooser();
         }
 
-		FileNameExtensionFilter filter = new FileNameExtensionFilter("DGS Template Package files (*.xml)", "xml");
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("DGS Template Package files (*.dgs)", "dgs");
 		fc.setFileFilter(filter);
         int choice = fc.showOpenDialog(mainPanel);
         if (choice == JFileChooser.APPROVE_OPTION) {
