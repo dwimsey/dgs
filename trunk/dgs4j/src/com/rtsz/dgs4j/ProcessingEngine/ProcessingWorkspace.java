@@ -20,6 +20,9 @@ public class ProcessingWorkspace {
         public static final String DGSNSREF_XLINK = "http://www.w3.org/1999/xlink";
         public static final String DGSNSREF_SODIPODI = "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd";
         public static final String DGSNSREF_INKSCAPE = "http://www.inkscape.org/namespaces/inkscape";
+		public static final String DGSNSREF_DGSIMAGE = "http://www.rtsz.com/ns/dgs";
+
+		public static final String DGSWORKSPACE_URL_STYLESHEET = "workspace://workspace.css";
 
         private static class ThreadLocalWorkspace extends ThreadLocal {
 	}
