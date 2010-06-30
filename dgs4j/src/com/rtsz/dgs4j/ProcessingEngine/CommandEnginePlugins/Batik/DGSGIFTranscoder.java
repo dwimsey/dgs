@@ -58,28 +58,35 @@ public class DGSGIFTranscoder extends org.apache.batik.transcoder.SVGAbstractTra
 			throws TranscoderException {
 
 		try {
-			// do we need to generate an animated GIF?
+			float animationStartTime = 0.0001f;
 			TranscoderOutput oto = null;
-			float animationStartTime = 45.0f;
-			float animationRepeatDelay = 2.0f;
-			float animationTimeStep = 0.2f;
+			float animationRepeatDelay = 1.0f;
+			float animationTimeStep = 1.0f;
 			int animationFrameCount = 1;
 			int animationRepeatCount = 1;
 
-			if (!this.hints.containsKey(CommandEngine.KEY_ANIMATION_ENABLED)) {
-				animationRepeatDelay = 0.0f;
-				animationTimeStep = 0.0f;
-				animationFrameCount = 1;
-				animationRepeatCount = 1;
+			if(this.hints.containsKey(DGSGIFTranscoder.KEY_SNAPSHOT_TIME)) {
+				try {
+					animationStartTime = java.lang.Float.parseFloat(this.hints.get(DGSGIFTranscoder.KEY_SNAPSHOT_TIME).toString());
+				} catch (Throwable t) {
+
+				}
 			}
 
-			if (animationFrameCount < 1) {
-				// invalid frame count, produce 1 frame instead
+			if(this.hints.containsKey(DGSGIFTranscoder.KEY_SNAPSHOT_TIME)) {
+				try {
+					animationStartTime = java.lang.Float.parseFloat(this.hints.get(DGSGIFTranscoder.KEY_SNAPSHOT_TIME).toString());
+				} catch (Throwable t) {
+
+				}
+			}
+
+			if ((!this.hints.containsKey(CommandEngine.KEY_ANIMATION_ENABLED)) || java.lang.Boolean.FALSE.equals(this.hints.get(CommandEngine.KEY_ANIMATION_ENABLED)) || (animationFrameCount < 1)) {
+				// animation is disabled or the frame count is invalid, produce 1 frame instead
 				animationRepeatDelay = 0.0f;
 				animationTimeStep = 0.0f;
 				animationFrameCount = 1;
 				animationRepeatCount = 1;
-				animationFrameCount = 1;
 			}
 
 			// create the gif stream
