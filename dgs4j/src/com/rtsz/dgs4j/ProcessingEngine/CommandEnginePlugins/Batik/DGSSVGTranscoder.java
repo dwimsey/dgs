@@ -24,9 +24,114 @@ import javax.xml.transform.stream.*;
  * @author dwimsey
  */
 public class DGSSVGTranscoder extends SVGAbstractTranscoder {
+	ProcessingWorkspace cWorkspace;
 	public DGSSVGTranscoder(ProcessingWorkspace workspace) {
 		super();
-		this.userAgent = new DGSUserAgent(this.userAgent, workspace);
+		cWorkspace = workspace;
+		this.userAgent = new DGSUserAgent(this.userAgent, cWorkspace);
+	}
+
+	private String convertWorkspace2DataURL(String wsUrl)
+	{
+		String rValue = "";
+		if (wsUrl.equals("workspace.css")) {
+			if (cWorkspace.activeStylesheet != null) {
+				try {
+					rValue = "data://text/css;base64,";
+					rValue += Base64.encodeBytes(cWorkspace.activeStylesheet.getBytes("utf-8"));
+				} catch (Throwable t) {
+					cWorkspace.log("ERROR: could not create embedded data stream for default stylesheet: " + t.getMessage());
+					rValue = "";
+				}
+			}
+		} else {
+			ProcessingEngineImageBuffer ib = cWorkspace.getImageBuffer(wsUrl);
+			if (ib == null) {
+				cWorkspace.log("ERROR: Workspace file not found: " + wsUrl);
+			} else {
+				try {
+					rValue = "data://" + ib.mimeType + ";base64,";
+					rValue += Base64.encodeBytes((byte[])ib.data);
+				} catch (Throwable t) {
+					cWorkspace.log("ERROR: could not create embedded data stream for default stylesheet: " + t.getMessage());
+					rValue = "";
+				}
+			}
+		}
+
+		return(rValue);
+	}
+
+	void ReplaceWorkspaceURL(Node cNode)
+	{
+		org.w3c.dom.NamedNodeMap aList;
+		if(cNode.getNodeType() == cNode.PROCESSING_INSTRUCTION_NODE) {
+			try {
+				org.w3c.dom.ProcessingInstruction p = (org.w3c.dom.ProcessingInstruction)cNode;
+				String s = p.getData();
+				String s1;
+				String s2;
+				String ss;
+				int o = s.indexOf("href=\"workspace:");
+				if(o > -1) {
+
+					s1 = s.substring(0, o) + "href=\"";
+					ss = s.substring(o+16);
+					
+					if(ss.startsWith("//")) {
+						ss = ss.substring(2);
+					}
+					int oo = ss.indexOf("\"");
+					if(oo > -1) {
+						// only continue if we find the closing quote too
+						s2 = ss.substring(oo);
+						ss = ss.substring(0, oo);
+						s = s1 + convertWorkspace2DataURL(ss) + s2;
+						p.setData(s);
+					}
+//							+ this.convertWorkspace2DataURL(ss)
+				}
+			} catch(Throwable t) {
+				cWorkspace.log("ERROR: Could not patch processing instruction URL");
+			}
+
+		} else {
+			if(cNode.hasAttributes()) {
+				aList = cNode.getAttributes();
+				Node aNode = aList.getNamedItemNS(null, "href");
+				String aValue;
+				if(aNode != null) {
+					aValue = aNode.getTextContent();
+					if(aValue != null && aValue.startsWith("workspace:")) {
+						aValue = aValue.substring(10);
+						if(aValue.startsWith(("//"))) {
+							aValue = aValue.substring(2);
+						}
+						aNode.setTextContent(convertWorkspace2DataURL(aValue));
+
+					}
+				}
+
+				aNode = aList.getNamedItemNS(null, "src");
+				if(aNode != null) {
+					aValue = aNode.getTextContent();
+					if(aValue != null && aValue.startsWith("workspace:")) {
+						aValue = aValue.substring(10);
+						if(aValue.startsWith(("//"))) {
+							aValue = aValue.substring(2);
+						}
+						aNode.setTextContent(convertWorkspace2DataURL(aValue));
+
+					}
+				}
+			}
+		}
+
+		Node childNode = cNode.getFirstChild();
+		while(childNode != null) {
+			ReplaceWorkspaceURL(childNode);
+			childNode = childNode.getNextSibling();
+		}
 	}
 
 	private void transcodeDoc(Document node) {
@@ -34,7 +139,7 @@ public class DGSSVGTranscoder extends SVGAbstractTranscoder {
 
 		Node cNode = node.getFirstChild();
 		while(cNode != null) {
-			//ReplaceWorkspaceURL(cNode);
+			ReplaceWorkspaceURL(cNode);
 			cNode = cNode.getNextSibling();
 		}
 	}
@@ -82,6 +187,7 @@ public class DGSSVGTranscoder extends SVGAbstractTranscoder {
 			}
 		}
 
+		super.transcode(input, output);
 		// at this point, svgDoc should always point to a valid SVGDocument object
 		// we need to convert any links to the workspace into something useful outside of
 		// the workspace, so convert the URLs to use the data protocol instead of the
