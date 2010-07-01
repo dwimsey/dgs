@@ -207,7 +207,7 @@ public class DGSPackage {
 				if(nLen>0) {
 					this.stylesheet = nodeLst.item(0).getTextContent();
 					if(nLen > 1) {
-						throw new Exception("DGSStyleSheet");
+						throw new Exception("Only one DGSStyleSheet is allowed.");
 					}
 				}
 			}
