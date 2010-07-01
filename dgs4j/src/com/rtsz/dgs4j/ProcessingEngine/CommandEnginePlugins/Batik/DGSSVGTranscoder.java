@@ -29,20 +29,18 @@ public class DGSSVGTranscoder extends AbstractTranscoder {
 		super();
 		//this.userAgent = new DGSUserAgent(this.getUserAgent(), workspace);
 	}
-	
-	private void transcodeNode(Object node)
-	{
+
+	private void transcodeNode(Object node) {
 		// we don't do anything yet, the workspace url must be supported first
 	}
 
-	public void transcode(TranscoderInput input, TranscoderOutput output) throws TranscoderException
-	{
+	public void transcode(TranscoderInput input, TranscoderOutput output) throws TranscoderException {
 		java.io.OutputStream outStream = output.getOutputStream();
 		// get the input data type
 		java.io.InputStream inStream = input.getInputStream();
 		Document svgDoc = input.getDocument();
-		if(svgDoc == null) {
-			if(inStream != null) {
+		if (svgDoc == null) {
+			if (inStream != null) {
 				try {
 					byte[] data;
 					byte[] tdata;
@@ -51,14 +49,14 @@ public class DGSSVGTranscoder extends AbstractTranscoder {
 					int bytesStored = 0;
 					data = new byte[blockSize];
 					bytesRead = inStream.read(data, 0, blockSize);
-					while(bytesRead>0) {
+					while (bytesRead > 0) {
 						bytesStored += bytesRead;
 						tdata = new byte[bytesStored + blockSize];
 						System.arraycopy(data, 0, tdata, 0, bytesStored);
 						data = tdata;
 						bytesRead = inStream.read(data, bytesStored, blockSize);
 					}
-					if(bytesStored > 0) {
+					if (bytesStored > 0) {
 						// resize the block one last time, truncating unused space
 						tdata = new byte[bytesStored];
 						System.arraycopy(data, 0, tdata, 0, bytesStored);
@@ -66,11 +64,11 @@ public class DGSSVGTranscoder extends AbstractTranscoder {
 					}
 					String parser = XMLResourceDescriptor.getXMLParserClassName();
 					SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String)new String(data, "UTF8")));
+					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String) new String(data, "UTF8")));
 				} catch (IOException ex) {
 					throw new TranscoderException("An error occurred parsing the SVG buffer data.", ex);
 				}
-				if(svgDoc == null) {
+				if (svgDoc == null) {
 					throw new TranscoderException("InputStream DOM creation returned null.");
 				}
 			} else {
@@ -80,17 +78,17 @@ public class DGSSVGTranscoder extends AbstractTranscoder {
 		}
 
 		// at this point, svgDoc should always point to a valid SVGDocument object
-		// we need to convert any links to the workspace into something useful outside of 
+		// we need to convert any links to the workspace into something useful outside of
 		// the workspace, so convert the URLs to use the data protocol instead of the
 		// internal workspace.
 		transcodeNode(svgDoc.getFirstChild());
-		
+
 		// Now convert the document into an encoded byte stream.
 		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer t = null;
 		try {
 			t = tf.newTransformer();
-			t.transform(new DOMSource((Document)svgDoc), new StreamResult(outStream));
+			t.transform(new DOMSource((Document) svgDoc), new StreamResult(outStream));
 		} catch (TransformerConfigurationException ex) {
 			throw new TranscoderException(ex);
 		} catch (TransformerException ex) {
@@ -98,17 +96,16 @@ public class DGSSVGTranscoder extends AbstractTranscoder {
 		}
 	}
 }
-
 // this code just passes the document through as is
 /*			int blockSize = 8192;
-			byte[] data = new byte[blockSize];
-			try {
-				int bytesRead = inStream.read(data, 0, blockSize);
-				while(bytesRead>0) {
-					outStream.write(data, 0, bytesRead);
-					bytesRead = inStream.read(data, 0, blockSize);
-				}
-			} catch(java.io.IOException ex) {
-				throw new TranscoderException(ex);
-			}
-*/
+byte[] data = new byte[blockSize];
+try {
+int bytesRead = inStream.read(data, 0, blockSize);
+while(bytesRead>0) {
+outStream.write(data, 0, bytesRead);
+bytesRead = inStream.read(data, 0, blockSize);
+}
+} catch(java.io.IOException ex) {
+throw new TranscoderException(ex);
+}
+ */

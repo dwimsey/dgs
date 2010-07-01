@@ -12,29 +12,29 @@ import java.util.*;
  * @author dwimsey
  */
 public class ProcessingWorkspace {
+
 	public static final String DGSNSREF_DC = "http://purl.org/dc/elements/1.1/";
-        public static final String DGSNSREF_CC = "http://creativecommons.org/ns#";
-        public static final String DGSNSREF_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-        public static final String DGSNSREF_SVG = "http://www.w3.org/2000/svg";
-        public static final String DGSNSREF_XMLNS = "http://www.w3.org/2000/svg";
-        public static final String DGSNSREF_XLINK = "http://www.w3.org/1999/xlink";
-        public static final String DGSNSREF_SODIPODI = "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd";
-        public static final String DGSNSREF_INKSCAPE = "http://www.inkscape.org/namespaces/inkscape";
-		public static final String DGSNSREF_DGSIMAGE = "http://www.rtsz.com/ns/dgs";
+	public static final String DGSNSREF_CC = "http://creativecommons.org/ns#";
+	public static final String DGSNSREF_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+	public static final String DGSNSREF_SVG = "http://www.w3.org/2000/svg";
+	public static final String DGSNSREF_XMLNS = "http://www.w3.org/2000/svg";
+	public static final String DGSNSREF_XLINK = "http://www.w3.org/1999/xlink";
+	public static final String DGSNSREF_SODIPODI = "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd";
+	public static final String DGSNSREF_INKSCAPE = "http://www.inkscape.org/namespaces/inkscape";
+	public static final String DGSNSREF_DGSIMAGE = "http://www.rtsz.com/ns/dgs";
+	public static final String DGSWORKSPACE_URL_STYLESHEET = "workspace://workspace.css";
 
-		public static final String DGSWORKSPACE_URL_STYLESHEET = "workspace://workspace.css";
-
-        private static class ThreadLocalWorkspace extends ThreadLocal {
+	private static class ThreadLocalWorkspace extends ThreadLocal {
 	}
 	private static ThreadLocalWorkspace activeWorkspace = new ThreadLocalWorkspace();
+
 	public static ProcessingWorkspace getCurrentWorkspace() {
-		return((ProcessingWorkspace)activeWorkspace.get());
+		return ((ProcessingWorkspace) activeWorkspace.get());
 	}
+
 	public static void setCurrentWorkspace(ProcessingWorkspace workspace) {
 		activeWorkspace.set(workspace);
 	}
-  
-
 	public DGSRequestInfo requestInfo;
 	private List<ProcessingEngineImageBuffer> images;
 	private List<String> processingLog;

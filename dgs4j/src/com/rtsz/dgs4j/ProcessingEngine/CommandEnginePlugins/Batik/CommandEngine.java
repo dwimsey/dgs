@@ -38,24 +38,25 @@ public class CommandEngine implements ICommandEngine {
 	public static final String MIME_BUFFERTYPE = "image/svg+xml";
 	public static final String COMMAND_ENGINE_ALLOWED_SCRIPT_TYPES = "text/javascript,application/javascript,application/ecmascript,text/ecmascript";
 	public static DGSGIFRegistryEntry batikGIFRegistryEntry;
+
 	@Override
 	public synchronized void init() {
-		if(batikGIFRegistryEntry == null) {
+		if (batikGIFRegistryEntry == null) {
 			// add our GIF support to batik first
 			batikGIFRegistryEntry = new DGSGIFRegistryEntry();
 			org.apache.batik.ext.awt.image.spi.ImageTagRegistry ir = org.apache.batik.ext.awt.image.spi.ImageTagRegistry.getRegistry();
 //			java.util.List mTypes = ir.getRegisteredMimeTypes();
 //			if(!mTypes.contains("image/gif")) {
-				ir.register(batikGIFRegistryEntry);
+			ir.register(batikGIFRegistryEntry);
 //			}
 //			if(!mTypes.contains("image/png")) {
-				ir.register(new org.apache.batik.ext.awt.image.codec.png.PNGRegistryEntry());
+			ir.register(new org.apache.batik.ext.awt.image.codec.png.PNGRegistryEntry());
 //			}
 //			if(!mTypes.contains("image/jpeg")) {
-				ir.register(new org.apache.batik.ext.awt.image.codec.jpeg.JPEGRegistryEntry());
+			ir.register(new org.apache.batik.ext.awt.image.codec.jpeg.JPEGRegistryEntry());
 //			}
 //			if(!mTypes.contains("image/tiff")) {
-				ir.register(new org.apache.batik.ext.awt.image.codec.tiff.TIFFRegistryEntry());
+			ir.register(new org.apache.batik.ext.awt.image.codec.tiff.TIFFRegistryEntry());
 //			}
 		}
 	}
@@ -68,21 +69,19 @@ public class CommandEngine implements ICommandEngine {
 	}
 
 	//0.47+devel r9492
-	private int getInkscapeQuirksVersion(String inkscapeIdStr)
-	{
+	private int getInkscapeQuirksVersion(String inkscapeIdStr) {
 		int o = inkscapeIdStr.indexOf(" r");
-		if(o > -1) {
+		if (o > -1) {
 			try {
-				return(java.lang.Integer.parseInt(inkscapeIdStr.substring(o+2)));
-			} catch(Throwable t) {
-
+				return (java.lang.Integer.parseInt(inkscapeIdStr.substring(o + 2)));
+			} catch (Throwable t) {
 			}
 		}
-		return(1);
+		return (1);
 	}
 
-        public boolean load(ProcessingWorkspace workspace, String fileName, String bufferName, String mimeType, NamedNodeMap attributes) {
-                boolean quirkVersion12UpConvert = false;
+	public boolean load(ProcessingWorkspace workspace, String fileName, String bufferName, String mimeType, NamedNodeMap attributes) {
+		boolean quirkVersion12UpConvert = false;
 		int quirkInkscapeRev = 0;
 		DGSFileInfo dgsFile = null;
 		for (int i = 0; i < workspace.requestInfo.files.length; i++) {
@@ -103,13 +102,13 @@ public class CommandEngine implements ICommandEngine {
 			SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
 			try {
 				//TODO: // this always forces the 1.1 version to 1.2 but its a nasty hack, we need to do this properly
-                                try {
-                                    doc = f.createSVGDocument(null, new java.io.StringReader((String)new String(dgsFile.data, "UTF8")));
-                                } catch(Throwable eex) {
-                                    doc = f.createSVGDocument(null, new java.io.StringReader((String)new String(dgsFile.data, "UTF8").replaceFirst("version=\"1.1\"", "version=\"1.2\"")));
-                                    // we had to upconvert to 1.2 to get something to work, lame, flag it
-                                    quirkVersion12UpConvert = true;
-                                }
+				try {
+					doc = f.createSVGDocument(null, new java.io.StringReader((String) new String(dgsFile.data, "UTF8")));
+				} catch (Throwable eex) {
+					doc = f.createSVGDocument(null, new java.io.StringReader((String) new String(dgsFile.data, "UTF8").replaceFirst("version=\"1.1\"", "version=\"1.2\"")));
+					// we had to upconvert to 1.2 to get something to work, lame, flag it
+					quirkVersion12UpConvert = true;
+				}
 			} catch (Throwable ex) {
 				workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
 				return (false);
@@ -117,77 +116,77 @@ public class CommandEngine implements ICommandEngine {
 
 			buffer = workspace.createImageBuffer(bufferName);
 			SVGElement rootNode = doc.getRootElement();
-			if(rootNode != null) {
-                                // TODO: Figure out a better way to handle inkscape HACKS
-                                // HACK: If this is an inkscape file, we have to do a couple special things
-                                String valStr = "";
-                                String oStr = "";
-                                SVGElement wNode = null;// = (SVGElement)ns.item(0);
-                                SVGElement wwNode = null;
-                                SVGElement wwwNode = null;
-                                int i = 0;
-                                int ii = 0;
-                                int iii = 0;
+			if (rootNode != null) {
+				// TODO: Figure out a better way to handle inkscape HACKS
+				// HACK: If this is an inkscape file, we have to do a couple special things
+				String valStr = "";
+				String oStr = "";
+				SVGElement wNode = null;// = (SVGElement)ns.item(0);
+				SVGElement wwNode = null;
+				SVGElement wwwNode = null;
+				int i = 0;
+				int ii = 0;
+				int iii = 0;
 
-                                NodeList ns;
-                                NodeList ns2;
-                                NodeList ns3;
+				NodeList ns;
+				NodeList ns2;
+				NodeList ns3;
 
-                                String nodeName;
+				String nodeName;
 
 				// Check for inkscape identifier so we can handle its quirks
-                                oStr = rootNode.getAttributeNS("http://www.inkscape.org/namespaces/inkscape", "version");
-                                if(oStr != null) {
+				oStr = rootNode.getAttributeNS("http://www.inkscape.org/namespaces/inkscape", "version");
+				if (oStr != null) {
 					quirkInkscapeRev = getInkscapeQuirksVersion(oStr);
-                                } else {
-                                    ns = doc.getElementsByTagNameNS("http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd", "namedview");
-                                    if(ns!=null) {
+				} else {
+					ns = doc.getElementsByTagNameNS("http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd", "namedview");
+					if (ns != null) {
 						quirkInkscapeRev = 1;
-                                    }
-                                }
-                                oStr = "";
+					}
+				}
+				oStr = "";
 
-				if(quirkInkscapeRev > 0) {
-                                    // Find any flow roots and fix the flow region backgrounds and wrap the
-                                    // text in a flowDiv
-                                    SVGOMRectElement rNode;
-                                    ns = doc.getElementsByTagName("flowRoot");
-                                    if(ns != null) {
+				if (quirkInkscapeRev > 0) {
+					// Find any flow roots and fix the flow region backgrounds and wrap the
+					// text in a flowDiv
+					SVGOMRectElement rNode;
+					ns = doc.getElementsByTagName("flowRoot");
+					if (ns != null) {
 						String s = "";
 						String ss = "";
 						String p1 = "";
 						String p2 = "";
 						int offset1 = 0;
 						int offset2 = 0;
-                                        wNode = null;// = (SVGElement)ns.item(0);
-                                        i = 0;
-                                        wNode = (SVGElement)ns.item(i++);
-                                        while(wNode != null) {
-                                            // fix the rectangles for this flow root
-                                            ns2 = wNode.getElementsByTagName("rect");
-                                            if(ns2 != null && ns2.getLength()>0) {
-                                                ii = 0;
-                                                rNode = (SVGOMRectElement)ns2.item(ii++);
-                                                while(rNode != null) {
-                                                    // change the style for the rectangle to from fill-opacity:1 to fill-opacity:0
+						wNode = null;// = (SVGElement)ns.item(0);
+						i = 0;
+						wNode = (SVGElement) ns.item(i++);
+						while (wNode != null) {
+							// fix the rectangles for this flow root
+							ns2 = wNode.getElementsByTagName("rect");
+							if (ns2 != null && ns2.getLength() > 0) {
+								ii = 0;
+								rNode = (SVGOMRectElement) ns2.item(ii++);
+								while (rNode != null) {
+									// change the style for the rectangle to from fill-opacity:1 to fill-opacity:0
 									s = rNode.getAttribute(rNode.SVG_STYLE_ATTRIBUTE);
 									ss = s;
 
 									offset1 = ss.indexOf("fill:");
-									if(offset1 > -1) {
+									if (offset1 > -1) {
 										p1 = ss.substring(0, offset1);
 										offset2 = ss.indexOf(";", offset1);
 										// check for end with no semi-colon
-										if(offset2==-1) {
+										if (offset2 == -1) {
 											offset2 = ss.length();
 										}
-										if(offset2 > (offset1 + 1)) {
+										if (offset2 > (offset1 + 1)) {
 											p2 = ss.substring(offset2);
 
 											ss = ss.substring(offset1, offset2);
 											// we have a value to deal with changing possibly
 											String b = wNode.getAttribute("style");
-											if(b.contains(ss)) {
+											if (b.contains(ss)) {
 												// the flowRoot and the rectangle have the same color
 												// this is how inkscape stores the coloring so we have
 												// to ignore the background color until its fixed
@@ -201,20 +200,20 @@ public class CommandEngine implements ICommandEngine {
 
 
 									offset1 = ss.indexOf("fill-opacity:");
-									if(offset1 > -1) {
+									if (offset1 > -1) {
 										p1 = ss.substring(0, offset1);
 										offset2 = ss.indexOf(";", offset1);
 										// check for end with no semi-colon
-										if(offset2==-1) {
+										if (offset2 == -1) {
 											offset2 = ss.length();
 										}
-										if(offset2 > (offset1 + 1)) {
+										if (offset2 > (offset1 + 1)) {
 											p2 = ss.substring(offset2);
 
 											ss = ss.substring(offset1, offset2);
 											// we have a value to deal with changing possibly
 											String b = wNode.getAttribute("style");
-											if(b.contains(ss)) {
+											if (b.contains(ss)) {
 												// the flowRoot and the rectangle have the same color
 												// this is how inkscape stores the coloring so we have
 												// to ignore the background color until its fixed
@@ -227,60 +226,60 @@ public class CommandEngine implements ICommandEngine {
 									}
 
 
-									if(!s.equals(ss)) {
+									if (!s.equals(ss)) {
 										rNode.setAttribute(rNode.SVG_STYLE_ATTRIBUTE, ss);
 									}
-                                                    rNode = (SVGOMRectElement)ns2.item(ii++);
-                                                }
-                                            }
+									rNode = (SVGOMRectElement) ns2.item(ii++);
+								}
+							}
 
-                                            ns2 = wNode.getElementsByTagName("flowDiv");
-                                            if(ns2 == null || ns2.getLength()==0) {
-                                                // we don't have any flowDivs, do we have any flowPara's
-                                                // that need to be moved?
-                                                ns2 = wNode.getElementsByTagName("flowPara");
-                                                if(ns2 != null && ns2.getLength()>0) {
-                                                    // we need to move the flowPara's into the flowDiv
-                                                    ii = 0;
-                                                    Element fdNode = doc.createElement("flowDiv");
-                                                    wwNode = (SVGElement)ns2.item(ii++);
-                                                    while(wwNode != null) {
-                                                        wNode.removeChild(wwNode);
-                                                        fdNode.appendChild(wwNode);
-                                                        wwNode = (SVGElement)ns2.item(ii++);
-                                                    }
-                                                    if(ii>0) {
-                                                        wNode.appendChild(fdNode);
-                                                    }
-                                                }
-                                            
-                                            
-                                            }
+							ns2 = wNode.getElementsByTagName("flowDiv");
+							if (ns2 == null || ns2.getLength() == 0) {
+								// we don't have any flowDivs, do we have any flowPara's
+								// that need to be moved?
+								ns2 = wNode.getElementsByTagName("flowPara");
+								if (ns2 != null && ns2.getLength() > 0) {
+									// we need to move the flowPara's into the flowDiv
+									ii = 0;
+									Element fdNode = doc.createElement("flowDiv");
+									wwNode = (SVGElement) ns2.item(ii++);
+									while (wwNode != null) {
+										wNode.removeChild(wwNode);
+										fdNode.appendChild(wwNode);
+										wwNode = (SVGElement) ns2.item(ii++);
+									}
+									if (ii > 0) {
+										wNode.appendChild(fdNode);
+									}
+								}
 
-                                            wNode = (SVGElement)ns.item(i++);
-                                        }
-                                    }
-                                }
-                                   
-                                valStr = rootNode.getAttribute("height");
-				if(valStr != null && valStr.length() > 0) {
-                                    valStr = valStr.trim();
-                                    if(valStr.endsWith(("px"))) {
-                                        valStr = valStr.substring(0, (valStr.length()-2));
-                                    }
-                                    Float ff = Float.parseFloat(valStr);
-                                    buffer.height = (int)ff.intValue();
-                                } else {
-                                    buffer.height = 0;
+
+							}
+
+							wNode = (SVGElement) ns.item(i++);
+						}
+					}
 				}
-                                valStr = rootNode.getAttribute("width");
-				if(valStr != null && valStr.length() > 0) {
+
+				valStr = rootNode.getAttribute("height");
+				if (valStr != null && valStr.length() > 0) {
 					valStr = valStr.trim();
-					if(valStr.endsWith(("px"))) {
-						valStr = valStr.substring(0, (valStr.length()-2));
+					if (valStr.endsWith(("px"))) {
+						valStr = valStr.substring(0, (valStr.length() - 2));
 					}
 					Float ff = Float.parseFloat(valStr);
-					buffer.width = (int)ff.intValue();
+					buffer.height = (int) ff.intValue();
+				} else {
+					buffer.height = 0;
+				}
+				valStr = rootNode.getAttribute("width");
+				if (valStr != null && valStr.length() > 0) {
+					valStr = valStr.trim();
+					if (valStr.endsWith(("px"))) {
+						valStr = valStr.substring(0, (valStr.length() - 2));
+					}
+					Float ff = Float.parseFloat(valStr);
+					buffer.width = (int) ff.intValue();
 				} else {
 					buffer.width = 0;
 				}
@@ -317,9 +316,9 @@ public class CommandEngine implements ICommandEngine {
 				try {
 					bi = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(dgsFile.data));
 					os = new java.io.ByteArrayOutputStream();
-					if(!javax.imageio.ImageIO.write(bi, "png", os)) {
+					if (!javax.imageio.ImageIO.write(bi, "png", os)) {
 						workspace.log("GIF Image could not be converted to an acceptable internal format.");
-						return(false);
+						return (false);
 					}
 					buffer = workspace.createImageBuffer(bufferName);
 					buffer.height = bi.getHeight();
@@ -344,12 +343,12 @@ public class CommandEngine implements ICommandEngine {
 
 	public byte[] getImageData(ProcessingWorkspace workspace, Object svgData, String mimeType, float quality, float snapshotTime, String bufferType, java.awt.Dimension size) {
 		org.apache.batik.transcoder.Transcoder t = null;
-		if(mimeType.equals("image/png")) {
+		if (mimeType.equals("image/png")) {
 			t = new DGSPNGTranscoder(workspace);
 		} else if (mimeType.equals("image/gif")) {
 			t = new DGSGIFTranscoder(workspace);
 		} else if (mimeType.equals("image/jpeg")) {
-			t = new DGSJPEGTranscoder(workspace, new Float(quality)/100.0f); // the encoder expects a value between 1 and 0, so we must normalize the input value from the range of 0 - 100
+			t = new DGSJPEGTranscoder(workspace, new Float(quality) / 100.0f); // the encoder expects a value between 1 and 0, so we must normalize the input value from the range of 0 - 100
 		} else if (mimeType.equals("image/tiff")) {
 			t = new DGSTIFFTranscoder(workspace);
 		} else if (mimeType.equals("application/pdf")) {
@@ -363,7 +362,7 @@ public class CommandEngine implements ICommandEngine {
 
 		// for now we do our best to completely disable scripting
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_ALLOWED_SCRIPT_TYPES, COMMAND_ENGINE_ALLOWED_SCRIPT_TYPES);
-		if(workspace.activeStylesheet != null && (!workspace.activeStylesheet.isEmpty())) {
+		if (workspace.activeStylesheet != null && (!workspace.activeStylesheet.isEmpty())) {
 			t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_USER_STYLESHEET_URI, workspace.DGSWORKSPACE_URL_STYLESHEET);
 		}
 
@@ -378,23 +377,23 @@ public class CommandEngine implements ICommandEngine {
 			TranscoderInput input = null;
 			TranscoderOutput output = null;
 			Document svgDoc = null;
-			if(bufferType.equals(MIME_BUFFERTYPE)) {
+			if (bufferType.equals(MIME_BUFFERTYPE)) {
 				//input = new TranscoderInput(new java.io.ByteArrayInputStream((byte[])svgData.toString().getBytes()));
 				try {
 					String parser = XMLResourceDescriptor.getXMLParserClassName();
 					SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String)new String(((byte[])svgData), "UTF8")));
+					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String) new String(((byte[]) svgData), "UTF8")));
 					// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
 					// a real cause and fix needs to be found
 					svgDoc.setDocumentURI("http://localhost/workspace.svg");
 				} catch (Exception ex) {
 					workspace.log("An error occurred parsing the SVG file data for transcoding: " + ex.getMessage());
-					return(null);
+					return (null);
 				}
 			} else {
-				svgDoc = (Document)svgData;
+				svgDoc = (Document) svgData;
 			}
-			input = new TranscoderInput((Document)svgDoc);
+			input = new TranscoderInput((Document) svgDoc);
 
 			java.io.ByteArrayOutputStream outStream = new java.io.ByteArrayOutputStream();
 			output = new TranscoderOutput(outStream);
@@ -405,12 +404,12 @@ public class CommandEngine implements ICommandEngine {
 				// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
 				workspace.log("Transcoder Error:");
 				workspace.log(" -> " + ex.toString());
-				return(null);
+				return (null);
 			} catch (Exception ex) {
 				// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
 				workspace.log("Transcoder Error:");
 				workspace.log(" -> " + ex.toString());
-				return(null);
+				return (null);
 			}
 
 			// Flush and close the stream.
@@ -420,15 +419,15 @@ public class CommandEngine implements ICommandEngine {
 			oDat = outStream.toByteArray();
 			if (oDat == null || oDat.length == 0) {
 				workspace.log("Transcoder did not return any data.");
-				return(null);
+				return (null);
 			}
 
 		} catch (Exception ex) {
 			workspace.log("Unexpected transcoder error: " + ex.getMessage());
-			return(null);
+			return (null);
 		}
 
-		if(size != null) {
+		if (size != null) {
 			if (mimeType.equals(MIME_BUFFERTYPE)) {
 				// SVG outputs do not have sizes that we have access to at this time.
 ////			try {
@@ -456,15 +455,15 @@ public class CommandEngine implements ICommandEngine {
 					size.width = image.getWidth();
 				} catch (IOException ie) {
 					workspace.log("Transcoder frame output is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
-					return(null);
+					return (null);
 				}
-				if(image == null) {
+				if (image == null) {
 					workspace.log("Transcoder frame output returns null from internal image loader.");
-					return(null);
+					return (null);
 				}
 			}
 		}
-		return(oDat);
+		return (oDat);
 	}
 
 	public boolean save(ProcessingWorkspace workspace, String fileName, ProcessingEngineImageBuffer buffer, String mimeType, NamedNodeMap attributes) {
@@ -478,35 +477,35 @@ public class CommandEngine implements ICommandEngine {
 		Document inputDoc;
 		byte[] oDat = null;
 		Object workBuf = null;
-		if(buffer.mimeType.equals(INTERNAL_BUFFERTYPE)) {
-/*			// BEGIN HACK
+		if (buffer.mimeType.equals(INTERNAL_BUFFERTYPE)) {
+			/*			// BEGIN HACK
 			// this is a hack to deal with the fact
 			// that the renderer doesn't seem to work properly
 			// if rendering directly off the Document after nodes
 			// have been inserted/removed/futzed with
 			//
 			// NOTE: This also makes it so we can pass a byte array
-			//		to getImageData and it will copy and convert it 
+			//		to getImageData and it will copy and convert it
 			//		to a batik/svgdom style internal copy to render.
 			//		This prevents the modifications the transcoder
-			//		makes to the document during animation from 
+			//		makes to the document during animation from
 			//		affecting future frames.
 			TransformerFactory tf = TransformerFactory.newInstance();
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			Transformer t = null;
 			try {
-				t = tf.newTransformer();
-				t.transform(new DOMSource((Document)buffer.data), new StreamResult(outStream));
+			t = tf.newTransformer();
+			t.transform(new DOMSource((Document)buffer.data), new StreamResult(outStream));
 			} catch (Exception ex) {
-				workspace.log("An error occurred while reconstructing the XML file during save call: " + ex.getMessage());
-				return (false);
+			workspace.log("An error occurred while reconstructing the XML file during save call: " + ex.getMessage());
+			return (false);
 			}
 			originalDocument = outStream.toByteArray();
 			// END HACK
-*/
+			 */
 			DOMImplementation impl;
 			Document document;
-			document = (Document)buffer.data;
+			document = (Document) buffer.data;
 			if (document instanceof SVG12OMDocument) {
 				impl = SVG12DOMImplementation.getDOMImplementation();
 			} else if ((document instanceof SVGOMDocument)) {
@@ -515,10 +514,10 @@ public class CommandEngine implements ICommandEngine {
 				// try the standard implementation and hope for the best
 				impl = SVGDOMImplementation.getDOMImplementation();
 			}
-			workBuf = (Object)DOMUtilities.deepCloneDocument(document, impl);
+			workBuf = (Object) DOMUtilities.deepCloneDocument(document, impl);
 		} else {
-			originalDocument = new byte[((byte[])buffer.data).length];
-			System.arraycopy((byte[])buffer.data, 0, originalDocument, 0, ((byte[])buffer.data).length);
+			originalDocument = new byte[((byte[]) buffer.data).length];
+			System.arraycopy((byte[]) buffer.data, 0, originalDocument, 0, ((byte[]) buffer.data).length);
 			workBuf = originalDocument;
 		}
 		if (mimeType.equals("image/png")) {
@@ -540,9 +539,9 @@ public class CommandEngine implements ICommandEngine {
 
 		java.awt.Dimension size = new java.awt.Dimension();
 		oDat = this.getImageData(workspace, workBuf, mimeType, 100.0f, 0.0f, buffer.mimeType, size);
-		if(oDat == null) {
+		if (oDat == null) {
 			workspace.log("Image creation failed.  Input type: " + MIME_BUFFERTYPE + " Output type: " + mimeType);
-			return(false);
+			return (false);
 		}
 
 		String fname = "";

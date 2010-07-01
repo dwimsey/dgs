@@ -65,19 +65,17 @@ public class DGSGIFTranscoder extends org.apache.batik.transcoder.SVGAbstractTra
 			int animationFrameCount = 1;
 			int animationRepeatCount = 1;
 
-			if(this.hints.containsKey(DGSGIFTranscoder.KEY_SNAPSHOT_TIME)) {
+			if (this.hints.containsKey(DGSGIFTranscoder.KEY_SNAPSHOT_TIME)) {
 				try {
 					animationStartTime = java.lang.Float.parseFloat(this.hints.get(DGSGIFTranscoder.KEY_SNAPSHOT_TIME).toString());
 				} catch (Throwable t) {
-
 				}
 			}
 
-			if(this.hints.containsKey(DGSGIFTranscoder.KEY_SNAPSHOT_TIME)) {
+			if (this.hints.containsKey(DGSGIFTranscoder.KEY_SNAPSHOT_TIME)) {
 				try {
 					animationStartTime = java.lang.Float.parseFloat(this.hints.get(DGSGIFTranscoder.KEY_SNAPSHOT_TIME).toString());
 				} catch (Throwable t) {
-
 				}
 			}
 
@@ -106,11 +104,11 @@ public class DGSGIFTranscoder extends org.apache.batik.transcoder.SVGAbstractTra
 			}
 
 			for (int i = 0; i < animationFrameCount; i++) {
-				if((i+1) == animationFrameCount) {
+				if ((i + 1) == animationFrameCount) {
 					// last frame, are we repeating?
-					if(animationRepeatCount != 1) {
+					if (animationRepeatCount != 1) {
 						// we're repeating, is the repeat delay different from the standard frame delay?
-						if(animationRepeatDelay != animationTimeStep) {
+						if (animationRepeatDelay != animationTimeStep) {
 							// the last frame has a different delay, set it now
 							e.setDelay(new Float(animationRepeatDelay * 1000).intValue());
 						}

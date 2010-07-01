@@ -24,7 +24,8 @@ import javax.xml.transform.stream.*;
  * @author dwimsey
  */
 public class setVisibility implements IInstruction {
-        public boolean process(ProcessingWorkspace workspace, Node instructionNode) {
+
+	public boolean process(ProcessingWorkspace workspace, Node instructionNode) {
 		NamedNodeMap attributes = instructionNode.getAttributes();
 		String bufferName = null;
 		String idValueStr = null;
@@ -64,14 +65,14 @@ public class setVisibility implements IInstruction {
 		}
 
 		// make the strings null if they are zero length so we avoid checking both ways later
-		if((idValueStr!=null) && (idValueStr.length() == 0)) {
+		if ((idValueStr != null) && (idValueStr.length() == 0)) {
 			idValueStr = null;
 		}
-		if((nameValueStr!=null) && (nameValueStr.length() == 0)) {
+		if ((nameValueStr != null) && (nameValueStr.length() == 0)) {
 			nameValueStr = null;
 		}
 
-		if((idValueStr==null) && (nameValueStr==null)) {
+		if ((idValueStr == null) && (nameValueStr == null)) {
 			workspace.log("Processing halted because the command does not have a target name or id attribute: " + instructionNode.getNodeName());
 			return (false);  // this should throw an exception instead
 		}
@@ -96,7 +97,7 @@ public class setVisibility implements IInstruction {
 					return (false);
 				}
 			}
-			if(!objectVisible.equals("visible") && !objectVisible.equals("inherit") && !objectVisible.equals("hidden")) {
+			if (!objectVisible.equals("visible") && !objectVisible.equals("inherit") && !objectVisible.equals("hidden")) {
 				workspace.log("Processing of command skipped because it does not have a valid value for the visible attribute: " + instructionNode.getNodeName() + "  Value: " + objectVisible);
 				return (false);
 			}
@@ -113,22 +114,22 @@ public class setVisibility implements IInstruction {
 		}
 		org.apache.batik.dom.svg.SVGOMDocument doc = null;
 
-		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+		if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
 			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
 			uri += Base64.encodeBytes((byte[]) iBuffer.data);
 			try {
 				String parser = XMLResourceDescriptor.getXMLParserClassName();
 				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-				doc = (org.apache.batik.dom.svg.SVGOMDocument)f.createDocument(uri);
+				doc = (org.apache.batik.dom.svg.SVGOMDocument) f.createDocument(uri);
 			} catch (IOException ex) {
 				workspace.log("An error occurred parsing the SVG file data in the setVisibility command: " + ex.getMessage());
 				return (false);
 			}
 		} else {
-			doc = (org.apache.batik.dom.svg.SVGOMDocument)iBuffer.data;
+			doc = (org.apache.batik.dom.svg.SVGOMDocument) iBuffer.data;
 		}
 
-		
+
 		int i = 0;
 		int ii = 0;
 		int iii = 0;
@@ -150,57 +151,57 @@ public class setVisibility implements IInstruction {
 				if (textNode.hasAttributes()) {
 					attribs = textNode.getAttributes();
 					nodeMatchs = false;
-					if(idValueStr!=null) {
+					if (idValueStr != null) {
 						nodeIdNode = attribs.getNamedItem("id");
 						if (nodeIdNode != null) {
 							nodeId = nodeIdNode.getNodeValue();
-							if(nodeId==null) {
+							if (nodeId == null) {
 								nodeId = "";
 							}
-							if(nodeId.equals(idValueStr)) {
+							if (nodeId.equals(idValueStr)) {
 								// this is a node we want to set, do it
 								nodeMatchs = true;
 							}
 						}
 					}
-					if(!nodeMatchs) {
-						if(nameValueStr!=null) {
+					if (!nodeMatchs) {
+						if (nameValueStr != null) {
 							nodeIdNode = attribs.getNamedItem("name");
 							if (nodeIdNode != null) {
 								nodeId = nodeIdNode.getNodeValue();
-								if(nodeId==null) {
+								if (nodeId == null) {
 									nodeId = "";
 								}
-								if(nodeId.equals(nameValueStr)) {
+								if (nodeId.equals(nameValueStr)) {
 									// this is a node we want to set, do it
 									nodeMatchs = true;
 								}
 							} else {
-                                                            // look for inkscape labels and use them as well
-                                                            nodeIdNode = attribs.getNamedItemNS(workspace.DGSNSREF_INKSCAPE, "label");
-                                                            if (nodeIdNode != null) {
-                                                                    nodeId = nodeIdNode.getNodeValue();
-                                                                    if(nodeId==null) {
-                                                                            nodeId = "";
-                                                                    }
-                                                                    if(nodeId.equals(nameValueStr)) {
-                                                                            // this is a node we want to set, do it
-                                                                            nodeMatchs = true;
-                                                                    }
-                                                            }
-                                                        }
+								// look for inkscape labels and use them as well
+								nodeIdNode = attribs.getNamedItemNS(workspace.DGSNSREF_INKSCAPE, "label");
+								if (nodeIdNode != null) {
+									nodeId = nodeIdNode.getNodeValue();
+									if (nodeId == null) {
+										nodeId = "";
+									}
+									if (nodeId.equals(nameValueStr)) {
+										// this is a node we want to set, do it
+										nodeMatchs = true;
+									}
+								}
+							}
 						}
 					}
 
-					if(nodeMatchs) {
-						if(objectVisible.equals("hidden")) {
+					if (nodeMatchs) {
+						if (objectVisible.equals("hidden")) {
 							// remove the entire named node and it WILL truely be hidden!
 							textNode.getParentNode().removeChild(textNode);
 						} else {
 							Node nodeVisibilityNode = attribs.getNamedItem("visibility");
-							if(nodeVisibilityNode == null) {
+							if (nodeVisibilityNode == null) {
 								// this item does not have a visibility attribute yet, create one and add it
-								nodeVisibilityNode = doc.createAttribute("visibility");							
+								nodeVisibilityNode = doc.createAttribute("visibility");
 								attribs.setNamedItem(nodeVisibilityNode);
 							}
 							// since at this point we'll always have a nodeVisibilityNode, set it.
@@ -211,7 +212,7 @@ public class setVisibility implements IInstruction {
 			}
 		}
 
-		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+		if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
 			// build the DOM back into an xml text file for storage in the buffer
 			TransformerFactory tf = TransformerFactory.newInstance();
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();

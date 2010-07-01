@@ -28,9 +28,8 @@ public class DGSPreviewerPanel extends javax.swing.JPanel {
 			g.drawImage(image, 0, 0, null);
 		}
 	}
-	
-	protected void setBackgroundColor(java.awt.Color newBackgroundColor)
-	{
+
+	protected void setBackgroundColor(java.awt.Color newBackgroundColor) {
 		this.BackgroundColor = newBackgroundColor;
 		this.repaint();
 	}

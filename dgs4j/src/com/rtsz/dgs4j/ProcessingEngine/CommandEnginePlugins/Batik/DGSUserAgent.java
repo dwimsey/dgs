@@ -33,11 +33,11 @@ public class DGSUserAgent implements UserAgent {
 		}
 		ua = oldAgent;
 		workspace = cWorkspace;
-		
+
 	}
 
 	public void loadDocument(String arg0) {
-	    ua.loadDocument(arg0);
+		ua.loadDocument(arg0);
 	}
 
 	public void checkLoadExternalResource(ParsedURL resourceURL, ParsedURL docURL) throws SecurityException {
@@ -83,7 +83,7 @@ public class DGSUserAgent implements UserAgent {
 		}
 
 //		throw new SecurityException("Scripts are not allowed in this context.");
-        ua.checkLoadScript(scriptType, scriptURL, docURL);
+		ua.checkLoadScript(scriptType, scriptURL, docURL);
 	}
 
 	public void deselectAll() {
@@ -95,15 +95,15 @@ public class DGSUserAgent implements UserAgent {
 		ex.fillInStackTrace();
 		StackTraceElement st[] = ex.getStackTrace();
 
-		for(int i = 0; i<st.length; i++) {
+		for (int i = 0; i < st.length; i++) {
 			workspace.log(" -> " + st[i].toString());
 		}
-	//ua.displayError(ex);
+		//ua.displayError(ex);
 	}
 
 	public void displayMessage(String message) {
 		workspace.log(message);
-	//ua.displayMessage(message);
+		//ua.displayMessage(message);
 	}
 
 	public String getAlternateStyleSheet() {

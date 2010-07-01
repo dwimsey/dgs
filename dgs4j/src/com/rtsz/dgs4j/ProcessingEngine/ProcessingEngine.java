@@ -20,8 +20,8 @@ import org.w3c.dom.*;
  */
 
 /*
- * At this point in time, ProcessingEngine expects a single private 
- * ProcessingEngine object to be created during the life of the application, 
+ * At this point in time, ProcessingEngine expects a single private
+ * ProcessingEngine object to be created during the life of the application,
  * creating a second one (even after destroying the first) will cause problems
  */
 public class ProcessingEngine {
@@ -78,7 +78,7 @@ public class ProcessingEngine {
 			for (int i = 0; i < commands.getLength(); i++) {
 				curNode = commands.item(i);
 				curNodeName = curNode.getNodeName().intern();
-				if(curNode.getNodeType()!=curNode.ELEMENT_NODE) {
+				if (curNode.getNodeType() != curNode.ELEMENT_NODE) {
 					// we only process ELEMENT nodes
 					continue;
 				}
@@ -195,7 +195,7 @@ public class ProcessingEngine {
 									cmdHandled = true;
 									break;
 								}
-							} catch(Exception ex) {
+							} catch (Exception ex) {
 								workspace.log("Processing of command caused an internal error: Command: " + curNodeName + " Buffer: " + bufferName + " Error: " + ex.getMessage());
 							} finally {
 								switchToStandardSecurity();
@@ -203,11 +203,11 @@ public class ProcessingEngine {
 						} else {
 							switchToPluginSecurity();
 							try {
-								if(cEngine.load(workspace, fileName, bufferName, mimeType, attributes)) {
+								if (cEngine.load(workspace, fileName, bufferName, mimeType, attributes)) {
 									cmdHandled = true;
 									break;
 								}
-							} catch(Exception ex) {
+							} catch (Exception ex) {
 								workspace.log("Processing of command caused an internal error: Command: " + curNodeName + " Buffer: " + bufferName + " Error: " + ex.getMessage());
 							} finally {
 								switchToStandardSecurity();
@@ -230,9 +230,9 @@ public class ProcessingEngine {
 						workspace.log("Processing command: " + curNodeName);
 						switchToPluginSecurity();
 						boolean rval = false;
-						try{
+						try {
 							rval = cmd.process(workspace, curNode);
-						} catch(Exception ex) {
+						} catch (Exception ex) {
 							workspace.log("Processing of command caused an internal error: Command: " + curNodeName + " Error: " + ex.getMessage());
 						} finally {
 							switchToStandardSecurity();
@@ -257,7 +257,7 @@ public class ProcessingEngine {
 					}
 				}
 			}
-			workspace.log("Processing completed in: " + Float.toString(((new java.util.Date().getTime()+1) - startTime.getTime())/1000.0f) + " seconds");
+			workspace.log("Processing completed in: " + Float.toString(((new java.util.Date().getTime() + 1) - startTime.getTime()) / 1000.0f) + " seconds");
 			return (workspace.generateResultInfo());
 		} finally {
 			ProcessingWorkspace.setCurrentWorkspace(null);
@@ -286,20 +286,20 @@ public class ProcessingEngine {
 
 	private void loadCommandPlugins() {
 		synchronized (this) {
-		    if (pluginsLoaded == true) {
-			    return;
-		    } else {
-			    pluginsLoaded = true;
-		    }
+			if (pluginsLoaded == true) {
+				return;
+			} else {
+				pluginsLoaded = true;
+			}
 
-		    ICommandEngine pluginEngine;
+			ICommandEngine pluginEngine;
 
-		    switchToPluginSecurity();
-		    pluginEngine = new com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine();
-		    switchToStandardSecurity();
+			switchToPluginSecurity();
+			pluginEngine = new com.rtsz.dgs4j.ProcessingEngine.CommandEnginePlugins.Batik.CommandEngine();
+			switchToStandardSecurity();
 
-		    loadPlugin(pluginEngine);
-	    }
+			loadPlugin(pluginEngine);
+		}
 	}
 
 	public void addCommandInstruction(String commandName, IInstruction instruction) {
@@ -319,7 +319,7 @@ public class ProcessingEngine {
 				commandList.put(commandName, cmd);
 			}
 		} catch (Exception ex) {
-		    // we should report this exception somehow!
+			// we should report this exception somehow!
 		}
 	}
 }
