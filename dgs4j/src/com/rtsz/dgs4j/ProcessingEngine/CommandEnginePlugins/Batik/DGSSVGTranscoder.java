@@ -23,15 +23,20 @@ import javax.xml.transform.stream.*;
  *
  * @author dwimsey
  */
-public class DGSSVGTranscoder extends AbstractTranscoder {
-
+public class DGSSVGTranscoder extends SVGAbstractTranscoder {
 	public DGSSVGTranscoder(ProcessingWorkspace workspace) {
 		super();
-		//this.userAgent = new DGSUserAgent(this.getUserAgent(), workspace);
+		this.userAgent = new DGSUserAgent(this.userAgent, workspace);
 	}
 
-	private void transcodeNode(Object node) {
+	private void transcodeDoc(Document node) {
 		// we don't do anything yet, the workspace url must be supported first
+
+		Node cNode = node.getFirstChild();
+		while(cNode != null) {
+			//ReplaceWorkspaceURL(cNode);
+			cNode = cNode.getNextSibling();
+		}
 	}
 
 	public void transcode(TranscoderInput input, TranscoderOutput output) throws TranscoderException {
@@ -81,7 +86,7 @@ public class DGSSVGTranscoder extends AbstractTranscoder {
 		// we need to convert any links to the workspace into something useful outside of
 		// the workspace, so convert the URLs to use the data protocol instead of the
 		// internal workspace.
-		transcodeNode(svgDoc.getFirstChild());
+		transcodeDoc(svgDoc);
 
 		// Now convert the document into an encoded byte stream.
 		TransformerFactory tf = TransformerFactory.newInstance();

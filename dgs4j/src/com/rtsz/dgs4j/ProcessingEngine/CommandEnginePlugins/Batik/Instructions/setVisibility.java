@@ -115,12 +115,8 @@ public class setVisibility implements IInstruction {
 		org.apache.batik.dom.svg.SVGOMDocument doc = null;
 
 		if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
-			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
-			uri += Base64.encodeBytes((byte[]) iBuffer.data);
 			try {
-				String parser = XMLResourceDescriptor.getXMLParserClassName();
-				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-				doc = (org.apache.batik.dom.svg.SVGOMDocument) f.createDocument(uri);
+				doc = (org.apache.batik.dom.svg.SVGOMDocument)CommandEngine.svgBytes2Doc((byte[])iBuffer.data);
 			} catch (IOException ex) {
 				workspace.log("An error occurred parsing the SVG file data in the setVisibility command: " + ex.getMessage());
 				return (false);
@@ -213,18 +209,12 @@ public class setVisibility implements IInstruction {
 		}
 
 		if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
-			// build the DOM back into an xml text file for storage in the buffer
-			TransformerFactory tf = TransformerFactory.newInstance();
-			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-			Transformer t = null;
 			try {
-				t = tf.newTransformer();
-				t.transform(new DOMSource(doc), new StreamResult(outStream));
+				iBuffer.data = CommandEngine.svgDoc2Bytes(doc);
 			} catch (Exception ex) {
 				workspace.log("An error occurred while reconstructing the XML file after setVisibility call: " + ex.getMessage());
 				return (false);
 			}
-			iBuffer.data = outStream.toByteArray();
 		} else {
 			iBuffer.data = doc;
 		}

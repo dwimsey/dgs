@@ -83,14 +83,8 @@ public class replaceImage implements IInstruction {
 		Document doc = null;
 
 		if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
-			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
-			uri += Base64.encodeBytes((byte[]) iBuffer.data);
-
 			try {
-				String parser = XMLResourceDescriptor.getXMLParserClassName();
-				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-				//doc = f.createDocument(uri, new java.io.ByteArrayInputStream((byte[])iBuffer.data));
-				doc = f.createDocument(uri);
+				doc = CommandEngine.svgBytes2Doc((byte[])iBuffer.data);
 			} catch (IOException ex) {
 				workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
 				return (false);
@@ -102,23 +96,15 @@ public class replaceImage implements IInstruction {
 		Element element = doc.getElementById(imageElementId);
 		if (element != null) {
 			if (element.getNodeName().equals("image")) {
-				String dataUri = "";
+				String dataUri = "data://" + imgBuffer.mimeType.trim() + ";base64,";
 				if (imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
-					Document imgDoc = (Document) imgBuffer.data;
-					dataUri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
-					TransformerFactory tf = TransformerFactory.newInstance();
-					ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-					Transformer t = null;
 					try {
-						t = tf.newTransformer();
-						t.transform(new DOMSource(imgDoc), new StreamResult(outStream));
+						dataUri += Base64.encodeBytes(CommandEngine.svgDoc2Bytes((Document)imgBuffer.data));
 					} catch (Exception ex) {
 						workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
 						return (false);
 					}
-					dataUri += Base64.encodeBytes(outStream.toByteArray());
 				} else {
-					dataUri = "data://" + imgBuffer.mimeType.trim() + ";base64,";
 					dataUri += Base64.encodeBytes((byte[]) imgBuffer.data);
 				}
 				element.setAttributeNS(xlinkNS, "xlink:href", dataUri);
@@ -129,17 +115,12 @@ public class replaceImage implements IInstruction {
 		}
 
 		if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
-			TransformerFactory tf = TransformerFactory.newInstance();
-			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-			Transformer t = null;
 			try {
-				t = tf.newTransformer();
-				t.transform(new DOMSource(doc), new StreamResult(outStream));
+				iBuffer.data = CommandEngine.svgDoc2Bytes(doc);
 			} catch (Exception ex) {
 				workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
 				return (false);
 			}
-			iBuffer.data = outStream.toByteArray();
 		} else {
 			iBuffer.data = doc;
 		}

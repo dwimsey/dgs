@@ -39,6 +39,26 @@ public class CommandEngine implements ICommandEngine {
 	public static final String COMMAND_ENGINE_ALLOWED_SCRIPT_TYPES = "text/javascript,application/javascript,application/ecmascript,text/ecmascript";
 	public static DGSGIFRegistryEntry batikGIFRegistryEntry;
 
+	public static byte[] svgDoc2Bytes(Document doc) throws TransformerConfigurationException, TransformerException
+	{
+		TransformerFactory tf = TransformerFactory.newInstance();
+		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+		Transformer t = null;
+		t = tf.newTransformer();
+		t.transform(new DOMSource(doc), new StreamResult(outStream));
+		return(outStream.toByteArray());
+	}
+
+	public static Document svgBytes2Doc(byte[] inputBytes) throws IOException
+	{
+		String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
+		uri += Base64.encodeBytes(inputBytes);
+
+		String parser = XMLResourceDescriptor.getXMLParserClassName();
+		SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+		return(f.createDocument(uri));
+	}
+
 	@Override
 	public synchronized void init() {
 		if (batikGIFRegistryEntry == null) {
@@ -172,6 +192,8 @@ public class CommandEngine implements ICommandEngine {
 									s = rNode.getAttribute(rNode.SVG_STYLE_ATTRIBUTE);
 									ss = s;
 
+									// with inkscape, we always need to set the fill style attribute to none
+									// as it never renders the rects in flowRoots
 									offset1 = ss.indexOf("fill:");
 									if (offset1 > -1) {
 										p1 = ss.substring(0, offset1);
@@ -196,6 +218,8 @@ public class CommandEngine implements ICommandEngine {
 											}
 											ss += p2;
 										}
+									} else {
+										ss = "fill:none;" + ss;
 									}
 
 
@@ -242,6 +266,7 @@ public class CommandEngine implements ICommandEngine {
 									// we need to move the flowPara's into the flowDiv
 									ii = 0;
 									Element fdNode = doc.createElement("flowDiv");
+									wNode.appendChild(fdNode);
 									wwNode = (SVGElement) ns2.item(ii++);
 									while (wwNode != null) {
 										wNode.removeChild(wwNode);
@@ -249,7 +274,7 @@ public class CommandEngine implements ICommandEngine {
 										wwNode = (SVGElement) ns2.item(ii++);
 									}
 									if (ii > 0) {
-										wNode.appendChild(fdNode);
+										
 									}
 								}
 
@@ -380,9 +405,8 @@ public class CommandEngine implements ICommandEngine {
 			if (bufferType.equals(MIME_BUFFERTYPE)) {
 				//input = new TranscoderInput(new java.io.ByteArrayInputStream((byte[])svgData.toString().getBytes()));
 				try {
-					String parser = XMLResourceDescriptor.getXMLParserClassName();
-					SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String) new String(((byte[]) svgData), "UTF8")));
+					svgDoc = CommandEngine.svgBytes2Doc((byte[])svgData);
+
 					// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
 					// a real cause and fix needs to be found
 					svgDoc.setDocumentURI("http://localhost/workspace.svg");

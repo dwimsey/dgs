@@ -69,14 +69,8 @@ public class substituteVariables implements IInstruction {
 
 			Document doc = null;
 			if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
-				String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
-				uri += Base64.encodeBytes((byte[]) iBuffer.data);
-
 				try {
-					String parser = XMLResourceDescriptor.getXMLParserClassName();
-					SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-					//doc = f.createDocument(uri, new java.io.ByteArrayInputStream((byte[])iBuffer.data));
-					doc = f.createDocument(uri);
+					doc = CommandEngine.svgBytes2Doc((byte[])iBuffer.data);
 				} catch (IOException ex) {
 					workspace.log("An error occurred parsing the SVG file data in the substituteVariables command: " + ex.getMessage());
 					return (false);
@@ -217,17 +211,12 @@ public class substituteVariables implements IInstruction {
 			}
 
 			if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
-				TransformerFactory tf = TransformerFactory.newInstance();
-				ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-				Transformer t = null;
 				try {
-					t = tf.newTransformer();
-					t.transform(new DOMSource(doc), new StreamResult(outStream));
+					iBuffer.data = CommandEngine.svgDoc2Bytes(doc);
 				} catch (Exception ex) {
 					workspace.log("An error occurred while reconstructing the XML file after substituteVariables call: " + ex.getMessage());
 					return (false);
 				}
-				iBuffer.data = outStream.toByteArray();
 			} else {
 				iBuffer.data = doc;
 			}
