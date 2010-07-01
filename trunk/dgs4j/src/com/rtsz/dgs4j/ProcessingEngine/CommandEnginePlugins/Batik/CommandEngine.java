@@ -430,23 +430,32 @@ public class CommandEngine implements ICommandEngine {
 						return(null);
 					}
 				} else {
-					try {
-						String pTarget = mimeType.substring(8);
-						if(pTarget.length()==0) {
-							workspace.log("No printer target was specified");
+					String pTarget = mimeType.substring(8);
+					if(pTarget.length()==0) {
+						workspace.log("No printer target was specified");
+						return(null);
+					}
+					int o = pTarget.indexOf('+');
+					if(o > -1) {
+						pTarget = pTarget.substring(o + 1);
+					} else {
+						workspace.log("No target printer specified.");
+					}
+					workspace.log("Setting printer target: " + pTarget);
+					if(pTarget.equals("chooser")) {
+						try {
+							t.addTranscodingHint(org.apache.batik.transcoder.print.PrintTranscoder.KEY_SHOW_PRINTER_DIALOG, true);
+						} catch (Exception ex) {
+							workspace.log("An error occurred displaying the system print dialog: " + ex.getMessage());
 							return(null);
 						}
-						int o = pTarget.indexOf('+');
-						if(o > -1) {
-							pTarget = pTarget.substring(o + 1);
-						} else {
-							workspace.log("No target printer specified.");
+					} else {
+						try {
+							t.addTranscodingHint(DGSPrinterTranscoder.KEY_PRINTER_NAME, pTarget);
+						} catch (Exception ex) {
+							workspace.log("An error occurred setting the specified printer: " + ex.getMessage());
+							return(null);
 						}
-						workspace.log("Setting printer target: " + pTarget);
-						t.addTranscodingHint(DGSPrinterTranscoder.KEY_PRINTER_TARGET_STR, pTarget);
-					} catch (Exception ex) {
-						workspace.log("An error occurred displaying the system print dialog: " + ex.getMessage());
-						return(null);
 					}
 				}
 				try {
@@ -461,7 +470,7 @@ public class CommandEngine implements ICommandEngine {
 					workspace.log("An error occurred print the SVG file: " + ex.getMessage());
 					return(null);
 				}
-				return(null);
+				return(new byte[0]);
 			}
 
 			java.io.ByteArrayOutputStream outStream = new java.io.ByteArrayOutputStream();
@@ -626,6 +635,10 @@ public class CommandEngine implements ICommandEngine {
 			return (false);
 		}
 
+		if (mimeType.startsWith("printer/")) {
+			// the return value from getImageData is just to indicate there wasn't an error, its nothing
+			return(true);
+		}
 		String fname = "";
 		if (!fileName.endsWith(extension)) {
 			fname = fileName.concat(extension);
