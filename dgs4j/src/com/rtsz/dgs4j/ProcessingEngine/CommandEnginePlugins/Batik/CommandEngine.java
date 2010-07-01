@@ -380,6 +380,8 @@ public class CommandEngine implements ICommandEngine {
 			t = new DGSPDFTranscoder(workspace);
 		} else if (mimeType.equals(MIME_BUFFERTYPE)) {
 			t = new DGSSVGTranscoder(workspace);
+		} else if (mimeType.toLowerCase().startsWith("printer/")) {
+			t = new DGSPrinterTranscoder(workspace);
 		} else {
 			workspace.log("Transcoder Error: Unsupported MIME type requested: " + mimeType.toString());
 			return (null);
@@ -418,6 +420,37 @@ public class CommandEngine implements ICommandEngine {
 				svgDoc = (Document) svgData;
 			}
 			input = new TranscoderInput((Document) svgDoc);
+
+			if (mimeType.toLowerCase().startsWith("printer/")) {
+				if(mimeType.toLowerCase().equals("printer/chooser")) {
+					try {
+						t.addTranscodingHint(org.apache.batik.transcoder.print.PrintTranscoder.KEY_SHOW_PRINTER_DIALOG, true);
+					} catch (Exception ex) {
+						workspace.log("An error occurred displaying the system print dialog: " + ex.getMessage());
+						return(null);
+					}
+				} else {
+					try {
+						t.addTranscodingHint(DGSPrinterTranscoder.KEY_PRINTER_TARGET_STR, mimeType.substring(8));
+					} catch (Exception ex) {
+						workspace.log("An error occurred setting the print target: " + ex.getMessage());
+						return(null);
+					}
+				}
+				try {
+					t.transcode(input, null);
+				} catch (Exception ex) {
+					workspace.log("An error occurred parsing the SVG data file data for printing: " + ex.getMessage());
+					return(null);
+				}
+				try {
+					((DGSPrinterTranscoder)t).print();
+				} catch (Exception ex) {
+					workspace.log("An error occurred print the SVG file: " + ex.getMessage());
+					return(null);
+				}
+				return(null);
+			}
 
 			java.io.ByteArrayOutputStream outStream = new java.io.ByteArrayOutputStream();
 			output = new TranscoderOutput(outStream);
@@ -552,6 +585,10 @@ public class CommandEngine implements ICommandEngine {
 			extension = ".jpg";
 		} else if (mimeType.equals("image/tiff")) {
 			extension = ".tif";
+		} else if (mimeType.equals("printer/")) {
+			extension = ".prn";
+		} else if (mimeType.toLowerCase().startsWith("printer/")) {
+			extension = ".prn";
 		} else if (mimeType.equals("application/pdf")) {
 			extension = ".pdf";
 		} else if (mimeType.equals(MIME_BUFFERTYPE)) {
