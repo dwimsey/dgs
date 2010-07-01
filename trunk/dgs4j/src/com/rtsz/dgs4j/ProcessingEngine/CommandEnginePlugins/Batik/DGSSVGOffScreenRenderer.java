@@ -42,13 +42,13 @@ public class DGSSVGOffScreenRenderer {
 	GraphicsNode gvtRoot;
 	int DISPLAY_WIDTH = 1280;
 	int DISPLAY_HEIGHT = 1024;
-
 	ArrayList<BufferedImage> imageList = null;
+
 	public DGSSVGOffScreenRenderer(Document doc, UserAgent ua) {
 		userAgent = ua;
 		// Create the bridge context based on the DOM model presented to us
 		if ((doc instanceof SVG12OMDocument)) {
-			ctx = new SVG12BridgeContext(userAgent);			
+			ctx = new SVG12BridgeContext(userAgent);
 		} else if ((doc instanceof SVGOMDocument)) {
 			ctx = new BridgeContext(userAgent);
 		} else {
@@ -60,8 +60,8 @@ public class DGSSVGOffScreenRenderer {
 		document = doc;
 		imageList = new java.util.ArrayList();
 	}
-
 	private AnimationEngine ae = null;
+
 	public void init() {
 		GraphicsNode gvtRoot = null;
 
@@ -125,6 +125,7 @@ public class DGSSVGOffScreenRenderer {
 				int i = 0;
 				i++;
 			}
+
 			@Override
 			public void updateCompleted(UpdateManagerEvent e) {
 				render(e.getImage());
@@ -165,35 +166,34 @@ public class DGSSVGOffScreenRenderer {
 	}
 
 	public void render(BufferedImage img) {
-		if(imageList != null) {
+		if (imageList != null) {
 			imageList.add(img);
 		}
 	}
 
-public static BufferedImage[] buildFrames2(Document svgDoc, UserAgent ua, float startTime, float timeStep, float frameCount) {
+	public static BufferedImage[] buildFrames2(Document svgDoc, UserAgent ua, float startTime, float timeStep, float frameCount) {
 		DGSSVGOffScreenRenderer render = new DGSSVGOffScreenRenderer(svgDoc, ua);
 		render.init();
 //		RunnableQueue rq = render.manager.getUpdateRunnableQueue();
 		final AnimationEngine aniEng = render.ae;
 		aniEng.pause();
 		aniEng.setCurrentTime(0);
-				render.renderer.setDoubleBuffered(true);
-		for(int i = 1; i < frameCount; i++) {
+		render.renderer.setDoubleBuffered(true);
+		for (int i = 1; i < frameCount; i++) {
 			final float snapshotTime = (startTime + (i * timeStep));
 //			try {
-				aniEng.setCurrentTime(snapshotTime);
-				render.renderer.updateOffScreen(300, 300);
-				render.imageList.add(render.renderer.getOffScreen());
+			aniEng.setCurrentTime(snapshotTime);
+			render.renderer.updateOffScreen(300, 300);
+			render.imageList.add(render.renderer.getOffScreen());
 //			} catch (InterruptedException ie) {
 //				ie.printStackTrace();
 //			}
 		}
-		
+
 		BufferedImage[] oBuf = new BufferedImage[render.imageList.size()];
 		render.imageList.toArray((BufferedImage[]) oBuf);
-		return(oBuf);
+		return (oBuf);
 	}
-
 
 	public static BufferedImage[] buildFrames(Document svgDoc, UserAgent ua, float startTime, float timeStep, float frameCount) {
 		DGSSVGOffScreenRenderer render = new DGSSVGOffScreenRenderer(svgDoc, ua);
@@ -205,11 +205,12 @@ public static BufferedImage[] buildFrames2(Document svgDoc, UserAgent ua, float 
 		aniEng.setCurrentTime(0);
 		float tt = aniEng.getCurrentTime();
 		tt = tt + 0.0f;
-		for(int i = 1; i < frameCount; i++) {
+		for (int i = 1; i < frameCount; i++) {
 			final float snapshotTime = (startTime + (i * timeStep));
 			//final int offsetX = (300 - (i*20));
 			try {
 				rq.invokeAndWait(new Runnable() {
+
 					@Override
 					public void run() {
 						// set the new snapshot time
@@ -218,8 +219,7 @@ public static BufferedImage[] buildFrames2(Document svgDoc, UserAgent ua, float 
 //						rn.repaint(new Rectangle(0, 0, 300, 300));
 						try {
 //						java.lang.Thread.currentThread().sleep((long)100);
-						} catch(Exception ex) {
-							
+						} catch (Exception ex) {
 						}
 					}
 				});
@@ -228,10 +228,10 @@ public static BufferedImage[] buildFrames2(Document svgDoc, UserAgent ua, float 
 			}
 		}
 //		render.manager.suspend();
-		
+
 		BufferedImage[] oBuf = new BufferedImage[render.imageList.size()];
 		render.imageList.toArray((BufferedImage[]) oBuf);
-		return(oBuf);
+		return (oBuf);
 	}
 }
 

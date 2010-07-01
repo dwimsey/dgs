@@ -82,7 +82,7 @@ public class replaceImage implements IInstruction {
 
 		Document doc = null;
 
-		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+		if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
 			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
 			uri += Base64.encodeBytes((byte[]) iBuffer.data);
 
@@ -96,15 +96,15 @@ public class replaceImage implements IInstruction {
 				return (false);
 			}
 		} else {
-			doc = (Document)iBuffer.data;
+			doc = (Document) iBuffer.data;
 		}
 
 		Element element = doc.getElementById(imageElementId);
 		if (element != null) {
 			if (element.getNodeName().equals("image")) {
 				String dataUri = "";
-				if(imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
-					Document imgDoc = (Document)imgBuffer.data;
+				if (imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
+					Document imgDoc = (Document) imgBuffer.data;
 					dataUri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
 					TransformerFactory tf = TransformerFactory.newInstance();
 					ByteArrayOutputStream outStream = new ByteArrayOutputStream();
@@ -128,7 +128,7 @@ public class replaceImage implements IInstruction {
 			}
 		}
 
-		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+		if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
 			TransformerFactory tf = TransformerFactory.newInstance();
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			Transformer t = null;

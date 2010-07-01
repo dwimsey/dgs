@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dgspreviewer;
 
 import org.apache.batik.util.*;
@@ -14,7 +13,9 @@ import org.apache.batik.swing.svg.SVGUserAgent.*;
  * @author dwimsey
  */
 public class DGSPreviewCanvasUserAgent extends SVGUserAgentAdapter {
+
 	private DGSPreviewCanvas previewCanvas = null;
+
 	public DGSPreviewCanvasUserAgent(DGSPreviewCanvas targetCanvas) {
 		previewCanvas = targetCanvas;
 	}
@@ -25,7 +26,7 @@ public class DGSPreviewCanvasUserAgent extends SVGUserAgentAdapter {
 		ex.fillInStackTrace();
 		StackTraceElement st[] = ex.getStackTrace();
 
-		for(int i = 0; i<st.length; i++) {
+		for (int i = 0; i < st.length; i++) {
 			previewCanvas.notificationMethods.logEvent(0, " -> " + st[i].toString());
 		}
 		previewCanvas.notificationMethods.statusMessage(0, "SVG Display Error: " + ex.getMessage());
@@ -37,14 +38,12 @@ public class DGSPreviewCanvasUserAgent extends SVGUserAgentAdapter {
 	}
 
 	@Override
-	public void checkLoadExternalResource(ParsedURL arg0, ParsedURL arg1)
-	{
+	public void checkLoadExternalResource(ParsedURL arg0, ParsedURL arg1) {
 		super.checkLoadExternalResource(arg0, arg1);
 	}
 
 	@Override
-	public void checkLoadScript(String arg0, ParsedURL arg1, ParsedURL arg2)
-	{
+	public void checkLoadScript(String arg0, ParsedURL arg1, ParsedURL arg2) {
 		super.checkLoadScript(arg0, arg1, arg1);
 	}
 }

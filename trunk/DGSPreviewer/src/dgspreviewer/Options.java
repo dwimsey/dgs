@@ -17,6 +17,7 @@ import org.w3c.dom.*;
 import java.awt.Color;
 
 import dgspreviewer.DGSPreviewCanvas.*;
+
 /**
  *
  * @author dwimsey
@@ -47,8 +48,7 @@ public class Options {
 	}
 
 	@Override
-	public Options clone()
-	{
+	public Options clone() {
 		Options retVal = new Options();
 		retVal.BackgroundColor = this.BackgroundColor;
 		retVal.MRUTemplateImageFileName = this.MRUTemplateImageFileName;
@@ -57,29 +57,28 @@ public class Options {
 		retVal.LogTimeFormatString = this.LogTimeFormatString;
 		retVal.displayMode = this.displayMode;
 		retVal.startupDisplayMode = this.startupDisplayMode;
-		return(retVal);
+		return (retVal);
 	}
 
-	private String getPrefsDirectory()
-	{
+	private String getPrefsDirectory() {
 		String os = System.getProperty("os.name").toLowerCase();
 		String prefsFileName;
 		prefsFileName = System.getenv("DGSPREVIEWER_USERDIR");
-		if(prefsFileName == null) {
+		if (prefsFileName == null) {
 			prefsFileName = "";
 		}
 
-		if(prefsFileName.length() == 0) {
-			if(os.indexOf("win")>=0) {
+		if (prefsFileName.length() == 0) {
+			if (os.indexOf("win") >= 0) {
 				prefsFileName = System.getenv("APPDATA") + File.separator + "DGSPreviewer";
-			} else if(os.indexOf( "nix") >=0 || os.indexOf( "nux") >=0) {
+			} else if (os.indexOf("nix") >= 0 || os.indexOf("nux") >= 0) {
 				// Assume unix otherwise as thats the most likely to be cloned
 				prefsFileName = System.getenv("HOME") + File.separator + ".DGSPreviewer";
-			} else if(os.indexOf("mac") >= 0) {
+			} else if (os.indexOf("mac") >= 0) {
 				prefsFileName = System.getenv("HOME") + File.separator + "Library" + File.separator + "DGSPreviewer";
 			}
 		}
-		return(prefsFileName);
+		return (prefsFileName);
 	}
 
 	public boolean load() {
@@ -159,18 +158,18 @@ public class Options {
 						} else if (name.equals("DisplayMode")) {
 							if (value != null) {
 								this.displayMode = DisplayMode.valueOf(value);
-								if(this.displayMode == DisplayMode.Printer || this.displayMode == DisplayMode.PDF
-									|| this.displayMode == DisplayMode.TIFF) {
-								    // these modes aren't supported, fall back to Draft mode instead
-								    this.displayMode = DisplayMode.Draft;
+								if (this.displayMode == DisplayMode.Printer || this.displayMode == DisplayMode.PDF
+										|| this.displayMode == DisplayMode.TIFF) {
+									// these modes aren't supported, fall back to Draft mode instead
+									this.displayMode = DisplayMode.Draft;
 								}
 							}
 						} else if (name.equals("StartupDisplayMode")) {
 							if (value != null) {
 								this.startupDisplayMode = DisplayMode.valueOf(value);
-								if(this.startupDisplayMode == DisplayMode.PDF || this.startupDisplayMode == DisplayMode.TIFF) {
-								    // these modes aren't supported, fall back to Printer mode instead, which means use this.displayMode
-								    this.startupDisplayMode = DisplayMode.Printer;
+								if (this.startupDisplayMode == DisplayMode.PDF || this.startupDisplayMode == DisplayMode.TIFF) {
+									// these modes aren't supported, fall back to Printer mode instead, which means use this.displayMode
+									this.startupDisplayMode = DisplayMode.Printer;
 								}
 							}
 						}
@@ -199,7 +198,7 @@ public class Options {
 			OutputFormat of = new OutputFormat("XML", "UTF-8", true);
 			of.setIndent(1);
 			of.setIndenting(true);
-	//		of.setDoctype(null, "users.dtd");
+			//		of.setDoctype(null, "users.dtd");
 			XMLSerializer serializer = new XMLSerializer(fos, of);
 
 			// SAX2.0 ContentHandler.
@@ -212,7 +211,7 @@ public class Options {
 			AttributesImpl atts = new AttributesImpl();
 			// USERS tag.
 			hd.startElement("", "", "DGSPreviewerOptions", atts);
-			
+
 			// BackgroundColor
 			atts.clear();
 			atts.addAttribute("", "", "key", "CDATA", "BackgroundColor");
@@ -224,7 +223,7 @@ public class Options {
 			// LogLevel
 			atts.clear();
 			atts.addAttribute("", "", "key", "CDATA", "LogLevel");
-			atts.addAttribute("", "", "value", "CDATA", "" + this.LogLevel );
+			atts.addAttribute("", "", "value", "CDATA", "" + this.LogLevel);
 			hd.startElement("", "", "DGSPreviewerOption", atts);
 			hd.endElement("", "", "DGSPreviewerOption");
 
@@ -248,7 +247,7 @@ public class Options {
 			atts.addAttribute("", "", "value", "CDATA", this.MRUDGSPackageFileName);
 			hd.startElement("", "", "DGSPreviewerOption", atts);
 			hd.endElement("", "", "DGSPreviewerOption");
-		
+
 			// DisplayMode
 			atts.clear();
 			atts.addAttribute("", "", "key", "CDATA", "DisplayMode");
@@ -268,10 +267,10 @@ public class Options {
 			fos.close();
 		} catch (IOException ioex) {
 			ioex.printStackTrace();
-			return(false);
+			return (false);
 		} catch (SAXException sex) {
 			sex.printStackTrace();
-			return(false);
+			return (false);
 		}
 		return (true);
 	}
@@ -357,32 +356,32 @@ public class Options {
 		this.save();
 		return (oldName);
 	}
-	
+
 	public DisplayMode getDisplayMode() {
-		return(this.displayMode);
+		return (this.displayMode);
 	}
 
 	public DisplayMode setDisplayMode(DisplayMode newMode) {
 		if (newMode.equals(this.displayMode)) {
-			return(this.displayMode);
+			return (this.displayMode);
 		}
 		DisplayMode oldMode = this.displayMode;
 		this.displayMode = newMode;
 		this.save();
-		return(oldMode);
+		return (oldMode);
 	}
 
 	public DisplayMode getStartupMode() {
-		return(this.startupDisplayMode);
+		return (this.startupDisplayMode);
 	}
 
 	public DisplayMode setStartupMode(DisplayMode newMode) {
 		if (newMode.equals(this.startupDisplayMode)) {
-			return(this.startupDisplayMode);
+			return (this.startupDisplayMode);
 		}
 		DisplayMode oldMode = this.startupDisplayMode;
 		this.startupDisplayMode = newMode;
 		this.save();
-		return(oldMode);
+		return (oldMode);
 	}
 }

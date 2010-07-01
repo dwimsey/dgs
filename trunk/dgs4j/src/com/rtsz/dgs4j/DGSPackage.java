@@ -2,9 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.rtsz.dgs4j;
-
 
 import com.rtsz.dgs4j.*;
 
@@ -23,13 +21,12 @@ import org.w3c.dom.*;
  * @author dwimsey
  */
 public class DGSPackage {
+
 	public String fileName = "";
 	public String templateBuffer = "main";
 	public float animationDuration = 0.0f;
 	public float animationFramerate = 0.0f;
-
 	public String commandString = "";
-
 	public DGSFileInfo[] files = null;
 	public DGSVariable[] variables = null;
 	public String stylesheet = null;
@@ -50,8 +47,7 @@ public class DGSPackage {
 		stylesheet = null;
 	}
 
-	public boolean loadFile(String filename)
-	{
+	public boolean loadFile(String filename) {
 		reset();
 		File file = null;
 		DocumentBuilderFactory dbf = null;
@@ -76,7 +72,7 @@ public class DGSPackage {
 		try {
 			NodeList tLst = doc.getElementsByTagName("DGSCommands");
 			int nLen = tLst.getLength();
-			if(tLst.getLength()>0) {
+			if (tLst.getLength() > 0) {
 				NodeList nodeLst = tLst.item(0).getChildNodes();
 				Node dgsCommands = tLst.item(0);
 				nLen = nodeLst.getLength();
@@ -86,39 +82,39 @@ public class DGSPackage {
 				Node animationDurationNode = aMap.getNamedItem("animationDuration");
 				Node animationFramerateNode = aMap.getNamedItem("animationFramerate");
 
-				if(templateBufferNode!=null) {
+				if (templateBufferNode != null) {
 					this.templateBuffer = templateBufferNode.getNodeValue();
-					if((this.templateBuffer == null) || (this.templateBuffer.length() == 0)) {
+					if ((this.templateBuffer == null) || (this.templateBuffer.length() == 0)) {
 						this.templateBuffer = "main"; // assume the fallback
 					}
 				}
 
 				String tStr;
-				if(animationDurationNode != null) {
+				if (animationDurationNode != null) {
 					tStr = animationDurationNode.getNodeValue();
-					if((tStr!=null) && (tStr.length()>0)) {
+					if ((tStr != null) && (tStr.length() > 0)) {
 						try {
 							this.animationDuration = Float.parseFloat(tStr);
-							if(this.animationDuration<Float.MIN_VALUE) {
+							if (this.animationDuration < Float.MIN_VALUE) {
 								this.animationDuration = 0.0f;
 							}
 						} catch (NumberFormatException ex) {
 							ex.printStackTrace();
-							return(false);
+							return (false);
 						}
 					}
 				}
-				if(animationFramerateNode != null) {
+				if (animationFramerateNode != null) {
 					tStr = animationFramerateNode.getNodeValue();
-					if((tStr!=null) && (tStr.length()>0)) {
+					if ((tStr != null) && (tStr.length() > 0)) {
 						try {
 							this.animationFramerate = Float.parseFloat(tStr);
-							if(this.animationFramerate<Float.MIN_VALUE) {
+							if (this.animationFramerate < Float.MIN_VALUE) {
 								this.animationFramerate = 0.0f;
 							}
 						} catch (NumberFormatException ex) {
 							ex.printStackTrace();
-							return(false);
+							return (false);
 						}
 					}
 				}
@@ -128,7 +124,7 @@ public class DGSPackage {
 			return (false);
 		}
 
-	// this try wraps the variables reading
+		// this try wraps the variables reading
 		Node nameAttr;
 		Node valueAttr;
 		String vStr;
@@ -146,7 +142,7 @@ public class DGSPackage {
 				if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
 					aMap = fstNode.getAttributes();
 					nameAttr = aMap.getNamedItem("name");
-					if(nameAttr == null) {
+					if (nameAttr == null) {
 						// this is an invalid variable, skip it
 						continue;
 					}
@@ -156,9 +152,9 @@ public class DGSPackage {
 					}
 					if (vStr.isEmpty()) {
 						valueAttr = aMap.getNamedItem("value");
-						if(valueAttr != null) {
+						if (valueAttr != null) {
 							vStr = valueAttr.getTextContent();
-							if(vStr == null) {
+							if (vStr == null) {
 								vStr = "";
 							}
 						} else {
@@ -172,7 +168,7 @@ public class DGSPackage {
 			this.variables = vars;
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return(false);
+			return (false);
 		}
 
 		try {
@@ -196,17 +192,17 @@ public class DGSPackage {
 		} catch (Exception ex) {
 //			setStatusMessage(10, "loadImageFiles: An error occurred parsing the variable data in" + varFileName + "\": " + ex.getLocalizedMessage());
 			ex.printStackTrace();
-			return(false);
+			return (false);
 		}
 
 		try {
 			nodeLst = doc.getElementsByTagName("DGSStyleSheet");
 
-			if(nodeLst != null) {
+			if (nodeLst != null) {
 				int nLen = nodeLst.getLength();
-				if(nLen>0) {
+				if (nLen > 0) {
 					this.stylesheet = nodeLst.item(0).getTextContent();
-					if(nLen > 1) {
+					if (nLen > 1) {
 						throw new Exception("Only one DGSStyleSheet is allowed.");
 					}
 				}
@@ -214,10 +210,10 @@ public class DGSPackage {
 		} catch (Exception ex) {
 //			setStatusMessage(10, "loadImageFiles: An error occurred parsing the variable data in" + varFileName + "\": " + ex.getLocalizedMessage());
 			ex.printStackTrace();
-			return(false);
+			return (false);
 		}
 
 		this.fileName = filename;
-		return(true);
+		return (true);
 	}
 }

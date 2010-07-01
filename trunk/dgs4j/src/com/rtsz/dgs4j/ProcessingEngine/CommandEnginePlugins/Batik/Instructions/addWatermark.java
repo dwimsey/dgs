@@ -23,6 +23,7 @@ import javax.xml.transform.stream.*;
  * @author dwimsey
  */
 public class addWatermark implements IInstruction {
+
 	String instructionName = "addWatermark";
 	String xlinkNS = "http://www.w3.org/1999/xlink";
 
@@ -31,23 +32,23 @@ public class addWatermark implements IInstruction {
 		Node bufferNode = nm.getNamedItem("buffer");
 		Node srcImageNode = nm.getNamedItem("srcImage");
 		if (bufferNode == null) {
-		    workspace.log(instructionName + " command failed: no buffer attribute specified.");
-		    return (false);
+			workspace.log(instructionName + " command failed: no buffer attribute specified.");
+			return (false);
 		}
 		if (srcImageNode == null) {
-		    workspace.log(instructionName + " command failed: no srcImageNode attribute specified.");
-		    return (false);
+			workspace.log(instructionName + " command failed: no srcImageNode attribute specified.");
+			return (false);
 		}
 
 		String bufferName = bufferNode.getNodeValue();
 		String srcImageName = srcImageNode.getNodeValue();
-		if (bufferName==null || bufferName.length() == 0) {
-		    workspace.log(instructionName + " command failed: buffer attribute has no data.");
-		    return (false);
+		if (bufferName == null || bufferName.length() == 0) {
+			workspace.log(instructionName + " command failed: buffer attribute has no data.");
+			return (false);
 		}
-		if (srcImageName==null || srcImageName.length() == 0) {
-		    workspace.log(instructionName + " command failed: srcImageNode attribute has no data.");
-		    return (false);
+		if (srcImageName == null || srcImageName.length() == 0) {
+			workspace.log(instructionName + " command failed: srcImageNode attribute has no data.");
+			return (false);
 		}
 
 		ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
@@ -64,29 +65,29 @@ public class addWatermark implements IInstruction {
 		Node opacityNode = nm.getNamedItem("opacity");
 		if (opacityNode != null) {
 			String tStr = opacityNode.getNodeValue();
-			if(tStr != null) {
-				if(tStr.length() > 0) {
+			if (tStr != null) {
+				if (tStr.length() > 0) {
 					opacityStr = tStr;
 				}
 			}
 		}
-		
+
 		org.apache.batik.dom.svg.SVGOMDocument doc = null;
 
-		if(iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
-			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + Base64.encodeBytes((byte[])iBuffer.data);
+		if (iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) {
+			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + Base64.encodeBytes((byte[]) iBuffer.data);
 			try {
 				String parser = XMLResourceDescriptor.getXMLParserClassName();
 				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-				doc = (org.apache.batik.dom.svg.SVGOMDocument)f.createDocument(uri);
+				doc = (org.apache.batik.dom.svg.SVGOMDocument) f.createDocument(uri);
 			} catch (IOException ex) {
 				workspace.log("An error occurred parsing the SVG file data in the addWatermark command: " + ex.getMessage());
 				return (false);
 			}
 		} else {
-			doc = (org.apache.batik.dom.svg.SVGOMDocument)iBuffer.data;
+			doc = (org.apache.batik.dom.svg.SVGOMDocument) iBuffer.data;
 		}
-		
+
 		ProcessingEngineImageBuffer imgBuffer = workspace.getImageBuffer(srcImageName);
 		if (imgBuffer == null) {
 			workspace.log(instructionName + " command failed: There is no buffer named '" + srcImageName + "' to get the watermark image from.");
@@ -95,10 +96,10 @@ public class addWatermark implements IInstruction {
 		if (!imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE) && !imgBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE) && !imgBuffer.mimeType.equals("image/png") && !imgBuffer.mimeType.equals("image/jpeg") && !imgBuffer.mimeType.equals("image/tiff")) {
 			return (false);
 		}
-		
+
 		String dataUri = "";
-		if(imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
-			Document imgDoc = (Document)imgBuffer.data;
+		if (imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
+			Document imgDoc = (Document) imgBuffer.data;
 			dataUri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64,";
 			TransformerFactory tf = TransformerFactory.newInstance();
 			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
@@ -117,7 +118,7 @@ public class addWatermark implements IInstruction {
 		}
 
 		org.w3c.dom.svg.SVGSVGElement rootNode = doc.getRootElement();
-		
+
 		org.w3c.dom.Element wmNode = doc.createElement("image");
 		wmNode.setAttribute("x", rootNode.getAttribute("x"));
 		wmNode.setAttribute("y", rootNode.getAttribute("y"));
@@ -126,7 +127,7 @@ public class addWatermark implements IInstruction {
 		wmNode.setAttribute("opacity", opacityStr);
 		wmNode.setAttribute("xlink:href", dataUri);
 		rootNode.appendChild(wmNode);
-		
+
 		// TODO: this extra conversion should be fixed somehow to speed things up
 		TransformerFactory tf = TransformerFactory.newInstance();
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
@@ -139,12 +140,12 @@ public class addWatermark implements IInstruction {
 			return (false);
 		}
 		iBuffer.data = outStream.toByteArray();
-		if(iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
-			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + Base64.encodeBytes((byte[])iBuffer.data);
+		if (iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE)) {
+			String uri = "data://" + CommandEngine.MIME_BUFFERTYPE + ";base64," + Base64.encodeBytes((byte[]) iBuffer.data);
 			try {
 				String parser = XMLResourceDescriptor.getXMLParserClassName();
 				SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-				iBuffer.data = (org.apache.batik.dom.svg.SVGOMDocument)f.createDocument(uri);
+				iBuffer.data = (org.apache.batik.dom.svg.SVGOMDocument) f.createDocument(uri);
 			} catch (IOException ex) {
 				workspace.log("An error occurred re-parsing the SVG file data in the addWatermark command: " + ex.getMessage());
 				return (false);
