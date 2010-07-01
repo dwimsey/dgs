@@ -91,7 +91,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		String outputFileName = null;
 		switch (outputDisplayMode) {
 			case Printer:
-				outputMimeType = "printer/chooser";
+				outputMimeType = "printer/printer";
 				outputFileName = "chooser";
 				break;
 			case Draft:
@@ -219,9 +219,11 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 			}
 		}
 		this.notificationMethods.logEvent(200, "-- END DGS Request Log --");
-		setProgress(97);
-		if (dgsResponseInfo.resultFiles.length == 0) {
-			this.notificationMethods.statusMessage(10, "No image files were returned by the processing engine, this generally indicates an error in the input file: " + this.imageFilename);
+		if (outputDisplayMode != DisplayMode.Printer) {
+			setProgress(97);
+			if (dgsResponseInfo.resultFiles.length == 0) {
+				this.notificationMethods.statusMessage(10, "No image files were returned by the processing engine, this generally indicates an error in the input file: " + this.imageFilename);
+			}
 		}
 		setProgress(99);
 		return (dgsResponseInfo);
