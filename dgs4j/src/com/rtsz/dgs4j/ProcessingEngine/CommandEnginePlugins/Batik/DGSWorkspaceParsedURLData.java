@@ -36,6 +36,10 @@ public class DGSWorkspaceParsedURLData extends org.apache.batik.util.ParsedURLDa
 		}
 	}
 
+	public String toString() {
+		return("workspace://" + this.path);
+	}
+
 	public boolean complete() {
 		return (true);
 	}
@@ -70,7 +74,7 @@ public class DGSWorkspaceParsedURLData extends org.apache.batik.util.ParsedURLDa
 
 	public InputStream openStream(String userAgent, Iterator mimeTypes) // Open the stream and check for common compression types.
 	{
-		return (null);
+		return (this.openStreamInternal(userAgent, mimeTypes, null));
 	}
 
 	protected InputStream openStreamInternal(String userAgent, Iterator mimeTypes, Iterator encodingTypes) {
