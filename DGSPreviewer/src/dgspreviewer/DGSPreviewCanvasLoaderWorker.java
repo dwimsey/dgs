@@ -91,6 +91,9 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		String outputFileName = null;
 		switch (outputDisplayMode) {
 			case Printer:
+				outputMimeType = "printer/chooser";
+				outputFileName = "chooser";
+				break;
 			case Draft:
 				outputMimeType = "image/svg+xml";
 				outputFileName = "output.svg";
@@ -244,37 +247,15 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		}
 
 		if (outputDisplayMode == DisplayMode.Printer) {
-			this.notificationMethods.statusMessage(200, "Printing image ...");
+			this.notificationMethods.statusMessage(200, "Image printed.");
 		} else {
 			this.notificationMethods.statusMessage(200, "Updating display with new image ...");
 		}
 		setProgress(99);
 		org.w3c.dom.Document svgDoc;
 		switch (outputDisplayMode) {
-			case Printer:
-				try {
-					String parser = org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName();
-					org.apache.batik.dom.svg.SAXSVGDocumentFactory f = new org.apache.batik.dom.svg.SAXSVGDocumentFactory(parser);
-					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String) new String(((byte[]) dgsResponseInfo.resultFiles[0].data), "UTF8")));
-					// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
-					// a real cause and fix needs to be found
-					svgDoc.setDocumentURI("http://localhost/workspace.svg");
-				} catch (Exception ex) {
-					this.notificationMethods.statusMessage(0, "An error occurred parsing the SVG data file data for printing: " + ex.getMessage());
-					return;
-				}
-				// TODO: this needs to be overridden with the DGSUserAgent somehow so it works as expected.
-				org.apache.batik.transcoder.print.PrintTranscoder pt = new org.apache.batik.transcoder.print.PrintTranscoder();
-				pt.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_EXECUTE_ONLOAD, true);
-				pt.transcode(new org.apache.batik.transcoder.TranscoderInput(svgDoc), null);
-				try {
-					pt.addTranscodingHint(org.apache.batik.transcoder.print.PrintTranscoder.KEY_SHOW_PRINTER_DIALOG, true);
-					pt.print();
-				} catch (Exception ex) {
-					this.notificationMethods.statusMessage(0, "An error occurred parsing the SVG data file data for printing: " + ex.getMessage());
-					return;
 
-				}
+			case Printer:
 				break;
 			case Draft:
 				try {
