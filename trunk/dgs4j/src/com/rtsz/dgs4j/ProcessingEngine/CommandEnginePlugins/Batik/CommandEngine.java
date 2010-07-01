@@ -431,9 +431,21 @@ public class CommandEngine implements ICommandEngine {
 					}
 				} else {
 					try {
-						t.addTranscodingHint(DGSPrinterTranscoder.KEY_PRINTER_TARGET_STR, mimeType.substring(8));
+						String pTarget = mimeType.substring(8);
+						if(pTarget.length()==0) {
+							workspace.log("No printer target was specified");
+							return(null);
+						}
+						int o = pTarget.indexOf('+');
+						if(o > -1) {
+							pTarget = pTarget.substring(o + 1);
+						} else {
+							workspace.log("No target printer specified.");
+						}
+						workspace.log("Setting printer target: " + pTarget);
+						t.addTranscodingHint(DGSPrinterTranscoder.KEY_PRINTER_TARGET_STR, pTarget);
 					} catch (Exception ex) {
-						workspace.log("An error occurred setting the print target: " + ex.getMessage());
+						workspace.log("An error occurred displaying the system print dialog: " + ex.getMessage());
 						return(null);
 					}
 				}
@@ -585,8 +597,17 @@ public class CommandEngine implements ICommandEngine {
 			extension = ".jpg";
 		} else if (mimeType.equals("image/tiff")) {
 			extension = ".tif";
-		} else if (mimeType.equals("printer/")) {
+		} else if (mimeType.equals("printer/chooser")) {
 			extension = ".prn";
+		} else if (mimeType.startsWith("printer/")) {
+			// we munge the mimeType as thats how we pass in the printer target which is stored in the
+			// output filename
+			if(fileName!=null && fileName.length() != 0) {
+				mimeType += "+" + fileName;
+			} else {
+				workspace.log("No printer name specified for save command to printer/ mime time.");
+				return(false);
+			}
 		} else if (mimeType.toLowerCase().startsWith("printer/")) {
 			extension = ".prn";
 		} else if (mimeType.equals("application/pdf")) {
