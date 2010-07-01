@@ -169,6 +169,7 @@ public class CommandEngine implements ICommandEngine {
 				if (quirkInkscapeRev > 0) {
 					// Find any flow roots and fix the flow region backgrounds and wrap the
 					// text in a flowDiv
+					boolean docRebuildNeeded = false;
 					SVGOMRectElement rNode;
 					ns = doc.getElementsByTagName("flowRoot");
 					if (ns != null) {
@@ -273,9 +274,7 @@ public class CommandEngine implements ICommandEngine {
 										fdNode.appendChild(wwNode);
 										wwNode = (SVGElement) ns2.item(ii++);
 									}
-									if (ii > 0) {
-										
-									}
+									docRebuildNeeded = true;
 								}
 
 
@@ -283,6 +282,18 @@ public class CommandEngine implements ICommandEngine {
 
 							wNode = (SVGElement) ns.item(i++);
 						}
+					}
+					// TODO: docRebuildNeeded needs to not happen as it kills performance
+					if(docRebuildNeeded) {
+						try {
+							//TODO: // this always forces the 1.1 version to 1.2 but its a nasty hack, we need to do this properly
+							byte sStr[] = CommandEngine.svgDoc2Bytes((Document)doc);
+							doc = f.createSVGDocument(null, new java.io.StringReader((String) new String(sStr, "UTF8")));
+						} catch (Throwable ex) {
+							workspace.log("An error occurred re-parsing the SVG file data after flowRoot fixup: " + ex.getMessage());
+							return (false);
+						}
+						rootNode = doc.getRootElement();
 					}
 				}
 
