@@ -646,6 +646,14 @@ public class DGSPreviewerView extends FrameView {
 					}
 				};
 			}
+			java.io.File f = new java.io.File(MRUTemplateImageFileName);
+			java.io.File d = new java.io.File(this.options.getMRUDGSPackageFileName());
+			if(d.exists()) {
+				this.getFrame().setTitle(f.getName() + " (DGS Package: " + d.getName() + ")");
+			} else {
+				this.getFrame().setTitle(f.getName() + " (" + d.getName() + ")");
+			}
+
 			previewCanvas.loadUri(MRUTemplateImageFileName, this.options.getMRUDGSPackageFileName(), notificationMethods);
 		}
     }
