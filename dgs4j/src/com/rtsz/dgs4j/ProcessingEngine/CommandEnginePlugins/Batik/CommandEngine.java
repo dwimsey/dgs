@@ -223,7 +223,6 @@ public class CommandEngine implements ICommandEngine {
 										ss = "fill:none;" + ss;
 									}
 
-
 									offset1 = ss.indexOf("fill-opacity:");
 									if (offset1 > -1) {
 										p1 = ss.substring(0, offset1);
@@ -250,7 +249,6 @@ public class CommandEngine implements ICommandEngine {
 										}
 									}
 
-
 									if (!s.equals(ss)) {
 										rNode.setAttribute(rNode.SVG_STYLE_ATTRIBUTE, ss);
 									}
@@ -267,17 +265,15 @@ public class CommandEngine implements ICommandEngine {
 									// we need to move the flowPara's into the flowDiv
 									ii = 0;
 									Element fdNode = doc.createElement("flowDiv");
-									wNode.appendChild(fdNode);
 									wwNode = (SVGElement) ns2.item(ii++);
 									while (wwNode != null) {
 										wNode.removeChild(wwNode);
 										fdNode.appendChild(wwNode);
 										wwNode = (SVGElement) ns2.item(ii++);
 									}
+									wNode.appendChild(fdNode);
 									docRebuildNeeded = true;
 								}
-
-
 							}
 
 							wNode = (SVGElement) ns.item(i++);
