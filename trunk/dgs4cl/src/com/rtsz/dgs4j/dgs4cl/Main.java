@@ -20,9 +20,18 @@ import java.util.HashMap;
 public class Main {
 
 	public static void usage() {
-		System.out.println("dgs4cl v- DGS command line utility");
+		System.out.println("dgs4cl v1.0.1 - DGS command line utility");
 		System.out.println("\tUsage: dgs4cl.jar [-d DGSPackage.xml] [-V key=value] input.svg output.png");
+		System.out.println("\t-h Show this usage information.");
+		System.out.println("\t-l Display request log output.");
 		System.out.println("\t-d <DGS Package XML Filename>: Uses the file specified as the DGS package.");
+		System.out.println("\t-s <CSS Stylesheet Filename>: Uses the file specified as the default stylesheet.");
+		System.out.println("\t\tBuiltin Stylesheets:");
+		System.out.println("\t\t\tapl-appstore: Renders the document viewport to a 512x512 png file.");
+		System.out.println("\t\t\tapl-iphone-spotlight: Renders the document viewport to a 512x512 png file.");
+		System.out.println("\t-W Set output image width in pixels.");
+		System.out.println("\t-H Set output image height in pixels.");
+		System.out.println("\t-D Set output image dots per inch. (Not currently implemented)");
 		System.out.println("\t-V <Key=value>: Sets the variable named 'Key' to 'value'.  Variables specified with the -V option override variables obtained using the -d option.");
 	}
 
@@ -43,37 +52,74 @@ public class Main {
 
 		com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine = new com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine();
 
-		int offset;
+		int offset = 0;
+		int width = 0;
+		int height = 0;
+		int dpi = 0;
 		String dgsTemplateFilename = "";
 		String previewPackageFilename = "";
+		String altStylesheetFilename = "";
 		String outputMimeType = "image/png";
 		String outputFilename = "";
 		boolean continueOnError = false;
 		String current_arg;
+		boolean showLog = false;
 		java.util.ArrayList<DGSVariable> vars = new java.util.ArrayList<DGSVariable>();
+
+		if(args.length  == 0) {
+			System.out.println("ERROR: No arguments specified.");
+			usage();
+			System.exit(254);
+		}
 
 		for (int i = 0; i < args.length; i++) {
 			current_arg = args[i];
 			if (current_arg.equals("-h")) {
 				// we don't do anything after the -h so just bail out
 				usage();
-				return;
-//            } else if(current_arg.equals("-t")) {
-//                i++;
-//                if(args.length>i) {
-//
-//                } else {
-//                    System.out.println("-t option missing argument");
-//                    return;
-//                }
+				System.exit(0);
 			} else if (current_arg.equals("-d")) {
 				i++;
 				if (args.length > i) {
 					previewPackageFilename = args[i];
 				} else {
 					System.out.println("-d option missing argument");
-					return;
+					System.exit(254);
 				}
+			} else if (current_arg.equals("-s")) {
+				i++;
+				if (args.length > i) {
+					altStylesheetFilename = args[i];
+				} else {
+					System.out.println("-s option missing argument");
+					System.exit(254);
+				}
+			} else if (current_arg.equals("-W")) {
+				i++;
+				if (args.length > i) {
+					width = java.lang.Integer.parseInt(args[i]);
+				} else {
+					System.out.println("-W option missing argument");
+					System.exit(254);
+				}
+			} else if (current_arg.equals("-H")) {
+				i++;
+				if (args.length > i) {
+					height = java.lang.Integer.parseInt(args[i]);
+				} else {
+					System.out.println("-H option missing argument");
+					System.exit(254);
+				}
+			} else if (current_arg.equals("-D")) {
+				i++;
+				if (args.length > i) {
+					dpi = java.lang.Integer.parseInt(args[i]);
+				} else {
+					System.out.println("-D option missing argument");
+					System.exit(254);
+				}
+			} else if (current_arg.equals("-l")) {
+				showLog = true;
 			} else if (current_arg.equals("-V")) {
 				i++;
 				if (args.length > i) {
@@ -88,11 +134,11 @@ public class Main {
 						}
 					} else {
 						System.out.println("-V requires a key=value pair.");
-						return;
+					System.exit(254);
 					}
 				} else {
 					System.out.println("-d option missing argument");
-					return;
+					System.exit(254);
 				}
 			} else {
 				if (current_arg.equals("-")) {
@@ -120,22 +166,25 @@ public class Main {
 					}
 				}
 
-				processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, outputMimeType, outputFilename, vars, continueOnError);
+				int rval = processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, altStylesheetFilename, outputMimeType, outputFilename, width, height, dpi, vars, continueOnError, showLog);
+				if(rval != 0) {
+					System.exit(rval);
+				}
 			}
 		}
 
 	}
 
-	private static void processDGSPackage(String dgsTemplateFilename,
-			String previewPackageFilename, String outputMimeType,
-			String outputFilename, boolean continueOnError) {
+	private static int processDGSPackage(String dgsTemplateFilename,
+			String previewPackageFilename, String altStylesheetFilename, String outputMimeType,
+			String outputFilename, int width, int height, int dpi, boolean continueOnError, boolean showLog) {
 		com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine = new com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine();
-		processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, outputMimeType, outputFilename, new java.util.ArrayList<DGSVariable>(), continueOnError);
+		return processDGSPackage(pEngine, dgsTemplateFilename, previewPackageFilename, altStylesheetFilename, outputMimeType, outputFilename, width, height, dpi, new java.util.ArrayList<DGSVariable>(), continueOnError, showLog);
 	}
 
-	private static void processDGSPackage(com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine,
-			String dgsTemplateFilename, String previewPackageFilename, String outputMimeType,
-			String outputFilename, java.util.ArrayList<DGSVariable> vars, boolean continueOnError) {
+	private static int processDGSPackage(com.rtsz.dgs4j.ProcessingEngine.ProcessingEngine pEngine,
+			String dgsTemplateFilename, String previewPackageFilename, String altStylesheetFilename, String outputMimeType,
+			String outputFilename, int width, int height, int dpi, java.util.ArrayList<DGSVariable> vars, boolean continueOnError, boolean showLog) {
 		DGSRequestInfo dgsRequestInfo = new DGSRequestInfo();
 		dgsRequestInfo.continueOnError = continueOnError;
 
@@ -144,12 +193,12 @@ public class Main {
 			templateFileInfo = loadImageFileData(dgsTemplateFilename);
 		} catch (Exception e) {
 			System.out.println("Could not open input file: " + dgsTemplateFilename + ": " + e.getMessage());
-			return;
+			return(253);
 		}
 
 		if (templateFileInfo == null) {
 			System.out.println("Could not open input file: " + dgsTemplateFilename);
-			return;
+			return(253);
 		}
 
 		DGSPackage dPkg = new DGSPackage();
@@ -198,13 +247,6 @@ public class Main {
 			}
 		}
 
-
-
-
-
-
-
-
 		dgsRequestInfo.files[0] = templateFileInfo;
 		if ((dgsRequestInfo.files[0].name == null) || (dgsRequestInfo.files[0].name.length() == 0)) {
 			dgsRequestInfo.files[0].name = "input.svg"; // we need this set to Something, so set it ourselves
@@ -218,7 +260,9 @@ public class Main {
 		if (dPkg.commandString != null && dPkg.commandString.length() > 0) {
 			dgsRequestInfo.instructionsXML += dPkg.commandString;
 		} else {
-			dgsRequestInfo.instructionsXML += "<substituteVariables buffer=\"main\" />";
+			if(dgsRequestInfo.variables != null && dgsRequestInfo.variables.length > 0) {
+				dgsRequestInfo.instructionsXML += "<substituteVariables buffer=\"main\" />";
+			}
 		}
 		//dgsRequestInfo.instructionsXML += "<addWatermark buffer=\"" + dPkg.templateBuffer + "\" srcImage=\"watermark\" opacity=\"0.05\"/>";
 		dgsRequestInfo.instructionsXML += "<save ";
@@ -226,30 +270,55 @@ public class Main {
 			//dgsRequestInfo.instructionsXML += "animationDuration=\"" + dPkg.animationDuration + "\" animationFramerate=\"" + dPkg.animationFramerate + "\" ";
 		}
 
+		if(width > 0) {
+			dgsRequestInfo.instructionsXML += "width=\"" + width + "\" ";
+		}
+		if(height > 0) {
+			dgsRequestInfo.instructionsXML += "height=\"" + height + "\" ";
+		}
+		if(dpi > 0) {
+			dgsRequestInfo.instructionsXML += "dpi=\"" + dpi + "\" ";
+		}
+
 		dgsRequestInfo.instructionsXML += "filename=\"" + outputFilename + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"" + outputMimeType + "\" /></commands>";
 
-
-
-
-
-
-
-
 		ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
+
+		if(altStylesheetFilename.length() > 0) {
+			try {
+				boolean worked = false;
+				byte fDat[] = null;
+				fDat = fileToBytes(altStylesheetFilename);
+				if (fDat != null) {
+					if (fDat.length == 0) {
+						System.out.println("The specified file is empty: " + altStylesheetFilename);
+					}
+
+					workspace.activeStylesheet = new String(fDat, "UTF8");
+				} else {
+					System.out.println("An unknown error occurred reading file: " + altStylesheetFilename);
+				}
+			} catch (Exception e) {
+				System.out.println("Could not open input stylesheet: " + altStylesheetFilename + ": " + e.getMessage());
+				return(253);
+			}
+		}
 		DGSResponseInfo dgsResponseInfo = pEngine.processCommandString(workspace);
 
 
 
 
-		for (int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
-			//this.notificationMethods.logEvent(200, "     " + dgsResponseInfo.processingLog[i]);
+		if(showLog) {
+			for (int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
+				//this.notificationMethods.logEvent(200, "     " + dgsResponseInfo.processingLog[i]);
+				System.out.println("\t"+ dgsResponseInfo.processingLog[i]);
+			}
 		}
-		//this.notificationMethods.logEvent(200, "-- END DGS Request Log --");
 
 		if (dgsResponseInfo.resultFiles.length == 0) {
 			//this.notificationMethods.statusMessage(10, "No image files were returned by the processing engine, this generally indicates an error in the input file: " + this.imageFilename);
 			System.out.println("No image files were returned by the processing engine, this generally indicates an error in the input file: " + dgsTemplateFilename);
-			return;
+			return(250);
 		}
 
 
@@ -262,15 +331,17 @@ public class Main {
 			} catch (Throwable t) {
 				//this.notificationMethods.statusMessage(0, "Could not save file: " + t.getMessage());
 				System.out.println("Could not save output file: " + outputFilename + ": " + t.getMessage());
-				return;
+				return(251);
 			} finally {
 				fs.close();
 			}
 		} catch (Throwable t) {
 			//this.notificationMethods.statusMessage(0, "Could not open file: " + t.getMessage());
 			System.out.println("Could not open output file: " + outputFilename + ": " + t.getMessage());
-			return;
+			return(252);
 		}
+
+		return(0);
 	}
 
 	private static DGSFileInfo loadImageFileData(String fileName) throws FileNotFoundException, IOException, Exception {
