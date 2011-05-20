@@ -53,6 +53,14 @@ public class ProcessingWorkspace {
 		processingLog.add(logString);
 	}
 
+	public void logException(String logString, Throwable ex) {
+		StackTraceElement[] stack = ex.getStackTrace();
+		processingLog.add(logString);
+		for(int i = 0; i < stack.length; i++) {
+			processingLog.add("\t\t" + stack[i].toString());
+		}
+	}
+
 	public String getLog() {
 		return ("");
 	}
