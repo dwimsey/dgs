@@ -46,8 +46,8 @@ public class DGSUserAgent implements UserAgent {
 		}
 
 		String rProto = "";
-		if (resourceURL.getProtocol() == null) {
-			if (docURL.getProtocol() == null) {
+		if (resourceURL == null || resourceURL.getProtocol() == null) {
+			if (docURL == null || docURL.getProtocol() == null) {
 				throw new SecurityException("Could not determine the protocol used to reference this external resource.  Document URL: " + docURL.toString() + " Resource URL: " + resourceURL.toString());
 			} else {
 				rProto = docURL.getProtocol();
