@@ -400,11 +400,21 @@ public class CommandEngine implements ICommandEngine {
 			t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_USER_STYLESHEET_URI, workspace.DGSWORKSPACE_URL_STYLESHEET);
 		}
 
+
+		if(size.height > 0) {
+			t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_HEIGHT, new Float(size.height));
+		}
+		if(size.width > 0) {
+			t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH, new Float(size.width));
+		}
+
+
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_CONSTRAIN_SCRIPT_ORIGIN, true);
 		// we now allow scripts and animation to run
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_EXECUTE_ONLOAD, true);
 		t.addTranscodingHint(KEY_ANIMATION_ENABLED, true);
 		t.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_SNAPSHOT_TIME, snapshotTime);
+
 
 		byte oDat[];
 		try {
@@ -416,9 +426,6 @@ public class CommandEngine implements ICommandEngine {
 				try {
 					svgDoc = CommandEngine.svgBytes2Doc((byte[])svgData);
 
-					// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
-					// a real cause and fix needs to be found
-					svgDoc.setDocumentURI("http://localhost/workspace.svg");
 				} catch (Exception ex) {
 					workspace.log("An error occurred parsing the SVG file data for transcoding: " + ex.getMessage());
 					return (null);
@@ -426,6 +433,10 @@ public class CommandEngine implements ICommandEngine {
 			} else {
 				svgDoc = (Document) svgData;
 			}
+
+			// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
+			// a real cause and fix needs to be found
+			svgDoc.setDocumentURI("workspace://workspace.svg");
 			input = new TranscoderInput((Document) svgDoc);
 
 			if (mimeType.toLowerCase().startsWith("printer/")) {
@@ -487,13 +498,11 @@ public class CommandEngine implements ICommandEngine {
 				t.transcode(input, output);
 			} catch (TranscoderException ex) {
 				// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
-				workspace.log("Transcoder Error:");
-				workspace.log(" -> " + ex.toString());
+				workspace.logException("Transcoder Error", ex);
 				return (null);
 			} catch (Exception ex) {
 				// TODO: for some reason if we do anything with ex here some times we don't get any output to the workspace log
-				workspace.log("Transcoder Error:");
-				workspace.log(" -> " + ex.toString());
+				workspace.logException("Unknown Transcoder Error", ex);
 				return (null);
 			}
 
@@ -636,6 +645,26 @@ public class CommandEngine implements ICommandEngine {
 		}
 
 		java.awt.Dimension size = new java.awt.Dimension();
+		String bufferName = null;
+		size.height = 0;
+		size.width = 0;
+		int t;
+		Node a = attributes.getNamedItem("width");
+		if(a != null) {
+			bufferName = a.getNodeValue();
+			if(bufferName.length() > 0) {
+				t = java.lang.Integer.parseInt(bufferName);
+				size.width = t;
+			}
+		}
+		a = attributes.getNamedItem("height");
+		if(a != null) {
+			bufferName = a.getNodeValue();
+			if(bufferName.length() > 0) {
+				t = java.lang.Integer.parseInt(bufferName);
+				size.height = t;
+			}
+		}
 		oDat = this.getImageData(workspace, workBuf, mimeType, 100.0f, 0.0f, buffer.mimeType, size);
 		if (oDat == null) {
 			workspace.log("Image creation failed.  Input type: " + MIME_BUFFERTYPE + " Output type: " + mimeType);
