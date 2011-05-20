@@ -47,23 +47,21 @@ public class DGSPackage {
 		stylesheet = null;
 	}
 
-	public boolean loadFile(String filename) {
+	public boolean loadFileStream(InputStream inStream, String filename) {
 		reset();
-		File file = null;
 		DocumentBuilderFactory dbf = null;
 		DocumentBuilder db = null;
 		Document doc = null;
 		try {
-			file = new File(filename);
 			dbf = DocumentBuilderFactory.newInstance();
 			db = dbf.newDocumentBuilder();
 		} catch (Exception ex) {
 //			setStatusMessage(10, "An unexpected error occurred creating the xml document for the DGS Package specified: " + filename + "  Error: " + ex.getLocalizedMessage());
-			ex.printStackTrace();
+		//	ex.printStackTrace();
 			return (false);
 		}
 		try {
-			doc = db.parse(file);
+			doc = db.parse(inStream);
 			doc.getDocumentElement().normalize();
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -215,5 +213,32 @@ public class DGSPackage {
 
 		this.fileName = filename;
 		return (true);
+	}
+
+
+	public boolean loadFile(String filename) {
+		reset();
+		File file = null;
+		DocumentBuilderFactory dbf = null;
+		DocumentBuilder db = null;
+		Document doc = null;
+		try {
+			file = new File(filename);
+		} catch (Exception ex) {
+//			setStatusMessage(10, "An unexpected error occurred creating the xml document for the DGS Package specified: " + filename + "  Error: " + ex.getLocalizedMessage());
+			ex.printStackTrace();
+			return (false);
+		}
+
+		boolean result = false;
+		try {
+			java.io.InputStream inStream = new java.io.FileInputStream(file);
+			result = loadFileStream(inStream, filename);
+			inStream.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return (false);
+		}
+		return(result);
 	}
 }
