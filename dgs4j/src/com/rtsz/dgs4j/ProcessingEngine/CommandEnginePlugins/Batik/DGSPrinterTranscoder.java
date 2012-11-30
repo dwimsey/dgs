@@ -14,6 +14,8 @@ import java.awt.print.*;
  * @author dwimsey
  */
 public class DGSPrinterTranscoder extends org.apache.batik.transcoder.print.PrintTranscoder {
+    
+        public static final TranscodingHints.Key KEY_PRINTER_NAME = new StringKey();
 	public DGSPrinterTranscoder(ProcessingWorkspace workspace) {
 		super();
 		this.userAgent = new DGSUserAgent(this.userAgent, workspace);

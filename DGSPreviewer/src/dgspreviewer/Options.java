@@ -100,7 +100,7 @@ public class Options {
 			doc = db.parse(file);
 			doc.getDocumentElement().normalize();
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			//ex.printStackTrace();
 			return (false);
 		}
 		try {
