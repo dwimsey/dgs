@@ -47,7 +47,7 @@ public class Main {
 
 		// Apply script security option
 		ApplicationSecurityEnforcer securityEnforcer =
-				new ApplicationSecurityEnforcer(Main.class.getClass(), "dgspreviewer/resources/DGSPreviewer.policy");
+				new ApplicationSecurityEnforcer(Main.class.getClass(), "DGS/DGSPreviewer/resources/DGSPreviewer.policy");
 
 		securityEnforcer.enforceSecurity(false);
 
