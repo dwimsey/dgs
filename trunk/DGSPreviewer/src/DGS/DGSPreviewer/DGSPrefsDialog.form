@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="2"/>
+    <Property name="name" type="java.lang.String" value="DGS Previewer Preferences" noResource="true"/>
+    <Property name="resizable" type="boolean" value="false"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace pref="317" max="32767" attributes="0"/>
+              <Component id="buttonOk" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="buttonCancel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="labelBGColor" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="labelStartupDisplayMode" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="cbStartupDisplayMode" max="32767" attributes="1"/>
+                  <Component id="textBGColor" alignment="0" pref="108" max="32767" attributes="1"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="buttonColorPicker" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="118" max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="labelBGColor" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="textBGColor" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="buttonColorPicker" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="labelStartupDisplayMode" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="cbStartupDisplayMode" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace pref="181" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="buttonCancel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="buttonOk" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JButton" name="buttonOk">
+      <Properties>
+        <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+          <action class="DGS.DGSPreviewer.DGSPrefsDialog" id="onOkClicked" methodName="onOkClicked"/>
+        </Property>
+        <Property name="text" type="java.lang.String" resourceKey="buttonOk.text"/>
+        <Property name="name" type="java.lang.String" value="buttonOk" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="buttonCancel">
+      <Properties>
+        <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+          <action class="DGS.DGSPreviewer.DGSPrefsDialog" id="onCancelClicked" methodName="onCancelClicked"/>
+        </Property>
+        <Property name="text" type="java.lang.String" resourceKey="buttonCancel.text"/>
+        <Property name="name" type="java.lang.String" value="buttonCancel" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="labelBGColor">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="labelBGColor.text"/>
+        <Property name="name" type="java.lang.String" value="labelBGColor" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="textBGColor">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="textBGColor.text"/>
+        <Property name="name" type="java.lang.String" value="textBGColor" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="buttonColorPicker">
+      <Properties>
+        <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+          <action class="DGS.DGSPreviewer.DGSPrefsDialog" id="onBGColorClicked" methodName="onBGColorClicked"/>
+        </Property>
+        <Property name="text" type="java.lang.String" resourceKey="buttonColorPicker.text"/>
+        <Property name="name" type="java.lang.String" value="buttonColorPicker" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="labelStartupDisplayMode">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="labelStartupDisplayMode.text"/>
+        <Property name="name" type="java.lang.String" value="labelStartupDisplayMode" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="cbStartupDisplayMode">
+      <Properties>
+        <Property name="name" type="java.lang.String" value="cbStartupDisplayMode" noResource="true"/>
+      </Properties>
+    </Component>
+  </SubComponents>
+</Form>
