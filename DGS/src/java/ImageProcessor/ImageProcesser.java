@@ -4,8 +4,11 @@
  */
 package ImageProcessor;
 
-import com.rtsz.dgs4j.*;
-import com.rtsz.dgs4j.ProcessingEngine.*;
+import DGS.dgs4j.ProcessingEngine.ProcessingEngine;
+import DGS.dgs4j.ProcessingEngine.ProcessingWorkspace;
+import DGS.dgs4j.DGSRequestInfo;
+import DGS.dgs4j.DGSProcessingException;
+import DGS.dgs4j.DGSResponseInfo;
 
 import java.util.*;
 
