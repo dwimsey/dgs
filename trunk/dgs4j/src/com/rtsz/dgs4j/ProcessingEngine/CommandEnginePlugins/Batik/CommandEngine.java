@@ -73,7 +73,7 @@ public class CommandEngine implements ICommandEngine {
 			ir.register(new org.apache.batik.ext.awt.image.codec.png.PNGRegistryEntry());
 //			}
 //			if(!mTypes.contains("image/jpeg")) {
-			ir.register(new org.apache.batik.ext.awt.image.codec.jpeg.JPEGRegistryEntry());
+                        ir.register(new org.apache.batik.ext.awt.image.codec.imageio.ImageIOJPEGRegistryEntry());
 //			}
 //			if(!mTypes.contains("image/tiff")) {
 			ir.register(new org.apache.batik.ext.awt.image.codec.tiff.TIFFRegistryEntry());
