@@ -33,20 +33,20 @@ public class substituteVariables implements IInstruction {
 
 			if (bufferNode == null) {
 				if (!workspace.requestInfo.continueOnError) {
-					workspace.log("Processing halted because the command does not have a buffer attribute: " + instructionNode.getNodeName());
+					workspace.logFatal("Processing halted because the command does not have a buffer attribute: " + instructionNode.getNodeName());
 					return (false);  // this should throw an exception instead
 				} else {
-					workspace.log("Processing of command skipped because it does not have a buffer attribute: " + instructionNode.getNodeName());
+					workspace.logFatal("Processing of command skipped because it does not have a buffer attribute: " + instructionNode.getNodeName());
 					return (false);  // this should throw an exception instead
 				}
 			} else {
 				bufferName = bufferNode.getNodeValue();
 				if (bufferName == null || bufferName.length() == 0) {
 					if (!workspace.requestInfo.continueOnError) {
-						workspace.log("Processing halted because the command does not have a value for the buffer attribute: " + instructionNode.getNodeName());
+						workspace.logFatal("Processing halted because the command does not have a value for the buffer attribute: " + instructionNode.getNodeName());
 						return (false);  // this should throw an exception instead
 					} else {
-						workspace.log("Processing of command skipped because it does not have a value for the buffer attribute: " + instructionNode.getNodeName());
+						workspace.logFatal("Processing of command skipped because it does not have a value for the buffer attribute: " + instructionNode.getNodeName());
 						return (false);  // this should throw an exception instead
 					}
 				}
@@ -54,17 +54,17 @@ public class substituteVariables implements IInstruction {
 
 			ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
 			if (iBuffer == null) {
-				workspace.log("There is no buffer named '" + bufferName + "' to do a substituteVariables on.");
+				workspace.logFatal("There is no buffer named '" + bufferName + "' to do a substituteVariables on.");
 				return (false);
 			}
 
 			if ((!iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) && (!iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE))) {
-				workspace.log("Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available for substituteVariables: " + bufferName);
+				workspace.logFatal("Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available for substituteVariables: " + bufferName);
 				return (false);
 			}
 
 			if (workspace.requestInfo.variables == null || workspace.requestInfo.variables.length == 0) {
-				workspace.log("This request has no variables associated with it, substituteVariables does not need to proceed: " + bufferName);
+				workspace.logFatal("This request has no variables associated with it, substituteVariables does not need to proceed: " + bufferName);
 				return (true);
 			}
 
@@ -73,7 +73,7 @@ public class substituteVariables implements IInstruction {
 				try {
 					doc = CommandEngine.svgBytes2Doc((byte[])iBuffer.data);
 				} catch (IOException ex) {
-					workspace.log("An error occurred parsing the SVG file data in the substituteVariables command: " + ex.getMessage());
+					workspace.logFatal("An error occurred parsing the SVG file data in the substituteVariables command: " + ex.getMessage());
 					return (false);
 				}
 			} else {
@@ -215,14 +215,14 @@ public class substituteVariables implements IInstruction {
 				try {
 					iBuffer.data = CommandEngine.svgDoc2Bytes(doc);
 				} catch (Exception ex) {
-					workspace.log("An error occurred while reconstructing the XML file after substituteVariables call: " + ex.getMessage());
+					workspace.logFatal("An error occurred while reconstructing the XML file after substituteVariables call: " + ex.getMessage());
 					return (false);
 				}
 			} else {
 				iBuffer.data = doc;
 			}
 		} catch (Exception ex) {
-			workspace.log("An error occurred while doing variable substitutions: " + ex.getMessage());
+			workspace.logFatal("An error occurred while doing variable substitutions: " + ex.getMessage());
 			return (false);
 		}
 

@@ -34,32 +34,32 @@ public class addWatermark implements IInstruction {
 		Node bufferNode = nm.getNamedItem("buffer");
 		Node srcImageNode = nm.getNamedItem("srcImage");
 		if (bufferNode == null) {
-			workspace.log(instructionName + " command failed: no buffer attribute specified.");
+			workspace.logFatal(instructionName + " command failed: no buffer attribute specified.");
 			return (false);
 		}
 		if (srcImageNode == null) {
-			workspace.log(instructionName + " command failed: no srcImageNode attribute specified.");
+			workspace.logFatal(instructionName + " command failed: no srcImageNode attribute specified.");
 			return (false);
 		}
 
 		String bufferName = bufferNode.getNodeValue();
 		String srcImageName = srcImageNode.getNodeValue();
 		if (bufferName == null || bufferName.length() == 0) {
-			workspace.log(instructionName + " command failed: buffer attribute has no data.");
+			workspace.logFatal(instructionName + " command failed: buffer attribute has no data.");
 			return (false);
 		}
 		if (srcImageName == null || srcImageName.length() == 0) {
-			workspace.log(instructionName + " command failed: srcImageNode attribute has no data.");
+			workspace.logFatal(instructionName + " command failed: srcImageNode attribute has no data.");
 			return (false);
 		}
 
 		ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
 		if (iBuffer == null) {
-			workspace.log(instructionName + " command failed: There is no buffer named '" + bufferName + "'.");
+			workspace.logFatal(instructionName + " command failed: There is no buffer named '" + bufferName + "'.");
 			return (false);
 		}
 		if ((!iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) && (!iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE))) {
-			workspace.log(instructionName + " command failed: Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available: " + bufferName);
+			workspace.logFatal(instructionName + " command failed: Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available: " + bufferName);
 			return (false);
 		}
 
@@ -80,7 +80,7 @@ public class addWatermark implements IInstruction {
 			try {
 				doc = (org.apache.batik.dom.svg.SVGOMDocument)CommandEngine.svgBytes2Doc((byte[])iBuffer.data);
 			} catch (IOException ex) {
-				workspace.log("An error occurred parsing the SVG file data in the addWatermark command: " + ex.getMessage());
+				workspace.logFatal("An error occurred parsing the SVG file data in the addWatermark command: " + ex.getMessage());
 				return (false);
 			}
 		} else {
@@ -89,7 +89,7 @@ public class addWatermark implements IInstruction {
 
 		ProcessingEngineImageBuffer imgBuffer = workspace.getImageBuffer(srcImageName);
 		if (imgBuffer == null) {
-			workspace.log(instructionName + " command failed: There is no buffer named '" + srcImageName + "' to get the watermark image from.");
+			workspace.logFatal(instructionName + " command failed: There is no buffer named '" + srcImageName + "' to get the watermark image from.");
 			return (false);
 		}
 		if (!imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE) && !imgBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE) && !imgBuffer.mimeType.equals("image/png") && !imgBuffer.mimeType.equals("image/jpeg") && !imgBuffer.mimeType.equals("image/tiff")) {
@@ -106,7 +106,7 @@ public class addWatermark implements IInstruction {
 			try {
 				dataUri += Base64.encodeBytes(CommandEngine.svgDoc2Bytes((Document)imgBuffer.data));
 			} catch (Exception ex) {
-				workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
+				workspace.logFatal("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
 				return (false);
 			}
 		} else {
@@ -129,7 +129,7 @@ public class addWatermark implements IInstruction {
 		try {
 			iBuffer.data = CommandEngine.svgDoc2Bytes(doc);
 		} catch (Exception ex) {
-			workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
+			workspace.logFatal("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
 			return (false);
 		}
 
@@ -137,7 +137,7 @@ public class addWatermark implements IInstruction {
 			try {
 				iBuffer.data = CommandEngine.svgBytes2Doc((byte[])iBuffer.data);
 			} catch (Exception ex) {
-				workspace.log("An error occurred re-parsing the SVG file data in the addWatermark command: " + ex.getMessage());
+				workspace.logFatal("An error occurred re-parsing the SVG file data in the addWatermark command: " + ex.getMessage());
 				return (false);
 			}
 		}

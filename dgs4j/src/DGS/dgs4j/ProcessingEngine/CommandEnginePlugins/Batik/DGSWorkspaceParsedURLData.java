@@ -92,7 +92,7 @@ public class DGSWorkspaceParsedURLData extends org.apache.batik.util.ParsedURLDa
 				try {
 					inStream = new java.io.ByteArrayInputStream((byte[]) workspace.activeStylesheet.getBytes("utf-8"));
 				} catch (Throwable t) {
-					workspace.log(("ERROR: could not create input stream for default stylesheet: " + t.getMessage()));
+					workspace.logError(("ERROR: could not create input stream for default stylesheet: " + t.getMessage()));
 					inStream = new java.io.ByteArrayInputStream(new byte[0]);
 				}
 			}
