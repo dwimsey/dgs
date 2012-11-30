@@ -23,7 +23,7 @@ public class DGSPreviewerApp extends SingleFrameApplication {
 		// Apply script security option
 		ApplicationSecurityEnforcer securityEnforcer =
 				new ApplicationSecurityEnforcer(this.getClass(),
-				"dgspreviewer/resources/DGSPreviewer.policy");
+				"DGS.DGSPreviewer/resources/DGSPreviewer.policy");
 
 		securityEnforcer.enforceSecurity(false);
 
