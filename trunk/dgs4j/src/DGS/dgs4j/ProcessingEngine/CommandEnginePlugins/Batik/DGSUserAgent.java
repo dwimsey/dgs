@@ -91,18 +91,18 @@ public class DGSUserAgent implements UserAgent {
 	}
 
 	public void displayError(Exception ex) {
-		workspace.log("Processing Error: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
+		workspace.logFatal("Processing Error: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
 		ex.fillInStackTrace();
 		StackTraceElement st[] = ex.getStackTrace();
 
 		for (int i = 0; i < st.length; i++) {
-			workspace.log(" -> " + st[i].toString());
+			workspace.logFatal(" -> " + st[i].toString());
 		}
 		//ua.displayError(ex);
 	}
 
 	public void displayMessage(String message) {
-		workspace.log(message);
+		workspace.logInfo(message);
 		//ua.displayMessage(message);
 	}
 

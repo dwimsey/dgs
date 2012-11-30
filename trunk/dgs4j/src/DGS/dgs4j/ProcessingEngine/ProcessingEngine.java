@@ -47,25 +47,25 @@ public class ProcessingEngine {
 			try {
 				xParser.parse(new InputSource(new StringReader(workspace.requestInfo.instructionsXML)));
 			} catch (Exception ex) {
-				workspace.log("An error occured parsing the XML command string: " + ex.getMessage());
+				workspace.logFatal("An error occured parsing the XML command string: " + ex.getMessage());
 				return (workspace.generateResultInfo());
 			}
 			Document doc = xParser.getDocument();
 			Element rootNode = doc.getDocumentElement();
 			if (rootNode == null) {
-				workspace.log("XML document has no <commands> root element.");
+				workspace.logFatal("XML document has no <commands> root element.");
 				return (workspace.generateResultInfo());
 			}
 
 			String rootName = rootNode.getNodeName().intern();
 			if (!rootName.equals("commands")) {
-				workspace.log("XML command string does not contain the <commands> root element.  Root element received was: " + rootName);
+				workspace.logFatal("XML command string does not contain the <commands> root element.  Root element received was: " + rootName);
 				return (workspace.generateResultInfo());
 			}
 
 			NodeList commands = rootNode.getChildNodes();
 			if (commands == null) {
-				workspace.log("XML command string does not contain any command elements.");
+				workspace.logFatal("XML command string does not contain any command elements.");
 				return (workspace.generateResultInfo());
 			}
 
@@ -86,10 +86,10 @@ public class ProcessingEngine {
 				attributes = curNode.getAttributes();
 				if (attributes == null) {
 					if (!workspace.requestInfo.continueOnError) {
-						workspace.log("Processing halted because the command does not have any attributes: " + curNodeName);
+						workspace.logFatal("Processing halted because the command does not have any attributes: " + curNodeName);
 						break;
 					} else {
-						workspace.log("Processing of command skipped because it does not have any attributes: " + curNodeName);
+						workspace.logError	("Processing of command skipped because it does not have any attributes: " + curNodeName);
 						continue;
 					}
 				}
@@ -100,20 +100,20 @@ public class ProcessingEngine {
 
 					if (bufferNode == null) {
 						if (!workspace.requestInfo.continueOnError) {
-							workspace.log("Processing halted because the command does not have a buffer attribute: " + curNodeName);
+							workspace.logFatal("Processing halted because the command does not have a buffer attribute: " + curNodeName);
 							break;
 						} else {
-							workspace.log("Processing of command skipped because it does not have a buffer attribute: " + curNodeName);
+							workspace.logError("Processing of command skipped because it does not have a buffer attribute: " + curNodeName);
 							continue;
 						}
 					} else {
 						bufferName = bufferNode.getNodeValue();
 						if (bufferName == null || bufferName.length() == 0) {
 							if (!workspace.requestInfo.continueOnError) {
-								workspace.log("Processing halted because the command does not have a value for the buffer attribute: " + curNodeName);
+								workspace.logFatal("Processing halted because the command does not have a value for the buffer attribute: " + curNodeName);
 								break;
 							} else {
-								workspace.log("Processing of command skipped because it does not have a value for the buffer attribute: " + curNodeName);
+								workspace.logError("Processing of command skipped because it does not have a value for the buffer attribute: " + curNodeName);
 								continue;
 							}
 						}
@@ -123,20 +123,20 @@ public class ProcessingEngine {
 					String fileName;
 					if (fileNameNode == null) {
 						if (!workspace.requestInfo.continueOnError) {
-							workspace.log("Processing halted because the command does not have a filename attribute: " + curNodeName);
+							workspace.logFatal("Processing halted because the command does not have a filename attribute: " + curNodeName);
 							break;
 						} else {
-							workspace.log("Processing of command skipped because it does not have a filename attributes: " + curNodeName);
+							workspace.logError("Processing of command skipped because it does not have a filename attributes: " + curNodeName);
 							continue;
 						}
 					} else {
 						fileName = fileNameNode.getNodeValue();
 						if (fileName == null || fileName.length() == 0) {
 							if (!workspace.requestInfo.continueOnError) {
-								workspace.log("Processing halted because the command does not have a value for the filename attribute: " + curNodeName);
+								workspace.logFatal("Processing halted because the command does not have a value for the filename attribute: " + curNodeName);
 								break;
 							} else {
-								workspace.log("Processing of command skipped because it does not have a value for the filename attributes: " + curNodeName);
+								workspace.logFatal("Processing of command skipped because it does not have a value for the filename attributes: " + curNodeName);
 								continue;
 							}
 						}
@@ -148,20 +148,20 @@ public class ProcessingEngine {
 						mimeType = "";
 						if (mimeTypeNode == null) {
 							if (!workspace.requestInfo.continueOnError) {
-								workspace.log("Processing halted because the command does not have a mimeType attribute: " + curNodeName);
+								workspace.logFatal("Processing halted because the command does not have a mimeType attribute: " + curNodeName);
 								break;
 							} else {
-								workspace.log("Processing of command skipped because it does not have a mimeType attributes: " + curNodeName);
+								workspace.logError("Processing of command skipped because it does not have a mimeType attributes: " + curNodeName);
 								continue;
 							}
 						} else {
 							mimeType = mimeTypeNode.getNodeValue();
 							if (mimeType == null || mimeType.length() == 0) {
 								if (!workspace.requestInfo.continueOnError) {
-									workspace.log("Processing halted because the command does not have a value for the mimeType attribute: " + curNodeName);
+									workspace.logFatal("Processing halted because the command does not have a value for the mimeType attribute: " + curNodeName);
 									break;
 								} else {
-									workspace.log("Processing of command skipped because it does not have a value for the mimeType attributes: " + curNodeName);
+									workspace.logError("Processing of command skipped because it does not have a value for the mimeType attributes: " + curNodeName);
 									continue;
 								}
 							}
@@ -182,10 +182,10 @@ public class ProcessingEngine {
 							ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
 							if (iBuffer == null) {
 								if (!workspace.requestInfo.continueOnError) {
-									workspace.log("Processing halted because the command does not refrence an existing buffer: Command: " + curNodeName + " Buffer: " + bufferName);
+									workspace.logFatal("Processing halted because the command does not refrence an existing buffer: Command: " + curNodeName + " Buffer: " + bufferName);
 									break;
 								} else {
-									workspace.log("Processing of command skipped because the command does not refrence an existing buffer: Command: " + curNodeName + " Buffer: " + bufferName);
+									workspace.logError("Processing of command skipped because the command does not refrence an existing buffer: Command: " + curNodeName + " Buffer: " + bufferName);
 									break;
 								}
 							}
@@ -196,7 +196,7 @@ public class ProcessingEngine {
 									break;
 								}
 							} catch (Exception ex) {
-								workspace.log("Processing of command caused an internal error: Command: " + curNodeName + " Buffer: " + bufferName + " Error: " + ex.getMessage());
+								workspace.logFatal("Processing of command caused an internal error: Command: " + curNodeName + " Buffer: " + bufferName + " Error: " + ex.getMessage());
 							} finally {
 								switchToStandardSecurity();
 							}
@@ -208,7 +208,7 @@ public class ProcessingEngine {
 									break;
 								}
 							} catch (Exception ex) {
-								workspace.log("Processing of command caused an internal error: Command: " + curNodeName + " Buffer: " + bufferName + " Error: " + ex.getMessage());
+								workspace.logFatal("Processing of command caused an internal error: Command: " + curNodeName + " Buffer: " + bufferName + " Error: " + ex.getMessage());
 							} finally {
 								switchToStandardSecurity();
 							}
@@ -217,47 +217,47 @@ public class ProcessingEngine {
 
 					if (!cmdHandled) {
 						if (!workspace.requestInfo.continueOnError) {
-							workspace.log("Processing skipped because the command does not have a handler that is willing to respond to the specified buffer and/or mimeType: Command: " + curNodeName + " Buffer: " + bufferName + " MIME Type: " + mimeType);
+							workspace.logFatal("Processing skipped because the command does not have a handler that is willing to respond to the specified buffer and/or mimeType: Command: " + curNodeName + " Buffer: " + bufferName + " MIME Type: " + mimeType);
 							break;
 						} else {
-							workspace.log("Processing halted because the command does not have a handler that is willing to respond to the specified buffer and/or mimeType: Command: " + curNodeName + " Buffer: " + bufferName + " MIME Type: " + mimeType);
+							workspace.logError("Processing halted because the command does not have a handler that is willing to respond to the specified buffer and/or mimeType: Command: " + curNodeName + " Buffer: " + bufferName + " MIME Type: " + mimeType);
 							continue;
 						}
 					}
 				} else {
 					cmd = this.commandList.get(curNodeName);
 					if (cmd != null) {
-						workspace.log("Processing command: " + curNodeName);
+						workspace.logDebug("Processing command: " + curNodeName);
 						switchToPluginSecurity();
 						boolean rval = false;
 						try {
 							rval = cmd.process(workspace, curNode);
 						} catch (Exception ex) {
-							workspace.log("Processing of command caused an internal error: Command: " + curNodeName + " Error: " + ex.getMessage());
+							workspace.logFatal("Processing of command caused an internal error: Command: " + curNodeName + " Error: " + ex.getMessage());
 						} finally {
 							switchToStandardSecurity();
 						}
 						if (!rval) {
 							if (!workspace.requestInfo.continueOnError) {
-								workspace.log("Processing halted due to an error: " + curNodeName);
+								workspace.logFatal("Processing halted due to an error: " + curNodeName);
 								break;
 							} else {
-								workspace.log("Processing of command skipped because of an error: " + curNodeName);
+								workspace.logError("Processing of command skipped because of an error: " + curNodeName);
 								continue;
 							}
 						}
 					} else {
 						if (!workspace.requestInfo.continueOnError) {
-							workspace.log("Processing halted due to a missing command error: " + curNodeName);
+							workspace.logFatal("Processing halted due to a missing command error: " + curNodeName);
 							break;
 						} else {
-							workspace.log("Processing of command skipped because it does not exist: " + curNodeName);
+							workspace.logError("Processing of command skipped because it does not exist: " + curNodeName);
 							continue;
 						}
 					}
 				}
 			}
-			workspace.log("Processing completed in: " + Float.toString(((new java.util.Date().getTime() + 1) - startTime.getTime()) / 1000.0f) + " seconds");
+			workspace.logInfo("Processing completed in: " + Float.toString(((new java.util.Date().getTime() + 1) - startTime.getTime()) / 1000.0f) + " seconds");
 			return (workspace.generateResultInfo());
 		} finally {
 			ProcessingWorkspace.setCurrentWorkspace(null);

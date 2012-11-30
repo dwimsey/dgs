@@ -127,7 +127,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		DGSRequestInfo dgsRequestInfo = new DGSRequestInfo();
 		dgsRequestInfo.continueOnError = true;
 
-		this.notificationMethods.statusMessage(200, "Reading image file: " + this.imageFilename);
+		this.notificationMethods.statusMessage(256, "Reading image file: " + this.imageFilename);
 		DGSFileInfo templateFileInfo = loadImageFileData(this.imageFilename);
 		if (this.isCancelled()) { // this check is done after any possibly lengthy operation
 			return (null);
@@ -165,7 +165,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 					dgsRequestInfo.files = new DGSFileInfo[1];
 				}
 				dgsRequestInfo.variables = dPkg.variables;
-			} else {
+			} else {	
 				dgsRequestInfo.files = new DGSFileInfo[1];
 				dgsRequestInfo.variables = null;
 			}
@@ -203,26 +203,34 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 			return (null);
 		}
 		ProcessingWorkspace workspace = new ProcessingWorkspace(dgsRequestInfo);
-		this.notificationMethods.statusMessage(150, "Performing DGS Request ...");
+		this.notificationMethods.statusMessage(256, "Performing DGS Request ...");
 		if (this.isCancelled()) { // this check is done after any possibly lengthy operation
 			return (null);
 		}
 		setProgress(15);
+
+		
+		
+		java.util.Date startTime = new java.util.Date();
 		DGSResponseInfo dgsResponseInfo = pEngine.processCommandString(workspace);
 		if (this.isCancelled()) { // this check is done after any possibly lengthy operation
 			return (null);
 		}
+		this.notificationMethods.statusMessage(200, "Request completed in: " + Float.toString(((new java.util.Date().getTime() + 1) - startTime.getTime()) / 1000.0f) + " seconds");
+		
 		setProgress(95);
-		this.notificationMethods.statusMessage(150, " Request completed.");
 
-		this.notificationMethods.logEvent(200, "DGS Request Log: ");
-		for (int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
-			this.notificationMethods.logEvent(200, "     " + dgsResponseInfo.processingLog[i]);
-			if (this.isCancelled()) { // this check is done after any possibly lengthy operation
-				return (null);
+		if(dgsResponseInfo.resultFiles.length < 1) {
+			this.notificationMethods.logEvent(100, "No files returned for request.");
+			this.notificationMethods.logEvent(200, "DGS Request Log: ");
+			for (int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
+				this.notificationMethods.logEvent(200, "     " + dgsResponseInfo.processingLog[i]);
+				if (this.isCancelled()) { // this check is done after any possibly lengthy operation
+					return (null);
+				}
 			}
+			this.notificationMethods.logEvent(200, "-- END DGS Request Log --");
 		}
-		this.notificationMethods.logEvent(200, "-- END DGS Request Log --");
 		if (outputDisplayMode != DisplayMode.Printer) {
 			setProgress(97);
 			if (dgsResponseInfo.resultFiles.length == 0) {
@@ -255,7 +263,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		if (outputDisplayMode == DisplayMode.Printer) {
 			this.notificationMethods.statusMessage(200, "Image printed.");
 		} else {
-			this.notificationMethods.statusMessage(200, "Updating display with new image ...");
+			this.notificationMethods.statusMessage(256, "Updating display with new image ...");
 		}
 		setProgress(99);
 		org.w3c.dom.Document svgDoc;
@@ -320,7 +328,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 				break;
 		}
 		setProgress(100);
-		this.notificationMethods.statusMessage(0, "Ready.");
+		this.notificationMethods.statusMessage(200, "Ready.");
 	}
 
 	private DGSFileInfo loadImageFileData(String fileName) {

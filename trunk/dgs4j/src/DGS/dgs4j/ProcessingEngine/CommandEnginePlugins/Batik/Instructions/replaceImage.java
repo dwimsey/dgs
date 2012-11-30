@@ -35,50 +35,50 @@ public class replaceImage implements IInstruction {
 		Node srcImageNode = nm.getNamedItem("srcImage");
 		Node imageElementIdNode = nm.getNamedItem("imageElementId");
 		if (bufferNode == null) {
-			workspace.log("replaceImage command failed: no buffer attribute specified.");
+			workspace.logFatal("replaceImage command failed: no buffer attribute specified.");
 			return (false);
 		}
 		if (srcImageNode == null) {
-			workspace.log("replaceImage command failed: no srcImageNode attribute specified.");
+			workspace.logFatal("replaceImage command failed: no srcImageNode attribute specified.");
 			return (false);
 		}
 		if (imageElementIdNode == null) {
-			workspace.log("replaceImage command failed: no imageElementId attribute specified.");
+			workspace.logFatal("replaceImage command failed: no imageElementId attribute specified.");
 			return (false);
 		}
 		String bufferName = bufferNode.getNodeValue();
 		String srcImageName = srcImageNode.getNodeValue();
 		String imageElementId = imageElementIdNode.getNodeValue();
 		if (bufferName.length() == 0) {
-			workspace.log("replaceImage command failed: buffer attribute has no data.");
+			workspace.logFatal("replaceImage command failed: buffer attribute has no data.");
 			return (false);
 		}
 		if (srcImageName.length() == 0) {
-			workspace.log("replaceImage command failed: srcImageNode attribute has no data.");
+			workspace.logFatal("replaceImage command failed: srcImageNode attribute has no data.");
 			return (false);
 		}
 		if (imageElementId.length() == 0) {
-			workspace.log("replaceImage command failed: imageElementId attribute has no data.");
+			workspace.logFatal("replaceImage command failed: imageElementId attribute has no data.");
 			return (false);
 		}
 
 		ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
 		if (iBuffer == null) {
-			workspace.log("There is no buffer named '" + bufferName + "' to do a replaceImage on.");
+			workspace.logFatal("There is no buffer named '" + bufferName + "' to do a replaceImage on.");
 			return (false);
 		}
 		if ((!iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) && (!iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE))) {
-			workspace.log("Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available for replaceImage: " + bufferName);
+			workspace.logFatal("Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available for replaceImage: " + bufferName);
 			return (false);
 		}
 
 		ProcessingEngineImageBuffer imgBuffer = workspace.getImageBuffer(srcImageName);
 		if (imgBuffer == null) {
-			workspace.log("There is no buffer named '" + srcImageName + "' to get the new image from for a replaceImage.");
+			workspace.logFatal("There is no buffer named '" + srcImageName + "' to get the new image from for a replaceImage.");
 			return (false);
 		}
 		if (!imgBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE) && !imgBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE) && !imgBuffer.mimeType.equals("image/png") && !imgBuffer.mimeType.equals("image/gif") && !imgBuffer.mimeType.equals("image/jpeg") && !imgBuffer.mimeType.equals("image/tiff")) {
-			workspace.log("New image for replaceImage is not an acceptable type, use png, gif, jpeg, svg, or tiff instead.  Buffer Name: " + srcImageName + " Image MIME Type: " + imgBuffer.mimeType);
+			workspace.logFatal("New image for replaceImage is not an acceptable type, use png, gif, jpeg, svg, or tiff instead.  Buffer Name: " + srcImageName + " Image MIME Type: " + imgBuffer.mimeType);
 			return (false);
 		}
 
@@ -88,7 +88,7 @@ public class replaceImage implements IInstruction {
 			try {
 				doc = CommandEngine.svgBytes2Doc((byte[])iBuffer.data);
 			} catch (IOException ex) {
-				workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
+				workspace.logFatal("An error occurred parsing the SVG file data: " + ex.getMessage());
 				return (false);
 			}
 		} else {
@@ -103,7 +103,7 @@ public class replaceImage implements IInstruction {
 					try {
 						dataUri += Base64.encodeBytes(CommandEngine.svgDoc2Bytes((Document)imgBuffer.data));
 					} catch (Exception ex) {
-						workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
+						workspace.logFatal("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
 						return (false);
 					}
 				} else {
@@ -111,7 +111,7 @@ public class replaceImage implements IInstruction {
 				}
 				element.setAttributeNS(xlinkNS, "xlink:href", dataUri);
 			} else {
-				workspace.log("The element with an id of " + imageElementId + " is not an image.");
+				workspace.logFatal("The element with an id of " + imageElementId + " is not an image.");
 				return (false);
 			}
 		}
@@ -120,7 +120,7 @@ public class replaceImage implements IInstruction {
 			try {
 				iBuffer.data = CommandEngine.svgDoc2Bytes(doc);
 			} catch (Exception ex) {
-				workspace.log("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
+				workspace.logFatal("An error occurred while reconstructing the XML file after replaceImage call: " + ex.getMessage());
 				return (false);
 			}
 		} else {

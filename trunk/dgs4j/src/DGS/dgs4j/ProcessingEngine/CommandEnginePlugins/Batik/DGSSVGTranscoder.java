@@ -40,23 +40,35 @@ public class DGSSVGTranscoder extends SVGAbstractTranscoder {
 			if (cWorkspace.activeStylesheet != null) {
 				try {
 					rValue = "data://text/css;base64,";
-					rValue += Base64.encodeBytes(cWorkspace.activeStylesheet.getBytes("utf-8"));
+					rValue += Base64.encodeBytes(cWorkspace.activeStylesheet.getBytes("utf8"));
 				} catch (Throwable t) {
-					cWorkspace.log("ERROR: could not create embedded data stream for default stylesheet: " + t.getMessage());
-					rValue = "";
+					try {
+						rValue = "data://text/css;base64,";
+						rValue += Base64.encodeBytes(" ".getBytes());
+					} catch (Throwable tt) {
+						cWorkspace.logFatal("ERROR: could not create empty embedded data stream for default stylesheet: " + tt.getMessage());
+					}
+				}
+			} else {
+				try {
+					rValue = "data://text/css;base64,";
+					rValue += Base64.encodeBytes(" ".getBytes());
+				} catch (Throwable t) {
+					cWorkspace.logFatal("ERROR: could not create empty embedded data stream for default stylesheet: " + t.getMessage());
 				}
 			}
 		} else {
 			ProcessingEngineImageBuffer ib = cWorkspace.getImageBuffer(wsUrl);
 			if (ib == null) {
-				cWorkspace.log("ERROR: Workspace file not found: " + wsUrl);
+				cWorkspace.logFatal("ERROR: Workspace file not found: " + wsUrl);
 			} else {
 				try {
 					rValue = "data://" + ib.mimeType + ";base64,";
 					rValue += Base64.encodeBytes((byte[])ib.data);
 				} catch (Throwable t) {
-					cWorkspace.log("ERROR: could not create embedded data stream for default stylesheet: " + t.getMessage());
-					rValue = "";
+					cWorkspace.logFatal("ERROR: could not create empty embedded data stream for workspace URL: " + t.getMessage());
+					rValue = "data://text/css;base64,";
+					rValue += Base64.encodeBytes(" ".getBytes());
 				}
 			}
 		}
@@ -94,7 +106,7 @@ public class DGSSVGTranscoder extends SVGAbstractTranscoder {
 //							+ this.convertWorkspace2DataURL(ss)
 				}
 			} catch(Throwable t) {
-				cWorkspace.log("ERROR: Could not patch processing instruction URL");
+				cWorkspace.logFatal("ERROR: Could not patch processing instruction URL");
 			}
 
 		} else {

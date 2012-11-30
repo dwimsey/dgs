@@ -118,7 +118,7 @@ public class CommandEngine implements ICommandEngine {
 			}
 		}
 		if (dgsFile == null) {
-			workspace.log("Could not find file specified in request info file list: " + fileName);
+			workspace.logFatal("Could not find file specified in request info file list: " + fileName);
 			return (false);
 		}
 
@@ -137,7 +137,7 @@ public class CommandEngine implements ICommandEngine {
 					quirkVersion12UpConvert = true;
 				}
 			} catch (Throwable ex) {
-				workspace.log("An error occurred parsing the SVG file data: " + ex.getMessage());
+				workspace.logFatal("An error occurred parsing the SVG file data: " + ex.getMessage());
 				return (false);
 			}
 
@@ -293,7 +293,7 @@ public class CommandEngine implements ICommandEngine {
 							byte sStr[] = CommandEngine.svgDoc2Bytes((Document)doc);
 							doc = f.createSVGDocument(null, new java.io.StringReader((String) new String(sStr, "UTF8")));
 						} catch (Throwable ex) {
-							workspace.log("An error occurred re-parsing the SVG file data after flowRoot fixup: " + ex.getMessage());
+							workspace.logFatal("An error occurred re-parsing the SVG file data after flowRoot fixup: " + ex.getMessage());
 							return (false);
 						}
 						rootNode = doc.getRootElement();
@@ -341,7 +341,7 @@ public class CommandEngine implements ICommandEngine {
 					buffer.data = dgsFile.data.clone();
 					return (true);
 				} catch (IOException ie) {
-					workspace.log("Image could not be loaded because it is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
+					workspace.logFatal("Image could not be loaded because it is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
 				}
 			} else if (dgsFile.mimeType.equals("image/gif")) {
 				// for gif's we have to convert them to an internal acceptable format
@@ -356,7 +356,7 @@ public class CommandEngine implements ICommandEngine {
 					bi = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(dgsFile.data));
 					os = new java.io.ByteArrayOutputStream();
 					if (!javax.imageio.ImageIO.write(bi, "png", os)) {
-						workspace.log("GIF Image could not be converted to an acceptable internal format.");
+						workspace.logFatal("GIF Image could not be converted to an acceptable internal format.");
 						return (false);
 					}
 					buffer = workspace.createImageBuffer(bufferName);
@@ -366,7 +366,7 @@ public class CommandEngine implements ICommandEngine {
 					buffer.data = os.toByteArray().clone();
 					return (true);
 				} catch (IOException ie) {
-					workspace.log("An error occurred in the load command: Image could not be loaded because it is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
+					workspace.logFatal("An error occurred in the load command: Image could not be loaded because it is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
 				}
 			} else if (dgsFile.mimeType.equals("text/css")) {
 				buffer = workspace.createImageBuffer(bufferName);
@@ -397,7 +397,7 @@ public class CommandEngine implements ICommandEngine {
 		} else if (mimeType.toLowerCase().startsWith("printer/")) {
 			t = new DGSPrinterTranscoder(workspace);
 		} else {
-			workspace.log("Transcoder Error: Unsupported MIME type requested: " + mimeType.toString());
+			workspace.logFatal("Transcoder Error: Unsupported MIME type requested: " + mimeType.toString());
 			return (null);
 		}
 
@@ -434,7 +434,7 @@ public class CommandEngine implements ICommandEngine {
 					svgDoc = CommandEngine.svgBytes2Doc((byte[])svgData);
 
 				} catch (Exception ex) {
-					workspace.log("An error occurred parsing the SVG file data for transcoding: " + ex.getMessage());
+					workspace.logFatal("An error occurred parsing the SVG file data for transcoding: " + ex.getMessage());
 					return (null);
 				}
 			} else {
@@ -451,34 +451,35 @@ public class CommandEngine implements ICommandEngine {
 					try {
 						t.addTranscodingHint(org.apache.batik.transcoder.print.PrintTranscoder.KEY_SHOW_PRINTER_DIALOG, true);
 					} catch (Exception ex) {
-						workspace.log("An error occurred displaying the system print dialog: " + ex.getMessage());
+						workspace.logFatal("An error occurred displaying the system print dialog: " + ex.getMessage());
 						return(null);
 					}
 				} else {
 					String pTarget = mimeType.substring(8);
 					if(pTarget.length()==0) {
-						workspace.log("No printer target was specified");
+						workspace.logFatal("No printer target was specified");
 						return(null);
 					}
 					int o = pTarget.indexOf('+');
 					if(o > -1) {
 						pTarget = pTarget.substring(o + 1);
 					} else {
-						workspace.log("No target printer specified.");
+						workspace.logWarning("No target printer specified.");
+						pTarget = "chooser";
 					}
-					workspace.log("Setting printer target: " + pTarget);
+					workspace.logDebug("Setting printer target: " + pTarget);
 					if(pTarget.equals("chooser")) {
 						try {
 							t.addTranscodingHint(org.apache.batik.transcoder.print.PrintTranscoder.KEY_SHOW_PRINTER_DIALOG, true);
 						} catch (Exception ex) {
-							workspace.log("An error occurred displaying the system print dialog: " + ex.getMessage());
+							workspace.logError("An error occurred displaying the system print dialog: " + ex.getMessage());
 							return(null);
 						}
 					} else {
 						try {
 							t.addTranscodingHint(DGSPrinterTranscoder.KEY_PRINTER_NAME, pTarget);
 						} catch (Exception ex) {
-							workspace.log("An error occurred setting the specified printer: " + ex.getMessage());
+							workspace.logError("An error occurred setting the specified printer: " + ex.getMessage());
 							return(null);
 						}
 					}
@@ -486,13 +487,13 @@ public class CommandEngine implements ICommandEngine {
 				try {
 					t.transcode(input, null);
 				} catch (Exception ex) {
-					workspace.log("An error occurred parsing the SVG data file data for printing: " + ex.getMessage());
+					workspace.logError("An error occurred parsing the SVG data file data for printing: " + ex.getMessage());
 					return(null);
 				}
 				try {
 					((DGSPrinterTranscoder)t).print();
 				} catch (Exception ex) {
-					workspace.log("An error occurred print the SVG file: " + ex.getMessage());
+					workspace.logError("An error occurred print the SVG file: " + ex.getMessage());
 					return(null);
 				}
 				return(new byte[0]);
@@ -519,12 +520,12 @@ public class CommandEngine implements ICommandEngine {
 
 			oDat = outStream.toByteArray();
 			if (oDat == null || oDat.length == 0) {
-				workspace.log("Transcoder did not return any data.");
+				workspace.logWarning("Transcoder did not return any data.");
 				return (null);
 			}
 
 		} catch (Exception ex) {
-			workspace.log("Unexpected transcoder error: " + ex.getMessage());
+			workspace.logFatal("Unexpected transcoder error: " + ex.getMessage());
 			return (null);
 		}
 
@@ -555,11 +556,11 @@ public class CommandEngine implements ICommandEngine {
 					size.height = image.getHeight();
 					size.width = image.getWidth();
 				} catch (IOException ie) {
-					workspace.log("Transcoder frame output is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
+					workspace.logFatal("Transcoder frame output is corrupt or can't be loaded by the internal image loader: " + ie.getMessage());
 					return (null);
 				}
 				if (image == null) {
-					workspace.log("Transcoder frame output returns null from internal image loader.");
+					workspace.logFatal("Transcoder frame output returns null from internal image loader.");
 					return (null);
 				}
 			}
@@ -598,7 +599,7 @@ public class CommandEngine implements ICommandEngine {
 			t = tf.newTransformer();
 			t.transform(new DOMSource((Document)buffer.data), new StreamResult(outStream));
 			} catch (Exception ex) {
-			workspace.log("An error occurred while reconstructing the XML file during save call: " + ex.getMessage());
+			workspace.logFatal("An error occurred while reconstructing the XML file during save call: " + ex.getMessage());
 			return (false);
 			}
 			originalDocument = outStream.toByteArray();
@@ -637,7 +638,7 @@ public class CommandEngine implements ICommandEngine {
 			if(fileName!=null && fileName.length() != 0) {
 				mimeType += "+" + fileName;
 			} else {
-				workspace.log("No printer name specified for save command to printer/ mime time.");
+				workspace.logFatal("No printer name specified for save command to printer/ mime time.");
 				return(false);
 			}
 		} else if (mimeType.toLowerCase().startsWith("printer/")) {
@@ -647,7 +648,7 @@ public class CommandEngine implements ICommandEngine {
 		} else if (mimeType.equals(MIME_BUFFERTYPE)) {
 			extension = ".svg";
 		} else {
-			workspace.log("An error occurred in the save command: Unsupported MIME type specified: " + mimeType.toString());
+			workspace.logFatal("An error occurred in the save command: Unsupported MIME type specified: " + mimeType.toString());
 			return (false);
 		}
 
@@ -674,7 +675,7 @@ public class CommandEngine implements ICommandEngine {
 		}
 		oDat = this.getImageData(workspace, workBuf, mimeType, 100.0f, 0.0f, buffer.mimeType, size);
 		if (oDat == null) {
-			workspace.log("Image creation failed.  Input type: " + MIME_BUFFERTYPE + " Output type: " + mimeType);
+			workspace.logFatal("Image creation failed.  Input type: " + MIME_BUFFERTYPE + " Output type: " + mimeType);
 			return (false);
 		}
 

@@ -51,15 +51,37 @@ public class ProcessingWorkspace {
 		this.activeStylesheet = null;
 	}
 
-	public void log(String logString) {
-		processingLog.add(logString);
+	public void logEx(int logValue, String logString) {
+		if (logValue < 256) {
+			processingLog.add(logString);
+		}
+	}
+
+	public void logFatal(String logString) {
+		logEx(0, logString);
+	}
+
+	public void logError(String logString) {
+		logEx(50, logString);
+	}
+
+	public void logWarning(String logString) {
+		logEx(100, logString);
+	}
+
+	public void logInfo(String logString) {
+		logEx(200, logString);
+	}
+
+	public void logDebug(String logString) {
+		logEx(256, logString);
 	}
 
 	public void logException(String logString, Throwable ex) {
 		StackTraceElement[] stack = ex.getStackTrace();
-		processingLog.add(logString);
-		for(int i = 0; i < stack.length; i++) {
-			processingLog.add("\t\t" + stack[i].toString());
+		this.logError(logString);
+		for (int i = 0; i < stack.length; i++) {
+			this.logError("\t\t" + stack[i].toString());
 		}
 	}
 
@@ -70,7 +92,7 @@ public class ProcessingWorkspace {
 	public DGSResponseInfo generateResultInfo() {
 		DGSResponseInfo dgsResponse = new DGSResponseInfo();
 		Date now = new Date();
-		this.processingLog.add("Workspace results generated at: " + now.toString());
+		this.logInfo("Workspace results generated at: " + now.toString());
 		dgsResponse.processingLog = new String[this.processingLog.size()];
 		for (int i = 0; i < this.processingLog.size(); i++) {
 			dgsResponse.processingLog[i] = this.processingLog.get(i);
@@ -98,7 +120,7 @@ public class ProcessingWorkspace {
 			}
 		}
 		Date now = new Date();
-		this.log("Creating new image buffer (" + name + ") at  " + now.toString());
+		this.logDebug("Creating new image buffer (" + name + ") at  " + now.toString());
 		ProcessingEngineImageBuffer buffer = new ProcessingEngineImageBuffer();
 		buffer.name = name.intern();
 		buffer.height = -1;

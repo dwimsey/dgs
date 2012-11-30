@@ -36,20 +36,20 @@ public class setVisibility implements IInstruction {
 		Node bufferNode = attributes.getNamedItem("buffer");
 		if (bufferNode == null) {
 			if (!workspace.requestInfo.continueOnError) {
-				workspace.log("Processing halted because the command does not have a buffer attribute: " + instructionNode.getNodeName());
+				workspace.logFatal("Processing halted because the command does not have a buffer attribute: " + instructionNode.getNodeName());
 				return (false);  // this should throw an exception instead
 			} else {
-				workspace.log("Processing of command skipped because it does not have a buffer attribute: " + instructionNode.getNodeName());
+				workspace.logFatal("Processing of command skipped because it does not have a buffer attribute: " + instructionNode.getNodeName());
 				return (false);  // this should throw an exception instead
 			}
 		} else {
 			bufferName = bufferNode.getNodeValue();
 			if (bufferName == null || bufferName.length() == 0) {
 				if (!workspace.requestInfo.continueOnError) {
-					workspace.log("Processing halted because the command does not have a value for the buffer attribute: " + instructionNode.getNodeName());
+					workspace.logFatal("Processing halted because the command does not have a value for the buffer attribute: " + instructionNode.getNodeName());
 					return (false);  // this should throw an exception instead
 				} else {
-					workspace.log("Processing of command skipped because it does not have a value for the buffer attribute: " + instructionNode.getNodeName());
+					workspace.logFatal("Processing of command skipped because it does not have a value for the buffer attribute: " + instructionNode.getNodeName());
 					return (false);  // this should throw an exception instead
 				}
 			}
@@ -74,43 +74,43 @@ public class setVisibility implements IInstruction {
 		}
 
 		if ((idValueStr == null) && (nameValueStr == null)) {
-			workspace.log("Processing halted because the command does not have a target name or id attribute: " + instructionNode.getNodeName());
+			workspace.logFatal("Processing halted because the command does not have a target name or id attribute: " + instructionNode.getNodeName());
 			return (false);  // this should throw an exception instead
 		}
 
 		targetNameNode = attributes.getNamedItem("visibility");
 		if (targetNameNode == null) {
 			if (!workspace.requestInfo.continueOnError) {
-				workspace.log("Processing halted because the command does not have a visibility attribute: " + instructionNode.getNodeName());
+				workspace.logFatal("Processing halted because the command does not have a visibility attribute: " + instructionNode.getNodeName());
 				return (false);  // this should throw an exception instead
 			} else {
-				workspace.log("Processing of command skipped because it does not have a visibility attribute: " + instructionNode.getNodeName());
+				workspace.logFatal("Processing of command skipped because it does not have a visibility attribute: " + instructionNode.getNodeName());
 				return (false);
 			}
 		} else {
 			objectVisible = targetNameNode.getNodeValue();
 			if (objectVisible == null || objectVisible.length() == 0) {
 				if (!workspace.requestInfo.continueOnError) {
-					workspace.log("Processing halted because the command does not have a value for the visibility attribute: " + instructionNode.getNodeName());
+					workspace.logFatal("Processing halted because the command does not have a value for the visibility attribute: " + instructionNode.getNodeName());
 					return (false);  // this should throw an exception instead
 				} else {
-					workspace.log("Processing of command skipped because it does not have a value for the visibility attribute: " + instructionNode.getNodeName());
+					workspace.logFatal("Processing of command skipped because it does not have a value for the visibility attribute: " + instructionNode.getNodeName());
 					return (false);
 				}
 			}
 			if (!objectVisible.equals("visible") && !objectVisible.equals("inherit") && !objectVisible.equals("hidden")) {
-				workspace.log("Processing of command skipped because it does not have a valid value for the visible attribute: " + instructionNode.getNodeName() + "  Value: " + objectVisible);
+				workspace.logFatal("Processing of command skipped because it does not have a valid value for the visible attribute: " + instructionNode.getNodeName() + "  Value: " + objectVisible);
 				return (false);
 			}
 		}
 
 		ProcessingEngineImageBuffer iBuffer = workspace.getImageBuffer(bufferName);
 		if (iBuffer == null) {
-			workspace.log("There is no buffer named '" + bufferName + "' to do a setVisibility on.");
+			workspace.logFatal("There is no buffer named '" + bufferName + "' to do a setVisibility on.");
 			return (false);
 		}
 		if ((!iBuffer.mimeType.equals(CommandEngine.MIME_BUFFERTYPE)) && (!iBuffer.mimeType.equals(CommandEngine.INTERNAL_BUFFERTYPE))) {
-			workspace.log("Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available for setVisibility: " + bufferName);
+			workspace.logFatal("Buffer is not of type '" + CommandEngine.MIME_BUFFERTYPE + "' or '" + CommandEngine.INTERNAL_BUFFERTYPE + "' and no conversion is available for setVisibility: " + bufferName);
 			return (false);
 		}
 		org.apache.batik.dom.svg.SVGOMDocument doc = null;
@@ -119,7 +119,7 @@ public class setVisibility implements IInstruction {
 			try {
 				doc = (org.apache.batik.dom.svg.SVGOMDocument)CommandEngine.svgBytes2Doc((byte[])iBuffer.data);
 			} catch (IOException ex) {
-				workspace.log("An error occurred parsing the SVG file data in the setVisibility command: " + ex.getMessage());
+				workspace.logFatal("An error occurred parsing the SVG file data in the setVisibility command: " + ex.getMessage());
 				return (false);
 			}
 		} else {
@@ -213,7 +213,7 @@ public class setVisibility implements IInstruction {
 			try {
 				iBuffer.data = CommandEngine.svgDoc2Bytes(doc);
 			} catch (Exception ex) {
-				workspace.log("An error occurred while reconstructing the XML file after setVisibility call: " + ex.getMessage());
+				workspace.logFatal("An error occurred while reconstructing the XML file after setVisibility call: " + ex.getMessage());
 				return (false);
 			}
 		} else {
