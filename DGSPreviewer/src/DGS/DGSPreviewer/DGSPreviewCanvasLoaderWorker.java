@@ -220,7 +220,8 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		
 		setProgress(95);
 
-		if(dgsResponseInfo.resultFiles.length < 1) {
+		boolean showLogOutput = true;
+		if((dgsResponseInfo.resultFiles.length < 1) || showLogOutput) {
 			this.notificationMethods.logEvent(100, "No files returned for request.");
 			this.notificationMethods.logEvent(200, "DGS Request Log: ");
 			for (int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
@@ -329,7 +330,7 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		}
 		setProgress(100);
 		this.notificationMethods.statusMessage(200, "Ready.");
-	}
+		}
 
 	private DGSFileInfo loadImageFileData(String fileName) {
 		// if we've been canceled, is possible that the mainWin is no longer valid, abort to be safe

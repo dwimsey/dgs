@@ -29,7 +29,6 @@ public class DGSPreviewCanvasUserAgent extends SVGUserAgentAdapter {
 		for (int i = 0; i < st.length; i++) {
 			previewCanvas.notificationMethods.logEvent(0, " -> " + st[i].toString());
 		}
-		previewCanvas.notificationMethods.statusMessage(0, "SVG Display Error: " + ex.getMessage());
 	}
 
 	@Override
