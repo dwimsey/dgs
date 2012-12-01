@@ -221,8 +221,10 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 		setProgress(95);
 
 		boolean showLogOutput = true;
-		if((dgsResponseInfo.resultFiles.length < 1) || showLogOutput) {
+		if(dgsResponseInfo.resultFiles.length < 1) {
 			this.notificationMethods.logEvent(100, "No files returned for request.");
+		}
+		if((dgsResponseInfo.resultFiles.length < 1) || showLogOutput) {
 			this.notificationMethods.logEvent(200, "DGS Request Log: ");
 			for (int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
 				this.notificationMethods.logEvent(200, "     " + dgsResponseInfo.processingLog[i]);
@@ -279,7 +281,8 @@ public class DGSPreviewCanvasLoaderWorker extends SwingWorker<DGSResponseInfo, V
 					svgDoc = f.createSVGDocument(null, new java.io.StringReader((String) new String(((byte[]) dgsResponseInfo.resultFiles[0].data), "UTF8")));
 					// TODO: If this is not set to http:// then the script engines seem to break and refuse to script the svg
 					// a real cause and fix needs to be found
-					svgDoc.setDocumentURI("http://localhost/workspace.svg");
+					String u = "workspace://" + dgsResponseInfo.resultFiles[0].name.intern();
+					svgDoc.setDocumentURI(u);
 				} catch (Exception ex) {
 					this.notificationMethods.statusMessage(0, "An error occurred parsing the SVG data file data for display: " + ex.getMessage());
 					return;
