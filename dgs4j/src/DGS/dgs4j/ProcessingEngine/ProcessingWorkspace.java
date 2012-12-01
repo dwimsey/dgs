@@ -26,9 +26,7 @@ public class ProcessingWorkspace {
 	public static final String DGSNSREF_DGSIMAGE = "http://www.rtsz.com/ns/dgs";
 	public static final String DGSWORKSPACE_URL_STYLESHEET = "workspace://workspace.css";
 
-	private static class ThreadLocalWorkspace extends ThreadLocal {
-	}
-	private static ThreadLocalWorkspace activeWorkspace = new ThreadLocalWorkspace();
+	private static ThreadLocal<ProcessingWorkspace> activeWorkspace = new InheritableThreadLocal<ProcessingWorkspace>();
 
 	public static ProcessingWorkspace getCurrentWorkspace() {
 		return ((ProcessingWorkspace) activeWorkspace.get());
