@@ -23,7 +23,6 @@ public class DGSPreviewCanvasUserAgent extends SVGUserAgentAdapter {
 	@Override
 	public void displayError(Exception ex) {
 		previewCanvas.notificationMethods.logEvent(0, "Processing Error: " + ex.getClass().getCanonicalName() + ": " + ex.getMessage());
-		ex.fillInStackTrace();
 		StackTraceElement st[] = ex.getStackTrace();
 
 		for (int i = 0; i < st.length; i++) {
