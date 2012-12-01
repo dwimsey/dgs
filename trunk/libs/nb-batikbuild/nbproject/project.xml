@@ -14,18 +14,6 @@
             <folders>
                 <source-folder>
                     <label>/Users/dwimsey/Documents/Projects/DGS/libs/batik/sources</label>
-                    <type>java</type>
-                    <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/sources</location>
-                    <encoding>MacRoman</encoding>
-                </source-folder>
-                <source-folder>
-                    <label>/Users/dwimsey/Documents/Projects/DGS/libs/batik/test-sources</label>
-                    <type>java</type>
-                    <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/test-sources</location>
-                    <encoding>MacRoman</encoding>
-                </source-folder>
-                <source-folder>
-                    <label>/Users/dwimsey/Documents/Projects/DGS/libs/batik/sources</label>
                     <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/sources</location>
                 </source-folder>
                 <source-folder>
@@ -37,6 +25,31 @@
                     <location>.</location>
                     <encoding>MacRoman</encoding>
                 </source-folder>
+                <source-folder>
+                    <label>/Users/dwimsey/Documents/Projects/DGS/libs/batik/sources</label>
+                    <type>java</type>
+                    <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/sources</location>
+                    <encoding>MacRoman</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>/Users/dwimsey/Documents/Projects/DGS/libs/batik/test-sources</label>
+                    <type>java</type>
+                    <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/test-sources</location>
+                    <encoding>MacRoman</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>/Users/dwimsey/Documents/Projects/DGS/libs/batik/resources</label>
+                    <type>java</type>
+                    <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/resources</location>
+                    <encoding>MacRoman</encoding>
+                </source-folder>
+                <source-folder>
+                    <label>/Users/dwimsey/Documents/Projects/DGS/libs/batik/resources</label>
+                    <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/resources</location>
+                </source-folder>
+                <build-file>
+                    <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/batik-1.8pre/lib/batik-all.jar</location>
+                </build-file>
             </folders>
             <ide-actions>
                 <action name="build">
@@ -64,6 +77,10 @@
                     <target>clean</target>
                     <target>all-jar</target>
                 </action>
+                <action name="debug">
+                    <script>nbproject/ide-targets.xml</script>
+                    <target>debug-nb</target>
+                </action>
             </ide-actions>
             <export>
                 <type>jar</type>
@@ -81,6 +98,10 @@
                         <label>/Users/dwimsey/Documents/Projects/DGS/libs/batik/test-sources</label>
                         <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/test-sources</location>
                     </source-folder>
+                    <source-folder style="packages">
+                        <label>/Users/dwimsey/Documents/Projects/DGS/libs/batik/resources</label>
+                        <location>/Users/dwimsey/Documents/Projects/DGS/libs/batik/resources</location>
+                    </source-folder>
                     <source-file>
                         <location>${ant.script}</location>
                     </source-file>
@@ -92,19 +113,26 @@
                     <ide-action name="javadoc"/>
                     <ide-action name="run"/>
                     <ide-action name="test"/>
+                    <ide-action name="debug"/>
                 </context-menu>
             </view>
+            <subprojects/>
         </general-data>
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
             <compilation-unit>
                 <package-root>/Users/dwimsey/Documents/Projects/DGS/libs/batik/sources</package-root>
                 <classpath mode="compile">../batik/lib/js.jar:../batik/lib/pdf-transcoder.jar:../batik/lib/xalan-2.6.0.jar:../batik/lib/xerces_2_5_0.jar:../batik/lib/xml-apis-ext.jar:../batik/lib/xml-apis.jar</classpath>
                 <built-to>/Users/dwimsey/Documents/Projects/DGS/libs/batik/batik-1.8pre/lib/batik-all.jar</built-to>
+                <javadoc-built-to>/Users/dwimsey/Documents/Projects/DGS/libs/batik/documentation-sources/classes/CatalogManager.properties</javadoc-built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>
             <compilation-unit>
                 <package-root>/Users/dwimsey/Documents/Projects/DGS/libs/batik/test-sources</package-root>
                 <unit-tests/>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>/Users/dwimsey/Documents/Projects/DGS/libs/batik/resources</package-root>
                 <source-level>1.5</source-level>
             </compilation-unit>
         </java-data>
