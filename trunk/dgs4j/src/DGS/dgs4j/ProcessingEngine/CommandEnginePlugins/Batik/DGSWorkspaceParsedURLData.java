@@ -84,26 +84,12 @@ public class DGSWorkspaceParsedURLData extends org.apache.batik.util.ParsedURLDa
 			return (inStream);
 		}
 
-
-		if (this.path.equals("workspace.css")) {
-			if (workspace.activeStylesheet == null) {
-				inStream = new java.io.ByteArrayInputStream(new byte[0]);
-			} else {
-				try {
-					inStream = new java.io.ByteArrayInputStream((byte[]) workspace.activeStylesheet.getBytes("utf-8"));
-				} catch (Throwable t) {
-					workspace.logError(("ERROR: could not create input stream for default stylesheet: " + t.getMessage()));
-					inStream = new java.io.ByteArrayInputStream(new byte[0]);
-				}
-			}
-		} else {
-			ProcessingEngineImageBuffer ib = workspace.getImageBuffer(this.path);
-			if (ib == null) {
-				return (inStream);
-			}
-
-			inStream = new java.io.ByteArrayInputStream((byte[]) ib.data);
+		ProcessingEngineImageBuffer ib = workspace.getImageBuffer(this.path);
+		if (ib == null) {
+			return (inStream);
 		}
+		
+		inStream = new java.io.ByteArrayInputStream((byte[]) ib.data);
 		return (inStream);
 	}
 
