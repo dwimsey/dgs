@@ -36,40 +36,17 @@ public class DGSSVGTranscoder extends SVGAbstractTranscoder {
 	private String convertWorkspace2DataURL(String wsUrl)
 	{
 		String rValue = "";
-		if (wsUrl.equals("workspace.css")) {
-			if (cWorkspace.activeStylesheet != null) {
-				try {
-					rValue = "data://text/css;base64,";
-					rValue += Base64.encodeBytes(cWorkspace.activeStylesheet.getBytes("utf8"));
-				} catch (Throwable t) {
-					try {
-						rValue = "data://text/css;base64,";
-						rValue += Base64.encodeBytes(" ".getBytes());
-					} catch (Throwable tt) {
-						cWorkspace.logFatal("ERROR: could not create empty embedded data stream for default stylesheet: " + tt.getMessage());
-					}
-				}
-			} else {
-				try {
-					rValue = "data://text/css;base64,";
-					rValue += Base64.encodeBytes(" ".getBytes());
-				} catch (Throwable t) {
-					cWorkspace.logFatal("ERROR: could not create empty embedded data stream for default stylesheet: " + t.getMessage());
-				}
-			}
+		ProcessingEngineImageBuffer ib = cWorkspace.getImageBuffer(wsUrl);
+		if (ib == null) {
+			cWorkspace.logFatal("ERROR: Workspace file not found: " + wsUrl);
 		} else {
-			ProcessingEngineImageBuffer ib = cWorkspace.getImageBuffer(wsUrl);
-			if (ib == null) {
-				cWorkspace.logFatal("ERROR: Workspace file not found: " + wsUrl);
-			} else {
-				try {
-					rValue = "data://" + ib.mimeType + ";base64,";
-					rValue += Base64.encodeBytes((byte[])ib.data);
-				} catch (Throwable t) {
-					cWorkspace.logFatal("ERROR: could not create empty embedded data stream for workspace URL: " + t.getMessage());
-					rValue = "data://text/css;base64,";
-					rValue += Base64.encodeBytes(" ".getBytes());
-				}
+			try {
+				rValue = "data://" + ib.mimeType + ";base64,";
+				rValue += Base64.encodeBytes((byte[])ib.data);
+			} catch (Throwable t) {
+				cWorkspace.logFatal("ERROR: could not create empty embedded data stream for workspace URL: " + t.getMessage());
+				rValue = "data://text;base64,";
+				rValue += Base64.encodeBytes(" ".getBytes());
 			}
 		}
 
@@ -81,14 +58,17 @@ public class DGSSVGTranscoder extends SVGAbstractTranscoder {
 		org.w3c.dom.NamedNodeMap aList;
 		if(cNode.getNodeType() == cNode.PROCESSING_INSTRUCTION_NODE) {
 			try {
+				boolean foundHref = false;
 				org.w3c.dom.ProcessingInstruction p = (org.w3c.dom.ProcessingInstruction)cNode;
 				String s = p.getData();
 				String s1;
 				String s2;
-				String ss;
-				int o = s.indexOf("href=\"workspace:");
+				String ss = null;
+				int e;
+				int o;
+				o = s.indexOf("href=\"workspace");
 				if(o > -1) {
-
+					cWorkspace.logFatal("ERROR: URL still contains workspace prefix?");
 					s1 = s.substring(0, o) + "href=\"";
 					ss = s.substring(o+16);
 					
@@ -101,14 +81,30 @@ public class DGSSVGTranscoder extends SVGAbstractTranscoder {
 						s2 = ss.substring(oo);
 						ss = ss.substring(0, oo);
 						s = s1 + convertWorkspace2DataURL(ss) + s2;
-						p.setData(s);
+						foundHref = true;
 					}
-//							+ this.convertWorkspace2DataURL(ss)
+				} else {
+					o = s.indexOf("href=\"");
+					if(o > -1) {
+						o += 6;
+						s1 = s.substring(0, o);
+						ss = s.substring(o);
+						e = ss.indexOf("\"");
+						if(e > -1) {
+							ss = s.substring(o, o+e);
+							s2 = s.substring(o+e);
+							s = s1 + convertWorkspace2DataURL(ss) + s2;
+							foundHref = true;
+						}
+					}
+				}
+				
+				if(foundHref) {
+					p.setData(s);
 				}
 			} catch(Throwable t) {
 				cWorkspace.logFatal("ERROR: Could not patch processing instruction URL");
 			}
-
 		} else {
 			if(cNode.hasAttributes()) {
 				aList = cNode.getAttributes();
