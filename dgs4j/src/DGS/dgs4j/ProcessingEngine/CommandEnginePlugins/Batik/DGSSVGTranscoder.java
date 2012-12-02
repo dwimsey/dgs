@@ -42,7 +42,11 @@ public class DGSSVGTranscoder extends SVGAbstractTranscoder {
 		} else {
 			try {
 				rValue = "data://" + ib.mimeType + ";base64,";
-				rValue += Base64.encodeBytes((byte[])ib.data);
+				if(((byte[])ib.data).length  == 0) {
+					rValue += "====";
+				} else {
+					rValue += Base64.encodeBytes((byte[])ib.data);
+				}
 			} catch (Throwable t) {
 				cWorkspace.logFatal("ERROR: could not create empty embedded data stream for workspace URL: " + t.getMessage());
 				rValue = "data://text;base64,";
