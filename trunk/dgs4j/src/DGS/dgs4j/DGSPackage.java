@@ -179,7 +179,14 @@ public class DGSPackage {
 					aMap = fstNode.getAttributes();
 					vars[s] = new DGSFileInfo();
 					vars[s].name = aMap.getNamedItem("name").getNodeValue();
-					vars[s].data = DGS.dgs4j.ProcessingEngine.Base64.decode(aMap.getNamedItem("data").getNodeValue());
+					String nv = aMap.getNamedItem("data").getNodeValue();
+					if(nv.startsWith("text:")) {
+						vars[s].data = nv.substring(5).getBytes();
+					} else if(nv.startsWith("base64:")) {
+						vars[s].data = nv.substring(7).getBytes();
+					} else {
+						vars[s].data = DGS.dgs4j.ProcessingEngine.Base64.decode(nv);
+					}
 					vars[s].mimeType = "" + aMap.getNamedItem("mimeType").getNodeValue();
 					vars[s].width = Integer.valueOf(aMap.getNamedItem("width").getNodeValue());
 					vars[s].height = Integer.valueOf(aMap.getNamedItem("height").getNodeValue());
