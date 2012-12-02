@@ -180,7 +180,9 @@ public class DGSPackage {
 					vars[s] = new DGSFileInfo();
 					vars[s].name = aMap.getNamedItem("name").getNodeValue();
 					String nv = aMap.getNamedItem("data").getNodeValue();
-					if(nv.startsWith("text:")) {
+					if(nv.length() == 0) {
+						vars[s].data = new byte[0];
+					} else if(nv.startsWith("text:")) {
 						vars[s].data = nv.substring(5).getBytes();
 					} else if(nv.startsWith("base64:")) {
 						vars[s].data = nv.substring(7).getBytes();
