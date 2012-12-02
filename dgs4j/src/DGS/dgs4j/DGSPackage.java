@@ -128,7 +128,9 @@ public class DGSPackage {
 		NamedNodeMap aMap;
 		NodeList nodeLst;
 		Node fstNode;
-
+		Node visibilityAttr;
+		boolean visValue = true;
+		String visValueStr = null;
 		try {
 			nodeLst = doc.getElementsByTagName("DGSVariable");
 
@@ -158,8 +160,20 @@ public class DGSPackage {
 							vStr = "";
 						}
 					}
+					visValue = true;
+					visibilityAttr = aMap.getNamedItem("visibility");
+					if(visibilityAttr != null) {
+						visValueStr = visibilityAttr.getNodeValue();
+						if(visValueStr != null) {
+							if(visValueStr.equalsIgnoreCase("hidden") || visValueStr.equalsIgnoreCase("false") || visValueStr.equalsIgnoreCase("0") || visValueStr.equalsIgnoreCase("no") ) {
+								visValue = false;
+							} else if(visValueStr.equalsIgnoreCase("visible") || visValueStr.equalsIgnoreCase("true") || visValueStr.equalsIgnoreCase("1") || visValueStr.equalsIgnoreCase("yes") ) {
+								visValue = true;
+							}
+						}
+					}
 					vars[s] = new DGSVariable(nameAttr.getNodeValue(), vStr);
-					vars[s] = vars[s];
+					vars[s].visibility = visValue;
 				}
 			}
 			this.variables = vars;
