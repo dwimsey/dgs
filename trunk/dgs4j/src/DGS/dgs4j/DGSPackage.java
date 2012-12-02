@@ -184,6 +184,8 @@ public class DGSPackage {
 						vars[s].data = nv.substring(5).getBytes();
 					} else if(nv.startsWith("base64:")) {
 						vars[s].data = nv.substring(7).getBytes();
+					} else if(nv.startsWith("====")) {
+						vars[s].data = new byte[0];
 					} else {
 						vars[s].data = DGS.dgs4j.ProcessingEngine.Base64.decode(nv);
 					}
