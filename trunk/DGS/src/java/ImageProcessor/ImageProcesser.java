@@ -40,7 +40,7 @@ public class ImageProcesser {
 		}
 		Date now = new Date();
 		ProcessingWorkspace workspace = new ProcessingWorkspace(RequestInfo);
-		workspace.log("Processing Starting at " + now.toString());
+		workspace.logDebug("Processing Starting at " + now.toString());
 		return (pEngine.processCommandString(workspace));
 	}
 }
