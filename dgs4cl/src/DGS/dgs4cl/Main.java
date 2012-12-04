@@ -263,12 +263,8 @@ public class Main {
 		dgsRequestInfo.instructionsXML = "<commands><load filename=\"" + dgsRequestInfo.files[0].name + "\" buffer=\"" + dPkg.templateBuffer + "\" mimeType=\"image/svg+xml\" />";
 		if (dPkg.commandString != null && dPkg.commandString.length() > 0) {
 			dgsRequestInfo.instructionsXML += dPkg.commandString;
-		} else {
-			if(dgsRequestInfo.variables != null && dgsRequestInfo.variables.length > 0) {
-				dgsRequestInfo.instructionsXML += "<substituteVariables buffer=\"main\" />";
-			}
 		}
-		//dgsRequestInfo.instructionsXML += "<addWatermark buffer=\"" + dPkg.templateBuffer + "\" srcImage=\"watermark\" opacity=\"0.05\"/>";
+
 		dgsRequestInfo.instructionsXML += "<save ";
 		if ((dPkg.animationDuration > 0.0f) && (dPkg.animationFramerate > 0.0f)) {
 			//dgsRequestInfo.instructionsXML += "animationDuration=\"" + dPkg.animationDuration + "\" animationFramerate=\"" + dPkg.animationFramerate + "\" ";
@@ -307,6 +303,9 @@ public class Main {
 				return(253);
 			}
 		}
+		if(showLog) {
+			workspace.setLogOutputLevel(257);
+		}
 		DGSResponseInfo dgsResponseInfo = pEngine.processCommandString(workspace);
 
 
@@ -314,7 +313,6 @@ public class Main {
 
 		if(showLog) {
 			for (int i = 0; i < dgsResponseInfo.processingLog.length; i++) {
-				//this.notificationMethods.logEvent(200, "     " + dgsResponseInfo.processingLog[i]);
 				System.out.println("\t"+ dgsResponseInfo.processingLog[i]);
 			}
 		}
