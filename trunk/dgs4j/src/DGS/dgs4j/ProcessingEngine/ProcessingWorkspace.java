@@ -49,8 +49,16 @@ public class ProcessingWorkspace {
 		this.activeStylesheet = null;
 	}
 
+	private int p_LogOutputLevel = 256;
+	public void setLogOutputLevel(int v) {
+		p_LogOutputLevel = v;
+	}
+	public int getLogOutputLevel() {
+		return(p_LogOutputLevel);
+	}
+
 	public void logEx(int logValue, String logString) {
-		if (logValue < 256) {
+		if (logValue < p_LogOutputLevel) {
 			processingLog.add(logString);
 		}
 	}
