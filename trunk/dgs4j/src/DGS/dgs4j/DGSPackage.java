@@ -22,7 +22,7 @@ import org.w3c.dom.*;
 public class DGSPackage {
 
 	public String fileName = "";
-	public String templateBuffer = "main";
+	public String templateBuffer = "canvas";
 	public float animationDuration = 0.0f;
 	public float animationFramerate = 0.0f;
 	public String commandString = "";
@@ -37,7 +37,7 @@ public class DGSPackage {
 
 	private void reset() {
 		fileName = "";
-		templateBuffer = "main";
+		templateBuffer = "canvas";
 		animationDuration = 0.0f;
 		animationFramerate = 0.0f;
 		commandString = "";
