@@ -196,6 +196,20 @@ public class DGSPackage {
 					String nv = aMap.getNamedItem("data").getNodeValue();
 					if(nv.length() == 0) {
 						vars[s].data = new byte[0];
+					} else if(nv.startsWith("file://")) {
+						String fileName = nv.substring(7);
+						if(filename != null) {
+							int idx = filename.lastIndexOf(java.io.File.separator);
+							if(!fileName.startsWith(java.io.File.pathSeparator)) {
+								if(idx > 0) {
+									fileName = filename.substring(00, idx+1) + fileName; 
+								}
+							}
+						}
+						RandomAccessFile f = new RandomAccessFile(fileName, "r");
+						byte[] b = new byte[(int)f.length()];
+						f.read(b);			
+						vars[s].data = b;
 					} else if(nv.startsWith("text:")) {
 						vars[s].data = nv.substring(5).getBytes();
 					} else if(nv.startsWith("base64:")) {
