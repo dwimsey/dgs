@@ -4,28 +4,30 @@
 #
 volume_name=DGSPreviewer
 disk_image_name=DGSPreviewer
-source_directory="mac/DGSPreviewer"
+dmg_build_directory="build/mac"
 backgroundPictureName="background.png"
 
-find "$source_directory" -type f -exec chmod 644 {} \;
-find "$source_directory" -type d -exec chmod 755 {} \;
-chmod 755 "${source_directory}/DGSPreviewer.app/Contents/MacOS/JavaApplicationStub"
+rm -rf build/mac
+mkdir -p build/mac
 
-rm "$disk_image_name.dmg" 2>/dev/null
+cd DGSPreviewer
+./mkbundle.sh
+mv dist/DGS\ Previewer.app ../${dmg_build_directory}
+cd ..
+sleep 5
+#cp -Rp DGSPreviewer/Bundle.app/* ${dmg_build_directory}/DGSPreviewer.app
 
 start_dir=`pwd`
-echo "Starting directory: ${start_dir}"
-cd "$source_directory"
-# Fix the case of the version info file if needed
-mv Examples/versioninfo.dgs Examples/VersionInfo.dgs	2>/dev/null
+echo "Starting directory: ${dmg_start_directory}"
 echo "Creating DMG background image from template ..."
 mkdir .background 2>/dev/null
-java -jar ../dgs4cl/dgs4cl.jar -d Examples/VersionInfo.dgs Examples/DGSPreviewerDMGBackground.svg ./.background/background.png
+java -jar dgs4cl/dist/dgs4cl.jar -d VersionInfo.dgs branding/dmgbackground.svg ${dmg_build_directory}/.background/background.png
 cd "$start_dir"
 
 echo "Creating DMG ..."
-hdiutil create -fs HFS+ -srcfolder "$source_directory" -volname "$volume_name" -format UDRW -imagekey zlig-level=9 -o "$disk_image_name.tmp"
-sleep 5
+hdiutil create -fs HFS+ -srcfolder "${dmg_build_directory}" -volname "$volume_name" -format UDRW -imagekey zlig-level=9 -o "$disk_image_name.tmp"
+echo hdiutil create -fs HFS+ -srcfolder "${dmg_build_directory}" -volname "$volume_name" -format UDRW -imagekey zlig-level=9 -o "$disk_image_name.tmp"
+#sleep 5
 
 echo "Mounting DMG ..."
 device=$(hdiutil attach -readwrite -noverify -noautoopen "$disk_image_name.tmp.dmg" | egrep '^/dev/' | sed 1q | awk '{print $1}')
